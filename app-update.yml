@@ -1,0 +1,4 @@
+provider: github
+owner: AnimeGate
+repo: AG-SubEditor
+private: true
