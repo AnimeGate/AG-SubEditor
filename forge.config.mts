@@ -25,6 +25,7 @@ const config: ForgeConfig = {
 owner: AnimeGate
 repo: AG-SubEditor
 private: false
+updaterCacheDirName: ag_subeditor-updater
 `;
       const outputPath = path.join(process.cwd(), "app-update.yml");
       fs.writeFileSync(outputPath, updateConfig, "utf8");
@@ -73,6 +74,17 @@ releaseDate: '${new Date().toISOString()}'
 
             // Add latest.yml to the artifacts list
             makeResult.artifacts.push(latestYmlPath);
+
+            // Check if Update.exe exists and add it to artifacts
+            const updateExePath = path.join(outputDir, "Update.exe");
+            if (fs.existsSync(updateExePath)) {
+              makeResult.artifacts.push(updateExePath);
+              console.log(`✓ Added Update.exe to artifacts`);
+            } else {
+              console.warn(
+                `⚠ Update.exe not found at ${updateExePath} - auto-update may not work correctly`
+              );
+            }
           }
         }
       }
