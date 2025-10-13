@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Upload, Download, FileText } from "lucide-react";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge";
+import packageJson from "../../../package.json";
 
 interface FileUploadSectionProps {
   fileName: string;
@@ -58,6 +60,10 @@ export function FileUploadSection({
               </span>
             </div>
           )}
+
+          <Badge variant="secondary" className="text-xs font-mono">
+            v{packageJson.version}
+          </Badge>
         </div>
 
         <Button
