@@ -43,6 +43,29 @@ export function exposeFfmpegContext() {
       return await ipcRenderer.invoke(FFMPEG_CHANNELS.OPEN_OUTPUT_FOLDER, filePath);
     },
 
+    // FFmpeg Download
+    checkInstalled: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.CHECK_INSTALLED);
+    },
+    startDownload: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.START_DOWNLOAD);
+    },
+    onDownloadProgress: (callback: (progress: any) => void) => {
+      const listener = (_event: any, progress: any) => callback(progress);
+      ipcRenderer.on(FFMPEG_CHANNELS.DOWNLOAD_PROGRESS, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.DOWNLOAD_PROGRESS, listener);
+    },
+    onDownloadComplete: (callback: () => void) => {
+      const listener = () => callback();
+      ipcRenderer.on(FFMPEG_CHANNELS.DOWNLOAD_COMPLETE, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.DOWNLOAD_COMPLETE, listener);
+    },
+    onDownloadError: (callback: (error: string) => void) => {
+      const listener = (_event: any, error: string) => callback(error);
+      ipcRenderer.on(FFMPEG_CHANNELS.DOWNLOAD_ERROR, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.DOWNLOAD_ERROR, listener);
+    },
+
     // Event listeners
     onProgress: (callback: (progress: FFmpegProgress) => void) => {
       const listener = (_event: any, progress: FFmpegProgress) => callback(progress);

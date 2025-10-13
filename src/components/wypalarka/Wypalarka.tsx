@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { WypalarkaFileInput } from "./WypalarkaFileInput";
 import { WypalarkaProgressPanel } from "./WypalarkaProgressPanel";
 import { WypalarkaSettingsModal } from "./WypalarkaSettingsModal";
+import { WypalarkaFfmpegDownloadDialog } from "./WypalarkaFfmpegDownloadDialog";
 import type { EncodingSettings } from "./WypalarkaSettings";
 import { useTranslation } from "react-i18next";
-import { Flame, StopCircle, Sparkles, FolderOpen } from "lucide-react";
+import { Flame, StopCircle, Sparkles, FolderOpen, Download } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type ProcessStatus = "idle" | "processing" | "completed" | "error";
 
@@ -32,21 +34,42 @@ export default function Wypalarka() {
   });
   const [gpuAvailable, setGpuAvailable] = useState<boolean | undefined>(undefined);
   const [gpuInfo, setGpuInfo] = useState<string>("");
+  const [ffmpegInstalled, setFfmpegInstalled] = useState<boolean | null>(null);
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
 
-  // Check GPU availability on mount
+  // Check FFmpeg installation on mount
   useEffect(() => {
-    const checkGpu = async () => {
+    const checkFfmpeg = async () => {
       try {
-        const result = await window.ffmpegAPI.checkGpu();
-        setGpuAvailable(result.available);
-        setGpuInfo(result.info);
+        const result = await window.ffmpegAPI.checkInstalled();
+        setFfmpegInstalled(result.installed);
+        if (!result.installed) {
+          setShowDownloadDialog(true);
+        }
       } catch (error) {
-        setGpuAvailable(false);
-        setGpuInfo("Error checking GPU");
+        setFfmpegInstalled(false);
+        setShowDownloadDialog(true);
       }
     };
-    checkGpu();
+    checkFfmpeg();
   }, []);
+
+  // Check GPU availability when FFmpeg is installed
+  useEffect(() => {
+    if (ffmpegInstalled) {
+      const checkGpu = async () => {
+        try {
+          const result = await window.ffmpegAPI.checkGpu();
+          setGpuAvailable(result.available);
+          setGpuInfo(result.info);
+        } catch (error) {
+          setGpuAvailable(false);
+          setGpuInfo("Error checking GPU");
+        }
+      };
+      checkGpu();
+    }
+  }, [ffmpegInstalled]);
 
   // Set up event listeners
   useEffect(() => {
@@ -139,6 +162,17 @@ export default function Wypalarka() {
     }
   };
 
+  const handleDownloadDialogClose = async () => {
+    setShowDownloadDialog(false);
+    // Re-check FFmpeg installation after dialog closes
+    try {
+      const result = await window.ffmpegAPI.checkInstalled();
+      setFfmpegInstalled(result.installed);
+    } catch (error) {
+      setFfmpegInstalled(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full p-6 gap-6">
       <div className="flex items-center justify-between">
@@ -186,6 +220,26 @@ export default function Wypalarka() {
         </div>
       </div>
 
+      {/* FFmpeg Not Installed Alert */}
+      {ffmpegInstalled === false && (
+        <Alert variant="destructive">
+          <Download className="h-4 w-4" />
+          <AlertTitle>{t("wypalarkaFfmpegRequired")}</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>{t("wypalarkaFfmpegNotInstalled")}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDownloadDialog(true)}
+              className="ml-4"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {t("wypalarkaFfmpegDownload")}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Tabs defaultValue="single" className="flex-1 flex flex-col min-h-0">
         <TabsList className="w-fit">
           <TabsTrigger value="single">{t("wypalarkaSingleMode")}</TabsTrigger>
@@ -200,7 +254,7 @@ export default function Wypalarka() {
           <div className="w-96 flex-shrink-0 overflow-y-auto">
             <WypalarkaFileInput
               onFilesSelected={handleStartProcess}
-              disabled={status === "processing"}
+              disabled={status === "processing" || !ffmpegInstalled}
             />
           </div>
 
@@ -230,6 +284,12 @@ export default function Wypalarka() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* FFmpeg Download Dialog */}
+      <WypalarkaFfmpegDownloadDialog
+        open={showDownloadDialog}
+        onClose={handleDownloadDialogClose}
+      />
     </div>
   );
 }

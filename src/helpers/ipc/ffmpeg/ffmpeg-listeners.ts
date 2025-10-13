@@ -1,9 +1,11 @@
 import { BrowserWindow, dialog, ipcMain, shell, Notification } from "electron";
 import { FFMPEG_CHANNELS } from "./ffmpeg-channels";
 import { FFmpegProcessor } from "@/lib/ffmpeg-processor";
+import { FFmpegDownloader } from "@/lib/ffmpeg-downloader";
 import * as path from "path";
 
 let currentProcessor: FFmpegProcessor | null = null;
+let currentDownloader: FFmpegDownloader | null = null;
 
 export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
   // File selection dialogs
@@ -149,6 +151,35 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     } catch (error) {
       console.error("Failed to open output folder:", error);
       return { success: false, error: String(error) };
+    }
+  });
+
+  // FFmpeg Download
+  ipcMain.handle(FFMPEG_CHANNELS.CHECK_INSTALLED, async () => {
+    return { installed: FFmpegDownloader.isInstalled() };
+  });
+
+  ipcMain.handle(FFMPEG_CHANNELS.START_DOWNLOAD, async () => {
+    if (currentDownloader) {
+      throw new Error("A download is already in progress");
+    }
+
+    currentDownloader = new FFmpegDownloader({
+      onProgress: (progress) => {
+        mainWindow.webContents.send(FFMPEG_CHANNELS.DOWNLOAD_PROGRESS, progress);
+      },
+    });
+
+    try {
+      await currentDownloader.downloadAndInstall();
+      mainWindow.webContents.send(FFMPEG_CHANNELS.DOWNLOAD_COMPLETE);
+      currentDownloader = null;
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      mainWindow.webContents.send(FFMPEG_CHANNELS.DOWNLOAD_ERROR, errorMessage);
+      currentDownloader = null;
+      throw error;
     }
   });
 }

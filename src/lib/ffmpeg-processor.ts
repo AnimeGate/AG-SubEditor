@@ -2,6 +2,7 @@ import { spawn, ChildProcess } from "child_process";
 import { app } from "electron";
 import * as path from "path";
 import * as fs from "fs";
+import { FFmpegDownloader } from "./ffmpeg-downloader";
 
 export interface FFmpegProgress {
   frame: number;
@@ -38,22 +39,41 @@ export class FFmpegProcessor {
   }
 
   private getFfmpegPath(): string {
-    // In development, use WYPALANIE folder in project root
-    // In production, use resources folder
+    // Check multiple locations for FFmpeg
     const isDev = !app.isPackaged;
 
     if (isDev) {
-      return path.join(process.cwd(), "WYPALANIE", "ffmpeg.exe");
+      // In development, check project folder first, then userData
+      const projectPath = path.join(process.cwd(), "WYPALANIE", "ffmpeg.exe");
+      if (fs.existsSync(projectPath)) {
+        return projectPath;
+      }
+      // Fall back to downloaded FFmpeg in userData
+      return FFmpegDownloader.getFfmpegPath();
     } else {
-      return path.join(process.resourcesPath, "WYPALANIE", "ffmpeg.exe");
+      // In production, always use downloaded FFmpeg in userData
+      return FFmpegDownloader.getFfmpegPath();
     }
   }
 
   static async checkGpuAvailability(): Promise<{ available: boolean; info: string }> {
     return new Promise((resolve) => {
-      const ffmpegPath = !app.isPackaged
-        ? path.join(process.cwd(), "WYPALANIE", "ffmpeg.exe")
-        : path.join(process.resourcesPath, "WYPALANIE", "ffmpeg.exe");
+      // Use same logic as getFfmpegPath()
+      let ffmpegPath: string;
+      const isDev = !app.isPackaged;
+
+      if (isDev) {
+        // In development, check project folder first, then userData
+        const projectPath = path.join(process.cwd(), "WYPALANIE", "ffmpeg.exe");
+        if (fs.existsSync(projectPath)) {
+          ffmpegPath = projectPath;
+        } else {
+          ffmpegPath = FFmpegDownloader.getFfmpegPath();
+        }
+      } else {
+        // In production, always use downloaded FFmpeg in userData
+        ffmpegPath = FFmpegDownloader.getFfmpegPath();
+      }
 
       if (!fs.existsSync(ffmpegPath)) {
         resolve({ available: false, info: "FFmpeg not found" });

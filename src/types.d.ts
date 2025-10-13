@@ -44,6 +44,14 @@ interface FFmpegStartParams {
   };
 }
 
+interface FFmpegDownloadProgress {
+  downloadedBytes: number;
+  totalBytes: number;
+  percentage: number;
+  status: "downloading" | "extracting" | "complete" | "error";
+  message?: string;
+}
+
 interface FFmpegAPI {
   selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
   selectSubtitleFile: () => Promise<{ filePath: string; fileName: string } | null>;
@@ -56,6 +64,12 @@ interface FFmpegAPI {
   onLog: (callback: (data: { log: string; type: LogType }) => void) => () => void;
   onComplete: (callback: (outputPath: string) => void) => () => void;
   onError: (callback: (error: string) => void) => () => void;
+  // FFmpeg Download
+  checkInstalled: () => Promise<{ installed: boolean }>;
+  startDownload: () => Promise<{ success: boolean }>;
+  onDownloadProgress: (callback: (progress: FFmpegDownloadProgress) => void) => () => void;
+  onDownloadComplete: (callback: () => void) => () => void;
+  onDownloadError: (callback: (error: string) => void) => () => void;
 }
 
 declare interface Window {

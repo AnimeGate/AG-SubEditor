@@ -10,4 +10,10 @@ export const FFMPEG_CHANNELS = {
   SELECT_OUTPUT_PATH: "ffmpeg:selectOutput",
   CHECK_GPU: "ffmpeg:checkGpu",
   OPEN_OUTPUT_FOLDER: "ffmpeg:openOutputFolder",
+  // FFmpeg Download
+  CHECK_INSTALLED: "ffmpeg:checkInstalled",
+  START_DOWNLOAD: "ffmpeg:startDownload",
+  DOWNLOAD_PROGRESS: "ffmpeg:downloadProgress",
+  DOWNLOAD_COMPLETE: "ffmpeg:downloadComplete",
+  DOWNLOAD_ERROR: "ffmpeg:downloadError",
 } as const;
