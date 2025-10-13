@@ -10,6 +10,11 @@ const inDevelopment = process.env.NODE_ENV === "development";
 // Set app name for notifications and taskbar
 app.setName("AG-SubEditor");
 
+// Set App User Model ID for Windows notifications
+if (process.platform === "win32") {
+  app.setAppUserModelId("com.animegate.ag-subeditor");
+}
+
 function createWindow() {
   const preload = path.join(__dirname, "preload.js");
   const mainWindow = new BrowserWindow({
