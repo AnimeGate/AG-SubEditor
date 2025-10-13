@@ -309,7 +309,10 @@ export class FFmpegProcessor {
       // Try hardware encoder, FFmpeg will fallback if not available
       args.push("-c:v", "h264_nvenc"); // NVIDIA
       args.push("-b:v", settings.bitrate);
-      args.push("-preset", "fast"); // NVENC preset
+      args.push("-preset", "p2"); // NVENC preset: p1=fastest, p7=slowest, p2=very fast
+      args.push("-tune", "hq"); // High quality tuning
+      args.push("-rc:v", "vbr"); // Variable bitrate for better quality/speed balance
+      args.push("-gpu", "0"); // Explicitly use first GPU
     } else {
       // Software encoding
       args.push("-c:v", "libx264");
