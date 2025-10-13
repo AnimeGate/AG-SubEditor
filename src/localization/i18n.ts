@@ -27,7 +27,7 @@ i18n.use(initReactI18next).init({
         closeSettings: "Zamknij",
         // Wypalarka Page
         wypalarkaTitle: "Wypalarka napisów",
-        wypalarkaComingSoon: "Wkrótce dostępne",
+        wypalarkaComingSoon: "Wkrótce dostępna",
         wypalarkaDescription:
           "Ta funkcja jest w trakcie rozwoju i będzie dostępna wkrótce.",
         // File Upload Section
