@@ -21,11 +21,12 @@ const config: ForgeConfig = {
     generateAssets: async () => {
       // Generate app-update.yml for electron-updater
       // Note: private: false means releases are public (repo can still be private)
+      // IMPORTANT: updaterCacheDirName must match the Squirrel installation folder name
       const updateConfig = `provider: github
 owner: AnimeGate
 repo: AG-SubEditor
 private: false
-updaterCacheDirName: ag_subeditor-updater
+updaterCacheDirName: ag_subeditor
 `;
       const outputPath = path.join(process.cwd(), "app-update.yml");
       fs.writeFileSync(outputPath, updateConfig, "utf8");
