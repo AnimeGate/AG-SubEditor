@@ -7,6 +7,9 @@ import path from "path";
 
 const inDevelopment = process.env.NODE_ENV === "development";
 
+// Set app name for notifications and taskbar
+app.setName("AG-SubEditor");
+
 function createWindow() {
   const preload = path.join(__dirname, "preload.js");
   const mainWindow = new BrowserWindow({
