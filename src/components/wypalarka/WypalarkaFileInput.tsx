@@ -50,7 +50,7 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
 
   return (
     <div className="space-y-4">
-      <Card>
+      <Card data-tour="video-file">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Film className="h-5 w-5" />
@@ -78,7 +78,7 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
         </CardContent>
       </Card>
 
-      <Card>
+      <Card data-tour="subtitle-file">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -106,7 +106,7 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
         </CardContent>
       </Card>
 
-      <Card>
+      <Card data-tour="output-file">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FolderOutput className="h-5 w-5" />
@@ -139,6 +139,7 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
         disabled={!isReadyToProcess || disabled}
         className="w-full"
         size="lg"
+        data-tour="start-button"
       >
         {t("wypalarkaStartProcess")}
       </Button>

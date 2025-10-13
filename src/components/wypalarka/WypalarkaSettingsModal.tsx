@@ -23,6 +23,8 @@ interface WypalarkaSettingsModalProps {
   disabled?: boolean;
   gpuAvailable?: boolean;
   gpuInfo?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const QUALITY_PRESETS = {
@@ -39,10 +41,16 @@ export function WypalarkaSettingsModal({
   disabled,
   gpuAvailable,
   gpuInfo,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: WypalarkaSettingsModalProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [localBitrate, setLocalBitrate] = useState(settings.customBitrate);
+
+  // Use controlled or internal state
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange || setInternalOpen;
 
   const handlePresetChange = (preset: string) => {
     const newSettings = {
@@ -78,7 +86,13 @@ export function WypalarkaSettingsModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" disabled={disabled} title={t("wypalarkaEncodingSettings")}>
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={disabled}
+          title={t("wypalarkaEncodingSettings")}
+          data-tour="settings-button"
+        >
           <Settings2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -93,7 +107,7 @@ export function WypalarkaSettingsModal({
 
         <div className="space-y-6 py-4">
           {/* Quality Preset */}
-          <div className="space-y-3">
+          <div className="space-y-3" data-tour="quality-preset">
             <Label htmlFor="quality-preset">{t("wypalarkaQualityPreset")}</Label>
             <Select value={settings.qualityPreset} onValueChange={handlePresetChange}>
               <SelectTrigger id="quality-preset">
@@ -146,7 +160,7 @@ export function WypalarkaSettingsModal({
           )}
 
           {/* Hardware Acceleration */}
-          <div className="space-y-3 pt-2 border-t">
+          <div className="space-y-3 pt-2 border-t" data-tour="gpu-acceleration">
             <div className="flex items-start space-x-3">
               <Checkbox
                 id="hardware-accel"

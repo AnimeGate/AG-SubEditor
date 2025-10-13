@@ -295,8 +295,14 @@ export class FFmpegProcessor {
     // Input
     args.push("-i", videoPath);
 
-    // Video filter (subtitles)
-    args.push("-vf", `subtitles='${escapedSubtitlePath}'`);
+    // Video filter (subtitles + format conversion)
+    // Add format=yuv420p to ensure 8-bit output for hardware encoders
+    // This fixes 10-bit input videos that h264_nvenc cannot encode directly
+    if (settings.useHardwareAccel) {
+      args.push("-vf", `subtitles='${escapedSubtitlePath}',format=yuv420p`);
+    } else {
+      args.push("-vf", `subtitles='${escapedSubtitlePath}'`);
+    }
 
     // Video codec and quality
     if (settings.useHardwareAccel) {
