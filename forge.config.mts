@@ -9,6 +9,7 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { PublisherGithub } from "@electron-forge/publisher-github";
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -29,6 +30,55 @@ private: false
       fs.writeFileSync(outputPath, updateConfig, "utf8");
       console.log("✓ Generated app-update.yml");
     },
+    postMake: async (forgeConfig, makeResults) => {
+      // Generate latest.yml for electron-updater (MSI installer)
+      const packageJson = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8")
+      );
+      const version = packageJson.version;
+
+      // Find the Windows MSI artifacts
+      for (const makeResult of makeResults) {
+        if (makeResult.platform === "win32") {
+          const msiFiles = makeResult.artifacts.filter((artifact) =>
+            artifact.endsWith(".msi")
+          );
+
+          if (msiFiles.length > 0) {
+            const msiFile = msiFiles[0];
+            const msiFileName = path.basename(msiFile);
+            const fileBuffer = fs.readFileSync(msiFile);
+            const sha512 = crypto
+              .createHash("sha512")
+              .update(fileBuffer)
+              .digest("base64");
+            const fileSize = fs.statSync(msiFile).size;
+
+            // Generate latest.yml content for MSI
+            const latestYml = `version: ${version}
+files:
+  - url: ${msiFileName}
+    sha512: ${sha512}
+    size: ${fileSize}
+path: ${msiFileName}
+sha512: ${sha512}
+releaseDate: '${new Date().toISOString()}'
+`;
+
+            // Write latest.yml to the same directory as the .msi file
+            const outputDir = path.dirname(msiFile);
+            const latestYmlPath = path.join(outputDir, "latest.yml");
+            fs.writeFileSync(latestYmlPath, latestYml, "utf8");
+            console.log(`✓ Generated latest.yml at ${latestYmlPath}`);
+
+            // Add latest.yml to the artifacts list for GitHub upload
+            makeResult.artifacts.push(latestYmlPath);
+          }
+        }
+      }
+
+      return makeResults;
+    },
   },
   rebuildConfig: {},
   makers: [
@@ -36,7 +86,7 @@ private: false
       name: "AG-SubEditor",
       description: "Professional ASS subtitle editor",
       manufacturer: "AnimeGate",
-      version: "1.1.6",
+      version: "1.1.8",
       appDirectory: "", // Will be set by Electron Forge
       ui: {
         chooseDirectory: true, // Allow users to choose install location
