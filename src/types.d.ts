@@ -22,8 +22,45 @@ interface FileAPI {
   saveFile: (fileName: string, content: string) => Promise<boolean>;
 }
 
+interface FFmpegProgress {
+  frame: number;
+  fps: number;
+  time: string;
+  bitrate: string;
+  speed: string;
+  percentage: number;
+  eta: string | null;
+}
+
+type LogType = "info" | "success" | "warning" | "error" | "debug" | "metadata";
+
+interface FFmpegStartParams {
+  videoPath: string;
+  subtitlePath: string;
+  outputPath: string;
+  settings?: {
+    bitrate: string;
+    useHardwareAccel: boolean;
+  };
+}
+
+interface FFmpegAPI {
+  selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
+  selectSubtitleFile: () => Promise<{ filePath: string; fileName: string } | null>;
+  selectOutputPath: (defaultName: string) => Promise<string | null>;
+  startProcess: (params: FFmpegStartParams) => Promise<{ success: boolean }>;
+  cancelProcess: () => Promise<{ success: boolean; message?: string }>;
+  checkGpu: () => Promise<{ available: boolean; info: string }>;
+  openOutputFolder: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+  onProgress: (callback: (progress: FFmpegProgress) => void) => () => void;
+  onLog: (callback: (data: { log: string; type: LogType }) => void) => () => void;
+  onComplete: (callback: (outputPath: string) => void) => () => void;
+  onError: (callback: (error: string) => void) => () => void;
+}
+
 declare interface Window {
   themeMode: ThemeModeContext;
   electronWindow: ElectronWindow;
   fileAPI: FileAPI;
+  ffmpegAPI: FFmpegAPI;
 }

@@ -17,7 +17,7 @@ export default function Navbar() {
         {/* Left: Brand */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-primary">
               {t("appName")}
             </span>
           </Link>
