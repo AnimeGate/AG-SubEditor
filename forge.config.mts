@@ -7,11 +7,27 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { PublisherGithub } from "@electron-forge/publisher-github";
+import * as fs from "fs";
+import * as path from "path";
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     appBundleId: "com.animegate.ag-subeditor",
+    extraResource: ["app-update.yml"],
+  },
+  hooks: {
+    generateAssets: async () => {
+      // Generate app-update.yml for electron-updater
+      const updateConfig = `provider: github
+owner: AnimeGate
+repo: AG-SubEditor
+private: true
+`;
+      const outputPath = path.join(process.cwd(), "app-update.yml");
+      fs.writeFileSync(outputPath, updateConfig, "utf8");
+      console.log("✓ Generated app-update.yml");
+    },
   },
   rebuildConfig: {},
   makers: [
