@@ -1,13 +1,16 @@
-import { autoUpdater } from "electron";
+import { autoUpdater } from "electron-updater";
 import { dialog } from "electron";
 import log from "electron-log";
 
-const GITHUB_REPO = "AnimeGate/AG-SubEditor";
-const UPDATE_SERVER_URL = `https://github.com/${GITHUB_REPO}`;
-
 // Configure logging
 log.transports.file.level = "info";
-// Note: autoUpdater.logger is not available in all platforms, we use electron-log directly
+autoUpdater.logger = log;
+
+// For private repos, electron-updater can use GitHub token
+// The token can be set via environment variable or embedded
+// For private distribution to friends, we'll use the publish token approach
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
 
 export function initializeAutoUpdater(isDevelopment: boolean) {
   if (isDevelopment) {
@@ -15,20 +18,7 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
     return;
   }
 
-  // Set the feed URL for Squirrel.Windows
-  const platform = process.platform;
-  if (platform === "win32") {
-    const feedURL = `${UPDATE_SERVER_URL}/releases/latest/download`;
-    try {
-      autoUpdater.setFeedURL({ url: feedURL } as any);
-      log.info(`Auto-updater feed URL set to: ${feedURL}`);
-    } catch (error) {
-      log.error("Failed to set feed URL:", error);
-    }
-  } else {
-    log.info(`Auto-updater not supported on platform: ${platform}`);
-    return;
-  }
+  log.info("Initializing electron-updater for private repository");
 
   // Check for updates on app start (wait 3 seconds after launch)
   setTimeout(() => {
@@ -48,20 +38,26 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
     log.info("Checking for updates...");
   });
 
-  autoUpdater.on("update-available", () => {
-    log.info("Update available. Downloading...");
+  autoUpdater.on("update-available", (info) => {
+    log.info("Update available:", info.version);
   });
 
-  autoUpdater.on("update-not-available", () => {
-    log.info("No updates available. App is up to date.");
+  autoUpdater.on("update-not-available", (info) => {
+    log.info("No updates available. Current version:", info.version);
   });
 
   autoUpdater.on("error", (error) => {
     log.error("Error in auto-updater:", error);
   });
 
-  autoUpdater.on("update-downloaded", () => {
-    log.info("Update downloaded successfully");
+  autoUpdater.on("download-progress", (progressObj) => {
+    log.info(
+      `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`
+    );
+  });
+
+  autoUpdater.on("update-downloaded", (info) => {
+    log.info("Update downloaded:", info.version);
 
     // Notify user about the update
     dialog
@@ -69,15 +65,14 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
         type: "info",
         title: "Aktualizacja dostępna",
         message: "Nowa wersja została pobrana",
-        detail:
-          "Nowa wersja jest gotowa do zainstalowania. Aplikacja zostanie zrestartowana.",
+        detail: `Wersja ${info.version} jest gotowa do zainstalowania. Aplikacja zostanie zrestartowana.`,
         buttons: ["Zainstaluj teraz", "Później"],
         defaultId: 0,
       })
       .then((result) => {
         if (result.response === 0) {
           // User clicked "Install now"
-          autoUpdater.quitAndInstall();
+          setImmediate(() => autoUpdater.quitAndInstall());
         }
       });
   });
