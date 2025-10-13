@@ -41,10 +41,6 @@ private: false
       ui: {
         chooseDirectory: true, // Allow users to choose install location
       },
-      features: {
-        autoUpdate: true,
-        autoLaunch: false,
-      },
       icon: "./src/assets/icon.ico",
       language: 1033, // English
       shortcuts: {
