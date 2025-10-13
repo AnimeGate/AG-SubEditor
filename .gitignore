@@ -88,8 +88,10 @@ typings/
 # Vite
 .vite/
 dist/
+dist-electron/
 
-# Electron-Forge
+# Electron-Builder
+release/
 out/
 /test-results/
 /playwright-report/
