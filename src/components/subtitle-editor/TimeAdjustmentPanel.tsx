@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -61,15 +62,16 @@ export function TimeAdjustmentPanel({
   const isNegative = adjustmentValue < 0;
 
   return (
-    <Card className="w-full lg:w-96 shrink-0">
-      <CardHeader>
+    <Card className="w-full lg:w-96 shrink-0 flex flex-col max-h-full">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
           {t("timeSyncControl")}
         </CardTitle>
         <CardDescription>{t("timeSyncDescription")}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <ScrollArea className="flex-1">
+        <CardContent className="space-y-6 pb-6">
         {/* Time Adjustment Input */}
         <div className="space-y-2">
           <Label htmlFor="adjustment">{t("adjustTimeBy")}</Label>
@@ -204,7 +206,8 @@ export function TimeAdjustmentPanel({
             <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
-      </CardContent>
+        </CardContent>
+      </ScrollArea>
     </Card>
   );
 }
