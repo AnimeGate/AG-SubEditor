@@ -4,29 +4,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Electron desktop application built with React 19, TypeScript, and shadcn-ui components. It uses Electron Forge for building and packaging, with Vite as the build tool. The project is based on the electron-shadcn template and includes a custom title bar, theme switching, internationalization, and modern testing setup.
+AG-SubEditor is a professional ASS (Advanced SubStation Alpha) subtitle editor built with Electron, React 19, TypeScript, and shadcn-ui. The application allows users to import .ass subtitle files, adjust timing for all or selected lines, and export the modified subtitles while preserving the original file format and styling.
+
+**Key Features:**
+- Import and parse ASS subtitle files
+- Time adjustment (shift start/end times by seconds or milliseconds)
+- Apply timing changes to all lines or selected lines only
+- Preserve all ASS file metadata, styles, and formatting
+- Dark/light theme support
+- Polish and English localization
+- Auto-update functionality via GitHub Releases
 
 ## Commands
 
 ### Development
-- `npm run start` - Start the app in development mode with React DevTools
+- `npm start` - Start the app in development mode with Vite hot reload
 - `npm run lint` - Run ESLint to check code quality
 - `npm run format` - Check code formatting with Prettier (non-destructive)
 - `npm run format:write` - Format all code with Prettier
 
 ### Testing
-- `npm run test` - Run Vitest unit tests once
+- `npm test` - Run Vitest unit tests once
 - `npm run test:watch` - Run Vitest in watch mode
-- `npm run test:unit` - Run Vitest tests (alias for test:watch)
-- `npm run test:e2e` - Run Playwright E2E tests (requires built app)
+- `npm run test:unit` - Alias for test:watch
+- `npm run test:e2e` - Run Playwright E2E tests (requires packaged app)
 - `npm run test:all` - Run all tests (Vitest + Playwright)
 
-**IMPORTANT**: E2E tests with Playwright require the app to be packaged first. Run `npm run package`, `npm run make`, or `npm run publish` before running E2E tests.
+**IMPORTANT**: E2E tests require the app to be packaged first. Run `npm run dist:dir` before E2E tests.
 
 ### Building and Distribution
-- `npm run package` - Package the app into platform-specific executable bundles
-- `npm run make` - Generate distributables (.exe, .dmg, etc.) for distribution
-- `npm run publish` - Publish artifacts to a distribution service
+- `npm run build` - Build the app for production (no packaging)
+- `npm run dist:dir` - Build and package without creating installer (fast, for testing)
+- `npm run dist` - Build and create NSIS installer
+- `npm run publish` - Build and publish to GitHub Releases (auto-update)
+
+**Note**: This project uses **electron-builder** with NSIS (not Electron Forge). Output goes to `release/` directory.
 
 ## Architecture
 
@@ -37,7 +49,8 @@ The app follows Electron's standard three-process architecture:
 1. **Main Process** (`src/main.ts`)
    - Creates and manages BrowserWindow instances
    - Registers IPC event listeners via `registerListeners()`
-   - Installs React DevTools in development mode
+   - Dynamically imports React DevTools in development mode only
+   - Initializes auto-updater (`src/helpers/updater/auto-updater.ts`)
    - Handles app lifecycle events
 
 2. **Preload Script** (`src/preload.ts`)
@@ -47,7 +60,23 @@ The app follows Electron's standard three-process architecture:
 
 3. **Renderer Process** (`src/renderer.ts`)
    - Entry point that imports and renders the React app (`src/App.tsx`)
-   - Runs the React application in the browser context
+   - Main component: `SubtitleEditor` at `src/components/subtitle-editor/SubtitleEditor.tsx`
+
+### Application Structure
+
+**Main Components:**
+- `SubtitleEditor.tsx` - Root component managing state and file operations
+- `FileUploadSection.tsx` - File import/export UI with version badge
+- `TimeAdjustmentPanel.tsx` - Time shift controls (scrollable for small windows)
+- `SubtitleGrid.tsx` - Virtualized table displaying subtitle lines
+- `InfoBar.tsx` - Status bar showing selection and timing info
+
+**Core Logic:**
+- `src/lib/ass-parser.ts` - Parse and export ASS subtitle files
+  - `parseASSFile()` - Converts ASS text to `SubtitleLine[]` objects
+  - `exportASSFile()` - Reconstructs ASS file preserving original formatting
+  - Handles timing in milliseconds internally
+  - Preserves layer, style, margins, effects, and all metadata
 
 ### IPC Communication Pattern
 
@@ -77,90 +106,146 @@ The app uses a hidden native title bar (`titleBarStyle: "hidden"`) with custom w
 
 ### Theme System
 
-Theme management is handled through:
-- Local storage persistence
-- IPC communication for theme changes
-- Support for light, dark, and system modes
+Theme management with oklch color space (Tailwind CSS 4):
+- Light/dark/system modes
+- Local storage persistence via IPC
+- Color definitions in `src/styles/global.css`
 - `syncThemeWithLocal()` helper in `src/helpers/theme_helpers.ts`
 - Theme toggle component: `src/components/ToggleTheme.tsx`
 
 ### Internationalization
 
-i18next is configured in `src/localization/`:
-- `i18n.ts`: i18next initialization with resources
-- `langs.ts`: Language definitions
-- `language.ts`: Language type definitions
-- `updateAppLanguage()` helper in `src/helpers/language_helpers.ts`
+i18next configured in `src/localization/`:
+- Primary language: Polish (`pl`)
 - Fallback language: English (`en`)
-- Currently supports: English, Portuguese (Brazil)
+- `i18n.ts`: Initialization with inline resources
+- `updateAppLanguage()` helper in `src/helpers/language_helpers.ts`
+- Translation keys for subtitle editor UI, settings, and system messages
 
 ### Routing
 
-TanStack Router is used for navigation:
-- Memory-based history (suitable for Electron apps)
+TanStack Router with memory-based history (suitable for Electron):
 - Routes defined in `src/routes/` using file-based routing
-- Route tree auto-generated in `src/routeTree.gen.ts`
+- Route tree auto-generated in `src/routeTree.gen.ts` (gitignored)
 - Base layout: `src/layouts/BaseLayout.tsx`
+- Main route: `/` renders `SubtitleEditor`
+
+### Auto-Update System
+
+**Critical**: Uses electron-updater + NSIS installer (NOT Squirrel or MSI)
+- Configuration: `src/helpers/updater/auto-updater.ts`
+- Checks for updates 3 seconds after app start, then hourly
+- Downloads updates in background
+- Shows Polish dialog: "Nowa wersja została pobrana"
+- Installs on user confirmation or on app quit
+- Logs to: `%APPDATA%\ag-subeditor\logs\main.log`
+
+**Publishing Process:**
+1. Bump version in `package.json`
+2. Run `npm run publish`
+3. Publish the draft GitHub release
+4. Users with older versions auto-update
 
 ### UI Components
 
 - **shadcn-ui**: Pre-built accessible components in `src/components/ui/`
 - **Tailwind CSS 4**: Utility-first styling with `@tailwindcss/vite` plugin
 - **Lucide React**: Icon library
-- **Geist Font**: Default font family
-- **Template Components**: `src/components/template/` (can be removed for clean start)
+- **Geist Font**: Default sans-serif font
+- **Tomorrow Font**: Additional font for UI variety
 
 ### Path Aliases
 
-TypeScript and Vite are configured with `@/` alias pointing to `src/`:
+TypeScript and Vite configured with `@/` alias pointing to `src/`:
 ```typescript
-import { something } from "@/components/MyComponent"
+import { SubtitleLine } from "@/lib/ass-parser"
+import { Button } from "@/components/ui/button"
 ```
 
 ## Development Notes
 
+### Build System: electron-builder + vite-plugin-electron
+
+**NOT using Electron Forge** - migrated to electron-builder for better NSIS support.
+
+**Vite Configuration:**
+- Single config: `vite.config.mts`
+- Uses `vite-plugin-electron/simple` for main/preload builds
+- Main entry: `src/main.ts` → `dist-electron/main.js`
+- Preload entry: `src/preload.ts` → `dist-electron/preload.js`
+- Renderer: standard Vite build → `dist/`
+
+**Path Handling in src/main.ts:**
+- Dev mode: `process.env.VITE_DEV_SERVER_URL`
+- Production: `path.join(__dirname, "../dist/index.html")`
+
 ### Context Isolation
 
 - Context isolation is enabled (`contextIsolation: true`)
-- Node integration is enabled but limited to preload script
+- Node integration enabled but limited to preload script
 - Always use `contextBridge.exposeInMainWorld()` to expose APIs to renderer
 - Never directly expose Node.js modules to renderer process
 
 ### React Compiler
 
-- React Compiler is enabled by default via `babel-plugin-react-compiler`
+- React Compiler enabled via `babel-plugin-react-compiler`
 - Automatic optimization of React components
 - No manual memoization required in most cases
 
+### electron-devtools-installer Handling
+
+**Important**: In `src/main.ts`, devtools installer uses dynamic import:
+```typescript
+if (inDevelopment) {
+  const { default: installExtension, REACT_DEVELOPER_TOOLS } = await import("electron-devtools-installer");
+}
+```
+This prevents production builds from failing (devtools-installer is devDependency only).
+
 ### Test Organization
 
-- Unit tests: `src/tests/unit/` (Vitest with jsdom environment)
+- Unit tests: `src/tests/unit/` (Vitest with jsdom)
 - E2E tests: `src/tests/e2e/` (Playwright)
 - Test setup: `src/tests/unit/setup.ts`
-- Coverage: Configured with V8 provider
+- Coverage: V8 provider
 
-### Vite Configuration
+### Working with ASS Files
 
-Three separate Vite configs:
-- `vite.main.config.mts`: Main process build
-- `vite.preload.config.mts`: Preload script build
-- `vite.renderer.config.mts`: Renderer process build
-- Test config: `vitest.config.ts` (separate from build configs)
+**Format Details:**
+- ASS files have sections: `[Script Info]`, `[V4+ Styles]`, `[Events]`
+- Dialogue lines: `Dialogue: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text`
+- Time format: `H:MM:SS.CS` (centiseconds)
+- Parser preserves all original formatting and metadata
 
-### Security Features (Electron Fuses)
-
-Configured in `forge.config.mts`:
-- Cookie encryption enabled
-- ASAR integrity validation enabled
-- Only load app from ASAR
-- Node CLI arguments disabled
-- RunAsNode disabled
+**Key Functions:**
+- `parseASSFile(content: string): SubtitleLine[]` - Extract dialogue lines
+- `exportASSFile(originalContent: string, subtitles: SubtitleLine[]): string` - Replace dialogue lines while preserving everything else
+- Times stored in milliseconds internally, converted to/from ASS format
 
 ## Adding shadcn-ui Components
 
-Use the standard shadcn-ui CLI to add components:
+Use the standard shadcn-ui CLI:
 ```bash
 npx shadcn@latest add [component-name]
 ```
 
-Components will be added to `src/components/ui/` with proper configuration from `components.json`.
+Components added to `src/components/ui/` with configuration from `components.json`.
+
+## Common Issues
+
+### File Locking During Builds
+If `npm run dist` fails with "process cannot access the file":
+1. Close all instances of AG-SubEditor.exe
+2. Run: `taskkill /F /IM AG-SubEditor.exe /T`
+3. Wait 2 seconds, then rebuild
+
+### Auto-Update Not Working
+- Verify NSIS installer is being used (not MSI or Squirrel)
+- Check logs at `%APPDATA%\ag-subeditor\logs\main.log`
+- Ensure latest.yml is in GitHub release assets
+- Confirm release is published (not draft)
+
+### Dark Theme Not Applying
+- Colors use oklch color space in `src/styles/global.css`
+- Theme stored in localStorage via IPC
+- Check `syncThemeWithLocal()` is called on app start
