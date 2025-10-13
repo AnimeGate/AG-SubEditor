@@ -17,8 +17,13 @@ interface ElectronWindow {
   maximize: () => Promise<void>;
   close: () => Promise<void>;
 }
+interface FileAPI {
+  openFile: () => Promise<{ fileName: string; content: string } | null>;
+  saveFile: (fileName: string, content: string) => Promise<boolean>;
+}
 
 declare interface Window {
   themeMode: ThemeModeContext;
   electronWindow: ElectronWindow;
+  fileAPI: FileAPI;
 }
