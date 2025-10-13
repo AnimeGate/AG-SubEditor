@@ -17,6 +17,7 @@ import { setAppLanguage } from "@/helpers/language_helpers";
 import { setTheme, getCurrentTheme } from "@/helpers/theme_helpers";
 import { useState, useEffect } from "react";
 import type { ThemeMode } from "@/types/theme-mode";
+import packageJson from "../../package.json";
 
 export default function SettingsModal() {
   const { t, i18n } = useTranslation();
@@ -131,6 +132,24 @@ export default function SettingsModal() {
                 </Label>
               </div>
             </RadioGroup>
+          </div>
+
+          <Separator />
+
+          {/* Version Section */}
+          <div className="space-y-2">
+            <div>
+              <h3 className="text-lg font-semibold">{t("versionSection")}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t("versionDescription")}
+              </p>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+              <span className="text-sm font-medium">{t("currentVersion")}</span>
+              <span className="text-sm font-mono text-muted-foreground">
+                v{packageJson.version}
+              </span>
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -21,6 +21,9 @@ i18n.use(initReactI18next).init({
         themeLight: "Jasny",
         themeDark: "Ciemny",
         themeSystem: "Systemowy",
+        versionSection: "Wersja",
+        versionDescription: "Informacje o wersji aplikacji",
+        currentVersion: "Aktualna wersja",
         closeSettings: "Zamknij",
         // Wypalarka Page
         wypalarkaTitle: "Wypalarka napisów",
@@ -85,6 +88,9 @@ i18n.use(initReactI18next).init({
         themeLight: "Light",
         themeDark: "Dark",
         themeSystem: "System",
+        versionSection: "Version",
+        versionDescription: "Application version information",
+        currentVersion: "Current version",
         closeSettings: "Close",
         // Wypalarka Page
         wypalarkaTitle: "Subtitle Burner",
