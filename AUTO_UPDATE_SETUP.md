@@ -4,39 +4,38 @@ This guide explains how to set up and use the auto-update feature for AG-SubEdit
 
 ## How It Works
 
-AG-SubEditor uses **electron-updater** with **Electron Forge**, **GitHub Releases**, and **Squirrel.Windows** for automatic updates from private repositories:
+AG-SubEditor uses **electron-updater** with **Electron Forge**, **GitHub Releases**, and **Squirrel.Windows** for automatic updates:
 
 1. You publish a new version to GitHub Releases using `npm run publish`
-2. Users' installed apps automatically check for updates (on startup and hourly)
-3. When an update is found, it downloads in the background using embedded authentication
-4. Users get a notification to install the update
-5. The app restarts with the new version
+2. The release is made **public** (while the repository stays private)
+3. Users' installed apps automatically check for public updates (on startup and hourly)
+4. When an update is found, it downloads in the background
+5. Users get a notification to install the update
+6. The app restarts with the new version
 
-**Private Repository Support**: electron-updater supports private GitHub repositories by embedding your GitHub token in the built application. This allows your friends to receive updates automatically without needing their own GitHub access.
+**Private Repository with Public Releases**: Your repository code stays private, but the releases (compiled binaries) are made public. This allows your friends to receive updates automatically without authentication. Since they're only getting compiled executables (not source code), your code remains private.
 
 ## Initial Setup (One-Time)
 
 ### 1. Create a GitHub Personal Access Token
 
-You need a GitHub token for two purposes:
-- **Publishing releases** to GitHub
-- **Embedding in the app** so users can check for updates from your private repository
+You need a GitHub token to publish releases to your private repository:
 
 1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
    - Or visit: https://github.com/settings/tokens
 2. Click "Generate new token (classic)"
-3. Give it a name: `AG-SubEditor Publisher & Updater`
+3. Give it a name: `AG-SubEditor Publisher`
 4. Set expiration: No expiration (or choose your preference)
 5. Select scopes:
    - ✅ `repo` (Full control of private repositories)
 6. Click "Generate token"
 7. **Copy the token** (you won't see it again!)
 
-**Important for Private Repos**: This token will be embedded in your packaged application to allow update checks. Since you're distributing to friends in a private context, this is acceptable. Do not use this approach for public applications.
+**Note**: This token is only used for publishing releases, not embedded in the app. Users download updates from public releases without needing authentication.
 
 ### 2. Set the GitHub Token as Environment Variable
 
-**IMPORTANT**: You must set this token as `GH_TOKEN` (not `GITHUB_TOKEN`) for electron-updater to embed it in the application.
+**IMPORTANT**: Set this token as `GH_TOKEN` (not `GITHUB_TOKEN`) for Electron Forge to publish releases.
 
 **Windows (PowerShell):**
 ```powershell
@@ -80,18 +79,19 @@ Edit `package.json` and bump the version:
 
 ```bash
 # This will:
-# 1. Build your app with embedded GitHub token for private repo updates
+# 1. Build your app configured for public releases
 # 2. Create Windows installer (Squirrel)
 # 3. Create a GitHub Release (as draft) on your private repository
 # 4. Upload the installer files
 npm run publish
 ```
 
-**What happens with private repos:**
-- electron-updater reads the `GH_TOKEN` environment variable during build
-- The token is embedded in the packaged application
-- Users' installed apps will use this embedded token to check for updates
-- This allows updates from your private repository without users needing GitHub access
+**What happens:**
+- Your private repository code remains private
+- A draft release is created with the compiled binaries
+- When you publish the release, it becomes public
+- Users' apps check for updates from the public releases API (no authentication needed)
+- They download the compiled executables, not your source code
 
 ### Step 3: Publish the Release
 
@@ -134,16 +134,16 @@ After `npm run publish`, you'll find in `out/make/squirrel.windows/x64/`:
 
 ## Testing Updates
 
-### Test Locally with Private Repo
+### Test Locally
 1. **Set GH_TOKEN**: Ensure it's set in your environment
-2. **Build version 1.0.0**: `npm run make` (with GH_TOKEN set)
+2. **Build version 1.0.2** (or any version): `npm run make`
 3. **Install** the built app on your machine from `out/make/squirrel.windows/x64/`
-4. **Bump version** to 1.0.1 in package.json
+4. **Bump version** to 1.0.3 in package.json
 5. **Publish**: `npm run publish` (creates draft release)
-6. **Publish the release** on GitHub (make it public, not draft)
+6. **Publish the release** on GitHub as **public**
 7. **Open installed app** - it should detect and download the update!
 
-**Important**: The app built in step 2 must have been built with `GH_TOKEN` set, or it won't be able to check for updates from the private repository.
+**Important**: When publishing the release on GitHub, make sure to keep it public (do not check the "Set as a pre-release" or any private options).
 
 ### Verify Update Check
 Check the logs at:
@@ -153,12 +153,12 @@ You should see:
 ```
 [info] Initializing electron-updater for private repository
 [info] Checking for updates...
-[info] Update available: 1.0.1
+[info] Update available: 1.0.3
 [info] Download speed: 1234567 - Downloaded 50%
-[info] Update downloaded: 1.0.1
+[info] Update downloaded: 1.0.3
 ```
 
-If you see authentication errors, the GH_TOKEN wasn't properly embedded during build.
+If you see 404 errors, make sure your release is published as **public** on GitHub.
 
 ## Important Notes
 
@@ -170,27 +170,31 @@ If you see authentication errors, the GH_TOKEN wasn't properly embedded during b
 
 ### ⚠️ Limitations
 - Only works on **Windows** currently (Squirrel.Windows)
-- Requires **GitHub token** with `repo` scope
+- Requires **GitHub token** with `repo` scope to publish
 - Updates only work in **production builds** (not development)
 - Users need **internet connection** to check/download updates
-- **Private repos**: The GitHub token is embedded in the app - only suitable for trusted distribution (friends/private use)
+- **Releases must be public** for auto-update to work (repository stays private)
 
-### 🔒 Private Repository Considerations
+### 🔒 Private Repository with Public Releases
 
-**Security Note**: When distributing apps with auto-update from private repos, your GitHub token is embedded in the packaged application. This is acceptable for:
-- ✅ Private distribution to friends
-- ✅ Closed groups or organizations
-- ✅ Internal company tools
+**How it works:**
+- Your **source code** stays private in the repository
+- Only **compiled binaries** (the .exe installer) are made public in releases
+- Users can download updates without authentication
+- Your code remains protected since they only get the compiled app
 
-This is **NOT recommended** for:
-- ❌ Public distribution
-- ❌ Open-source projects
-- ❌ Any scenario where untrusted users could extract the token
+**What's Private:**
+- ✅ Source code
+- ✅ Commit history
+- ✅ Issues and pull requests
+- ✅ Repository settings
 
-**Alternatives for public distribution:**
-1. Make releases public while keeping the repository private
-2. Use a proxy server to handle authentication
-3. Make the entire repository public
+**What's Public:**
+- ⚠️ Release binaries (.exe installers)
+- ⚠️ Release notes and version numbers
+- ⚠️ Asset files you upload to releases
+
+This is a standard approach for commercial/private software distribution.
 
 ### 🔧 Troubleshooting
 
@@ -203,15 +207,14 @@ This is **NOT recommended** for:
 **Updates not appearing:**
 - Check version numbers (new > old)
 - Verify release is **published** (not draft) on GitHub
+- **Important**: Make sure the release is **public**, not private
 - Check logs in `%APPDATA%\ag-subeditor\logs\main.log`
 - Ensure repository URL matches in package.json and forge.config.mts
-- Verify `GH_TOKEN` was set when you built the app (check logs for "Checking for updates")
 
-**Private repo access errors:**
-- Ensure `GH_TOKEN` was set **during the build** when running `npm run publish`
-- The token must have `repo` scope for private repositories
-- Check that the repository owner and name match in package.json and forge.config.mts
-- Try rebuilding with the token: `npm run make` (after setting `GH_TOKEN`)
+**404 errors when checking for updates:**
+- The release must be **public** for auto-update to work
+- Go to your GitHub release and ensure it's not set to private
+- Check that owner and repo name are correct in the code
 
 **Auto-update not triggering:**
 - Only works in packaged apps (not `npm run start`)

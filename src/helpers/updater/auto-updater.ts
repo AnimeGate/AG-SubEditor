@@ -6,11 +6,18 @@ import log from "electron-log";
 log.transports.file.level = "info";
 autoUpdater.logger = log;
 
-// For private repos, electron-updater can use GitHub token
-// The token can be set via environment variable or embedded
-// For private distribution to friends, we'll use the publish token approach
+// For private repos with public releases, electron-updater can access updates
+// without authentication. The repository stays private, only releases are public.
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
+
+// Explicitly set the GitHub provider configuration
+autoUpdater.setFeedURL({
+  provider: "github",
+  owner: "AnimeGate",
+  repo: "AG-SubEditor",
+  private: false, // Set to false to use public releases
+});
 
 export function initializeAutoUpdater(isDevelopment: boolean) {
   if (isDevelopment) {

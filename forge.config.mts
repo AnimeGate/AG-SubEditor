@@ -19,10 +19,11 @@ const config: ForgeConfig = {
   hooks: {
     generateAssets: async () => {
       // Generate app-update.yml for electron-updater
+      // Note: private: false means releases are public (repo can still be private)
       const updateConfig = `provider: github
 owner: AnimeGate
 repo: AG-SubEditor
-private: true
+private: false
 `;
       const outputPath = path.join(process.cwd(), "app-update.yml");
       fs.writeFileSync(outputPath, updateConfig, "utf8");
