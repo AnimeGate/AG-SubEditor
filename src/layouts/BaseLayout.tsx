@@ -1,17 +1,29 @@
 import React from "react";
 import DragWindowRegion from "@/components/DragWindowRegion";
-import NavigationMenu from "@/components/template/NavigationMenu";
+import Navbar from "@/components/Navbar";
+import { useTranslation } from "react-i18next";
 
 export default function BaseLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
-    <>
-      <DragWindowRegion title="electron-shadcn" />
-      <NavigationMenu />
-      <main className="h-screen p-2 pb-20">{children}</main>
-    </>
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Window drag region (title bar) */}
+      <div className="flex-shrink-0">
+        <DragWindowRegion title={t("appName")} />
+      </div>
+
+      {/* Navigation bar */}
+      <div className="flex-shrink-0">
+        <Navbar />
+      </div>
+
+      {/* Main content area */}
+      <main className="flex-1 overflow-hidden">{children}</main>
+    </div>
   );
 }
