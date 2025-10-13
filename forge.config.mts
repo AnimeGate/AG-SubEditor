@@ -17,8 +17,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       name: "ag_subeditor",
-      setupIcon: "./assets/icon.ico", // Optional: add your icon
-      loadingGif: "./assets/loading.gif", // Optional: add loading animation
+      setupIcon: "./src/assets/icon.ico", // Optional: add your icon
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
