@@ -2,4 +2,3 @@ provider: github
 owner: AnimeGate
 repo: AG-SubEditor
 private: false
-updaterCacheDirName: ag_subeditor
