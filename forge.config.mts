@@ -6,17 +6,33 @@ import { MakerRpm } from "@electron-forge/maker-rpm";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import { PublisherGithub } from "@electron-forge/publisher-github";
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    appBundleId: "com.animegate.ag-subeditor",
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      name: "ag_subeditor",
+      setupIcon: "./assets/icon.ico", // Optional: add your icon
+      loadingGif: "./assets/loading.gif", // Optional: add loading animation
+    }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({}),
+  ],
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: "AnimeGate",
+        name: "AG-SubEditor",
+      },
+      prerelease: false,
+      draft: true,
+    }),
   ],
   plugins: [
     new VitePlugin({

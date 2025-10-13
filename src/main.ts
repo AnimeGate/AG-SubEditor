@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import registerListeners from "./helpers/ipc/listeners-register";
+import { initializeAutoUpdater } from "./helpers/updater/auto-updater";
 // "electron-squirrel-startup" seems broken when packaging with vite
 //import started from "electron-squirrel-startup";
 import path from "path";
@@ -48,7 +49,14 @@ async function installExtensions() {
   }
 }
 
-app.whenReady().then(createWindow).then(installExtensions);
+app
+  .whenReady()
+  .then(createWindow)
+  .then(installExtensions)
+  .then(() => {
+    // Initialize auto-updater after app is ready
+    initializeAutoUpdater(inDevelopment);
+  });
 
 //osX only
 app.on("window-all-closed", () => {

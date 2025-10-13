@@ -21,6 +21,10 @@
   },
   "author": "ROG <luan.roger.2003@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AnimeGate/AG-SubEditor.git"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.9.0",
     "@electron-forge/maker-deb": "^7.9.0",
@@ -30,6 +34,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
     "@electron-forge/plugin-fuses": "^7.9.0",
     "@electron-forge/plugin-vite": "^7.9.0",
+    "@electron-forge/publisher-github": "^7.10.2",
     "@electron-forge/shared-types": "^7.8.1",
     "@electron/fuses": "~1.8.0",
     "@eslint/compat": "^1.4.0",
@@ -85,6 +90,7 @@
     "@tanstack/react-router-devtools": "^1.132.41",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
     "i18next": "^25.5.2",
     "lucide-react": "^0.544.0",
