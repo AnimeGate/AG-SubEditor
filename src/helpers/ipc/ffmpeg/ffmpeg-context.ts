@@ -87,5 +87,80 @@ export function exposeFfmpegContext() {
       ipcRenderer.on(FFMPEG_CHANNELS.PROCESS_ERROR, listener);
       return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.PROCESS_ERROR, listener);
     },
+
+    // Queue Management
+    queueAddItem: async (item: any) => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_ADD_ITEM, item);
+    },
+    queueAddItems: async (items: any[]) => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_ADD_ITEMS, items);
+    },
+    queueRemoveItem: async (id: string) => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_REMOVE_ITEM, id);
+    },
+    queueClear: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_CLEAR);
+    },
+    queueReorder: async (fromIndex: number, toIndex: number) => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_REORDER, fromIndex, toIndex);
+    },
+    queueStart: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_START);
+    },
+    queuePause: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_PAUSE);
+    },
+    queueResume: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_RESUME);
+    },
+    queueGetAll: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_GET_ALL);
+    },
+    queueGetStats: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_GET_STATS);
+    },
+    queueUpdateSettings: async (settings: any) => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_UPDATE_SETTINGS, settings);
+    },
+    queueSelectFiles: async () => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_SELECT_FILES);
+    },
+
+    // Queue Event Listeners
+    onQueueUpdate: (callback: (queue: any[]) => void) => {
+      const listener = (_event: any, queue: any[]) => callback(queue);
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_UPDATE, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_UPDATE, listener);
+    },
+    onQueueItemUpdate: (callback: (item: any) => void) => {
+      const listener = (_event: any, item: any) => callback(item);
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_ITEM_UPDATE, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_ITEM_UPDATE, listener);
+    },
+    onQueueItemProgress: (callback: (data: { itemId: string; progress: any }) => void) => {
+      const listener = (_event: any, data: { itemId: string; progress: any }) => callback(data);
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_ITEM_PROGRESS, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_ITEM_PROGRESS, listener);
+    },
+    onQueueItemLog: (callback: (data: { itemId: string; log: string; type: string }) => void) => {
+      const listener = (_event: any, data: { itemId: string; log: string; type: string }) => callback(data);
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_ITEM_LOG, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_ITEM_LOG, listener);
+    },
+    onQueueItemComplete: (callback: (data: { itemId: string; outputPath: string }) => void) => {
+      const listener = (_event: any, data: { itemId: string; outputPath: string }) => callback(data);
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_ITEM_COMPLETE, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_ITEM_COMPLETE, listener);
+    },
+    onQueueItemError: (callback: (data: { itemId: string; error: string }) => void) => {
+      const listener = (_event: any, data: { itemId: string; error: string }) => callback(data);
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_ITEM_ERROR, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_ITEM_ERROR, listener);
+    },
+    onQueueComplete: (callback: () => void) => {
+      const listener = () => callback();
+      ipcRenderer.on(FFMPEG_CHANNELS.QUEUE_COMPLETE, listener);
+      return () => ipcRenderer.removeListener(FFMPEG_CHANNELS.QUEUE_COMPLETE, listener);
+    },
   });
 }

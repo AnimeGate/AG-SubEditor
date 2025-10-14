@@ -3,6 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { WypalarkaFileInput } from "./WypalarkaFileInput";
 import { WypalarkaProgressPanel } from "./WypalarkaProgressPanel";
+import { WypalarkaQueuePanel } from "./WypalarkaQueuePanel";
+import { WypalarkaQueueProgressPanel } from "./WypalarkaQueueProgressPanel";
 import { WypalarkaSettingsModal } from "./WypalarkaSettingsModal";
 import { WypalarkaFfmpegDownloadDialog } from "./WypalarkaFfmpegDownloadDialog";
 import { WypalarkaTour } from "./WypalarkaTour";
@@ -39,6 +41,18 @@ export default function Wypalarka() {
   const [ffmpegInstalled, setFfmpegInstalled] = useState<boolean | null>(null);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+
+  // Queue state
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [queueStats, setQueueStats] = useState<QueueStats>({
+    total: 0,
+    pending: 0,
+    processing: 0,
+    completed: 0,
+    error: 0,
+    cancelled: 0,
+  });
+  const [isQueueProcessing, setIsQueueProcessing] = useState(false);
 
   // Tour management
   const { runTour, handleTourCallback, restartTour } = useWypalarkaTour();
@@ -79,6 +93,7 @@ export default function Wypalarka() {
 
   // Set up event listeners
   useEffect(() => {
+    // Single file mode listeners
     const unsubProgress = window.ffmpegAPI.onProgress((progress) => {
       setProgress(progress);
     });
@@ -103,13 +118,59 @@ export default function Wypalarka() {
       setLogs((prev) => [...prev, { log: `✗ Error: ${error}`, type: "error" }]);
     });
 
+    // Queue listeners
+    const unsubQueueUpdate = window.ffmpegAPI.onQueueUpdate((updatedQueue) => {
+      setQueue(updatedQueue);
+    });
+
+    const unsubQueueItemUpdate = window.ffmpegAPI.onQueueItemUpdate((item) => {
+      setQueue((prev) => prev.map((i) => (i.id === item.id ? item : i)));
+    });
+
+    const unsubQueueComplete = window.ffmpegAPI.onQueueComplete(() => {
+      setIsQueueProcessing(false);
+    });
+
     return () => {
       unsubProgress();
       unsubLog();
       unsubComplete();
       unsubError();
+      unsubQueueUpdate();
+      unsubQueueItemUpdate();
+      unsubQueueComplete();
     };
   }, []);
+
+  // Update queue stats when queue changes
+  useEffect(() => {
+    const updateStats = async () => {
+      const stats = await window.ffmpegAPI.queueGetStats();
+      setQueueStats(stats);
+      setIsQueueProcessing(stats.processing > 0);
+    };
+    updateStats();
+  }, [queue]);
+
+  // Sync encoding settings changes with queue processor
+  useEffect(() => {
+    const syncSettings = async () => {
+      const bitrate = encodingSettings.qualityPreset === "custom"
+        ? encodingSettings.customBitrate
+        : encodingSettings.customBitrate;
+
+      try {
+        await window.ffmpegAPI.queueUpdateSettings({
+          bitrate,
+          useHardwareAccel: encodingSettings.useHardwareAccel,
+        });
+      } catch (error) {
+        console.error("Failed to sync settings with queue processor:", error);
+      }
+    };
+
+    syncSettings();
+  }, [encodingSettings]);
 
   const handleStartProcess = async (videoPath: string, subtitlePath: string, outputPath: string) => {
     try {
@@ -176,6 +237,69 @@ export default function Wypalarka() {
       setFfmpegInstalled(result.installed);
     } catch (error) {
       setFfmpegInstalled(false);
+    }
+  };
+
+  // Queue handlers
+  const handleAddFilesToQueue = async (files: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>) => {
+    try {
+      // Settings are automatically synced via useEffect, just add items
+      await window.ffmpegAPI.queueAddItems(files);
+    } catch (error) {
+      console.error("Failed to add files to queue:", error);
+    }
+  };
+
+  const handleRemoveFromQueue = async (id: string) => {
+    try {
+      await window.ffmpegAPI.queueRemoveItem(id);
+    } catch (error) {
+      console.error("Failed to remove item from queue:", error);
+    }
+  };
+
+  const handleClearQueue = async () => {
+    try {
+      await window.ffmpegAPI.queueClear();
+    } catch (error) {
+      console.error("Failed to clear queue:", error);
+    }
+  };
+
+  const handleStartQueue = async () => {
+    try {
+      setIsQueueProcessing(true);
+      await window.ffmpegAPI.queueStart();
+    } catch (error) {
+      setIsQueueProcessing(false);
+      console.error("Failed to start queue:", error);
+    }
+  };
+
+  const handlePauseQueue = async () => {
+    try {
+      await window.ffmpegAPI.queuePause();
+      setIsQueueProcessing(false);
+    } catch (error) {
+      console.error("Failed to pause queue:", error);
+    }
+  };
+
+  const handleResumeQueue = async () => {
+    try {
+      setIsQueueProcessing(true);
+      await window.ffmpegAPI.queueResume();
+    } catch (error) {
+      setIsQueueProcessing(false);
+      console.error("Failed to resume queue:", error);
+    }
+  };
+
+  const handleOpenQueueItemFolder = async (outputPath: string) => {
+    try {
+      await window.ffmpegAPI.openOutputFolder(outputPath);
+    } catch (error) {
+      console.error("Failed to open output folder:", error);
     }
   };
 
@@ -284,9 +408,8 @@ export default function Wypalarka() {
       <Tabs defaultValue="single" className="flex-1 flex flex-col min-h-0">
         <TabsList className="w-fit">
           <TabsTrigger value="single">{t("wypalarkaSingleMode")}</TabsTrigger>
-          <TabsTrigger value="queue" disabled>
+          <TabsTrigger value="queue">
             {t("wypalarkaQueueMode")}
-            <Sparkles className="ml-2 h-3 w-3" />
           </TabsTrigger>
         </TabsList>
 
@@ -310,19 +433,31 @@ export default function Wypalarka() {
           </div>
         </TabsContent>
 
-        <TabsContent value="queue" className="flex-1 flex items-center justify-center min-h-0 mt-4">
-          <Card className="max-w-md">
-            <CardHeader className="text-center">
-              <Sparkles className="h-12 w-12 mx-auto mb-2 text-yellow-400" />
-              <CardTitle>{t("wypalarkaQueueComingSoon")}</CardTitle>
-              <CardDescription>{t("wypalarkaQueueDesc")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground text-center">
-                {t("wypalarkaQueueFeature")}
-              </p>
-            </CardContent>
-          </Card>
+        <TabsContent value="queue" className="flex-1 flex gap-6 min-h-0 mt-4">
+          {/* Left Panel - Queue List */}
+          <div className="w-96 flex-shrink-0 overflow-y-auto">
+            <WypalarkaQueuePanel
+              queue={queue}
+              stats={queueStats}
+              isProcessing={isQueueProcessing}
+              onAddFiles={handleAddFilesToQueue}
+              onRemoveItem={handleRemoveFromQueue}
+              onClearQueue={handleClearQueue}
+              onStart={handleStartQueue}
+              onPause={handlePauseQueue}
+              onResume={handleResumeQueue}
+              onOpenFolder={handleOpenQueueItemFolder}
+            />
+          </div>
+
+          {/* Right Panel - Progress */}
+          <div className="flex-1 min-w-0">
+            <WypalarkaQueueProgressPanel
+              currentItem={queue.find((item) => item.status === "processing") || null}
+              stats={queueStats}
+              queue={queue}
+            />
+          </div>
         </TabsContent>
       </Tabs>
 

@@ -52,6 +52,28 @@ interface FFmpegDownloadProgress {
   message?: string;
 }
 
+interface QueueItem {
+  id: string;
+  videoPath: string;
+  videoName: string;
+  subtitlePath: string;
+  subtitleName: string;
+  outputPath: string;
+  status: "pending" | "processing" | "completed" | "error" | "cancelled";
+  progress: FFmpegProgress | null;
+  error?: string;
+  logs: Array<{ log: string; type: LogType }>;
+}
+
+interface QueueStats {
+  total: number;
+  pending: number;
+  processing: number;
+  completed: number;
+  error: number;
+  cancelled: number;
+}
+
 interface FFmpegAPI {
   selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
   selectSubtitleFile: () => Promise<{ filePath: string; fileName: string } | null>;
@@ -70,6 +92,27 @@ interface FFmpegAPI {
   onDownloadProgress: (callback: (progress: FFmpegDownloadProgress) => void) => () => void;
   onDownloadComplete: (callback: () => void) => () => void;
   onDownloadError: (callback: (error: string) => void) => () => void;
+  // Queue Management
+  queueAddItem: (item: Omit<QueueItem, "id" | "status" | "progress" | "logs">) => Promise<{ success: boolean; id: string }>;
+  queueAddItems: (items: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>) => Promise<{ success: boolean; ids: string[] }>;
+  queueRemoveItem: (id: string) => Promise<{ success: boolean; message?: string }>;
+  queueClear: () => Promise<{ success: boolean; message?: string }>;
+  queueReorder: (fromIndex: number, toIndex: number) => Promise<{ success: boolean; message?: string }>;
+  queueStart: () => Promise<{ success: boolean; message?: string }>;
+  queuePause: () => Promise<{ success: boolean; message?: string }>;
+  queueResume: () => Promise<{ success: boolean; message?: string }>;
+  queueGetAll: () => Promise<{ queue: QueueItem[] }>;
+  queueGetStats: () => Promise<QueueStats>;
+  queueUpdateSettings: (settings: { bitrate: string; useHardwareAccel: boolean }) => Promise<{ success: boolean }>;
+  queueSelectFiles: () => Promise<{ success: boolean; files: Array<{ filePath: string; fileName: string }> }>;
+  // Queue Event Listeners
+  onQueueUpdate: (callback: (queue: QueueItem[]) => void) => () => void;
+  onQueueItemUpdate: (callback: (item: QueueItem) => void) => () => void;
+  onQueueItemProgress: (callback: (data: { itemId: string; progress: FFmpegProgress }) => void) => () => void;
+  onQueueItemLog: (callback: (data: { itemId: string; log: string; type: LogType }) => void) => () => void;
+  onQueueItemComplete: (callback: (data: { itemId: string; outputPath: string }) => void) => () => void;
+  onQueueItemError: (callback: (data: { itemId: string; error: string }) => void) => () => void;
+  onQueueComplete: (callback: () => void) => () => void;
 }
 
 declare interface Window {
