@@ -1,11 +1,15 @@
 import { app, BrowserWindow } from "electron";
 import registerListeners from "./helpers/ipc/listeners-register";
 import { initializeAutoUpdater } from "./helpers/updater/auto-updater";
+import { initializeDebugMode, isDebugEnabled, debugLog, createDebugConsole } from "./helpers/debug-mode";
 // "electron-squirrel-startup" seems broken when packaging with vite
 //import started from "electron-squirrel-startup";
 import path from "path";
 
 const inDevelopment = process.env.NODE_ENV === "development";
+
+// Initialize debug mode early
+const debugMode = initializeDebugMode();
 
 // Set app name for notifications and taskbar
 app.setName("AG-SubEditor");
@@ -16,13 +20,15 @@ if (process.platform === "win32") {
 }
 
 function createWindow() {
+  debugLog.info("Creating main window...");
+
   const preload = path.join(__dirname, "preload.js");
   const mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     title: "AG-SubEditor",
     webPreferences: {
-      devTools: inDevelopment,
+      devTools: inDevelopment || debugMode,
       contextIsolation: true,
       nodeIntegration: true,
       nodeIntegrationInSubFrames: false,
@@ -38,10 +44,21 @@ function createWindow() {
   // In development: load from vite dev server
   // In production: load from dist folder
   if (process.env.VITE_DEV_SERVER_URL) {
+    debugLog.info(`Loading from dev server: ${process.env.VITE_DEV_SERVER_URL}`);
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    const indexPath = path.join(__dirname, "../dist/index.html");
+    debugLog.info(`Loading from file: ${indexPath}`);
+    mainWindow.loadFile(indexPath);
   }
+
+  // Open DevTools automatically in debug mode
+  if (debugMode) {
+    mainWindow.webContents.openDevTools();
+    debugLog.success("DevTools opened automatically (debug mode)");
+  }
+
+  debugLog.success("Main window created successfully");
 }
 
 async function installExtensions() {
@@ -69,6 +86,14 @@ app
   .then(() => {
     // Initialize auto-updater after app is ready
     initializeAutoUpdater(inDevelopment);
+
+    // Create debug console window if in debug mode
+    if (debugMode) {
+      // Wait a bit for main window to be ready
+      setTimeout(() => {
+        createDebugConsole();
+      }, 1000);
+    }
   });
 
 //osX only

@@ -74,6 +74,24 @@ interface QueueStats {
   cancelled: number;
 }
 
+interface DebugAPI {
+  log: (
+    level: "info" | "success" | "warn" | "error" | "debug" | "route" | "file" | "ffmpeg" | "queue" | "ipc",
+    message: string,
+    ...args: unknown[]
+  ) => void;
+  info: (message: string, ...args: unknown[]) => void;
+  success: (message: string, ...args: unknown[]) => void;
+  warn: (message: string, ...args: unknown[]) => void;
+  error: (message: string, ...args: unknown[]) => void;
+  debug: (message: string, ...args: unknown[]) => void;
+  route: (message: string, ...args: unknown[]) => void;
+  file: (message: string, ...args: unknown[]) => void;
+  ffmpeg: (message: string, ...args: unknown[]) => void;
+  queue: (message: string, ...args: unknown[]) => void;
+  ipc: (message: string, ...args: unknown[]) => void;
+}
+
 interface FFmpegAPI {
   selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
   selectSubtitleFile: () => Promise<{ filePath: string; fileName: string } | null>;
@@ -120,4 +138,5 @@ declare interface Window {
   electronWindow: ElectronWindow;
   fileAPI: FileAPI;
   ffmpegAPI: FFmpegAPI;
+  debugAPI: DebugAPI;
 }

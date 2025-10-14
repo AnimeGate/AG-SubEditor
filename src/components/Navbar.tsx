@@ -1,8 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import SettingsModal from "./SettingsModal";
 import { FileText, Flame } from "lucide-react";
+import { debugLog } from "@/helpers/debug-logger";
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -10,6 +12,11 @@ export default function Navbar() {
   const currentPath = router.location.pathname;
 
   const isActive = (path: string) => currentPath === path;
+
+  // Log route changes
+  useEffect(() => {
+    debugLog.route(`Navigated to: ${currentPath}`);
+  }, [currentPath]);
 
   return (
     <nav className="border-b bg-card/50 backdrop-blur-sm">

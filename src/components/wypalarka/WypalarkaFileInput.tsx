@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Film, FileText, FolderOutput } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { debugLog } from "@/helpers/debug-logger";
 
 interface WypalarkaFileInputProps {
   onFilesSelected: (video: string, subtitle: string, output: string) => void;
@@ -18,6 +19,8 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
   const handleSelectVideo = async () => {
     const result = await window.ffmpegAPI.selectVideoFile();
     if (result) {
+      debugLog.file(`Selected video file: ${result.fileName}`);
+      debugLog.file(`Video path: ${result.filePath}`);
       setVideoFile({ path: result.filePath, name: result.fileName });
       // Auto-generate output filename based on video name
       const baseName = result.fileName.replace(/\.[^.]+$/, "");
@@ -28,6 +31,8 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
   const handleSelectSubtitle = async () => {
     const result = await window.ffmpegAPI.selectSubtitleFile();
     if (result) {
+      debugLog.file(`Selected subtitle file: ${result.fileName}`);
+      debugLog.file(`Subtitle path: ${result.filePath}`);
       setSubtitleFile({ path: result.filePath, name: result.fileName });
     }
   };
@@ -36,12 +41,17 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
     if (!outputPath) return;
     const result = await window.ffmpegAPI.selectOutputPath(outputPath);
     if (result) {
+      debugLog.file(`Output path selected: ${result}`);
       setOutputPath(result);
     }
   };
 
   const handleProcess = () => {
     if (videoFile && subtitleFile && outputPath) {
+      debugLog.ffmpeg(`Starting single file burn: ${videoFile.name}`);
+      debugLog.ffmpeg(`Video: ${videoFile.path}`);
+      debugLog.ffmpeg(`Subtitle: ${subtitleFile.path}`);
+      debugLog.ffmpeg(`Output: ${outputPath}`);
       onFilesSelected(videoFile.path, subtitleFile.path, outputPath);
     }
   };

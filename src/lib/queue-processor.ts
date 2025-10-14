@@ -1,4 +1,5 @@
 import { FFmpegProcessor, FFmpegProgress, EncodingSettings } from "./ffmpeg-processor";
+import { debugLog } from "../helpers/debug-mode";
 
 export interface QueueItem {
   id: string;
@@ -52,6 +53,7 @@ export class QueueProcessor {
     };
 
     this.queue.push(queueItem);
+    debugLog.queue(`Added item to queue: ${item.videoName} (ID: ${id})`);
     this.callbacks.onQueueUpdate([...this.queue]);
     return id;
   }
@@ -108,12 +110,14 @@ export class QueueProcessor {
       return;
     }
 
+    debugLog.queue(`Starting queue processing (${this.queue.filter(i => i.status === "pending").length} pending items)`);
     this.isProcessing = true;
     this.isPaused = false;
     await this.processNext();
   }
 
   pause(): void {
+    debugLog.queue("Pausing queue processing");
     this.isPaused = true;
     this.isProcessing = false;
 
@@ -129,6 +133,7 @@ export class QueueProcessor {
           item.progress = null;
           item.logs.push({ log: "Process paused by user", type: "warning" });
           this.callbacks.onItemUpdate({ ...item });
+          debugLog.queue(`Paused item: ${item.videoName} (ID: ${item.id})`);
         }
         this.currentItemId = null;
       }
@@ -140,6 +145,7 @@ export class QueueProcessor {
       return;
     }
 
+    debugLog.queue("Resuming queue processing");
     this.isPaused = false;
     this.isProcessing = true;
     this.processNext();
@@ -172,6 +178,7 @@ export class QueueProcessor {
 
     if (!nextItem) {
       // Queue completed
+      debugLog.queue("Queue processing completed - no more pending items");
       this.isProcessing = false;
       this.callbacks.onQueueComplete();
       return;
@@ -182,6 +189,11 @@ export class QueueProcessor {
     nextItem.logs = [];
     nextItem.progress = null;
     this.currentItemId = nextItem.id;
+    debugLog.queue(`Processing item: ${nextItem.videoName} (ID: ${nextItem.id})`);
+    debugLog.queue(`Video: ${nextItem.videoPath}`);
+    debugLog.queue(`Subtitle: ${nextItem.subtitlePath}`);
+    debugLog.queue(`Output: ${nextItem.outputPath}`);
+    debugLog.queue(`Settings: bitrate=${this.settings.bitrate}, hwAccel=${this.settings.useHardwareAccel}`);
     this.callbacks.onItemUpdate({ ...nextItem });
 
     // Create FFmpeg processor for this item
@@ -202,6 +214,8 @@ export class QueueProcessor {
           item.logs.push({ log, type });
           this.callbacks.onItemLog(this.currentItemId, log, type);
           this.callbacks.onItemUpdate({ ...item });
+          // Log all FFmpeg output to debug console (unfiltered)
+          debugLog.ffmpeg(`[${item.videoName}] ${log}`);
         }
       },
       onComplete: (outputPath) => {
@@ -213,6 +227,8 @@ export class QueueProcessor {
           item.logs.push({ log: `Output: ${outputPath}`, type: "info" });
           this.callbacks.onItemComplete(this.currentItemId, outputPath);
           this.callbacks.onItemUpdate({ ...item });
+          debugLog.queue(`Item completed successfully: ${item.videoName} (ID: ${item.id})`);
+          debugLog.queue(`Output saved to: ${outputPath}`);
         }
 
         this.currentProcessor = null;
@@ -230,6 +246,8 @@ export class QueueProcessor {
           item.logs.push({ log: `✗ Error: ${error}`, type: "error" });
           this.callbacks.onItemError(this.currentItemId, error);
           this.callbacks.onItemUpdate({ ...item });
+          debugLog.error(`Item processing failed: ${item.videoName} (ID: ${item.id})`);
+          debugLog.error(`Error: ${error}`);
         }
 
         this.currentProcessor = null;

@@ -3,6 +3,7 @@ import { FFMPEG_CHANNELS } from "./ffmpeg-channels";
 import { FFmpegProcessor } from "@/lib/ffmpeg-processor";
 import { FFmpegDownloader } from "@/lib/ffmpeg-downloader";
 import { QueueProcessor } from "@/lib/queue-processor";
+import { debugLog } from "../../debug-mode";
 import * as path from "path";
 
 let currentProcessor: FFmpegProcessor | null = null;
@@ -12,6 +13,7 @@ let queueProcessor: QueueProcessor | null = null;
 export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
   // File selection dialogs
   ipcMain.handle(FFMPEG_CHANNELS.SELECT_VIDEO_FILE, async () => {
+    debugLog.ipc("IPC: SELECT_VIDEO_FILE called");
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ["openFile"],
       filters: [
@@ -22,16 +24,19 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     });
 
     if (result.canceled || result.filePaths.length === 0) {
+      debugLog.ipc("IPC: SELECT_VIDEO_FILE - User cancelled");
       return null;
     }
 
     const filePath = result.filePaths[0];
     const fileName = path.basename(filePath);
+    debugLog.ipc(`IPC: SELECT_VIDEO_FILE - Selected: ${fileName}`);
 
     return { filePath, fileName };
   });
 
   ipcMain.handle(FFMPEG_CHANNELS.SELECT_SUBTITLE_FILE, async () => {
+    debugLog.ipc("IPC: SELECT_SUBTITLE_FILE called");
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ["openFile"],
       filters: [
@@ -42,16 +47,19 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     });
 
     if (result.canceled || result.filePaths.length === 0) {
+      debugLog.ipc("IPC: SELECT_SUBTITLE_FILE - User cancelled");
       return null;
     }
 
     const filePath = result.filePaths[0];
     const fileName = path.basename(filePath);
+    debugLog.ipc(`IPC: SELECT_SUBTITLE_FILE - Selected: ${fileName}`);
 
     return { filePath, fileName };
   });
 
   ipcMain.handle(FFMPEG_CHANNELS.SELECT_OUTPUT_PATH, async (_event, defaultName: string) => {
+    debugLog.ipc(`IPC: SELECT_OUTPUT_PATH called (default: ${defaultName})`);
     const result = await dialog.showSaveDialog(mainWindow, {
       defaultPath: defaultName,
       filters: [
@@ -62,9 +70,11 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     });
 
     if (result.canceled || !result.filePath) {
+      debugLog.ipc("IPC: SELECT_OUTPUT_PATH - User cancelled");
       return null;
     }
 
+    debugLog.ipc(`IPC: SELECT_OUTPUT_PATH - Selected: ${result.filePath}`);
     return result.filePath;
   });
 
@@ -78,7 +88,16 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
       useHardwareAccel: boolean;
     };
   }) => {
+    debugLog.ipc("IPC: START_PROCESS called");
+    debugLog.ipc(`  Video: ${params.videoPath}`);
+    debugLog.ipc(`  Subtitle: ${params.subtitlePath}`);
+    debugLog.ipc(`  Output: ${params.outputPath}`);
+    if (params.settings) {
+      debugLog.ipc(`  Settings: bitrate=${params.settings.bitrate}, hwAccel=${params.settings.useHardwareAccel}`);
+    }
+
     if (currentProcessor?.isRunning()) {
+      debugLog.error("IPC: START_PROCESS - Process already running");
       throw new Error("A process is already running. Please cancel it first.");
     }
 
@@ -133,24 +152,36 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
   });
 
   ipcMain.handle(FFMPEG_CHANNELS.CANCEL_PROCESS, async () => {
+    debugLog.ipc("IPC: CANCEL_PROCESS called");
     if (currentProcessor) {
       currentProcessor.cancel();
       currentProcessor = null;
+      debugLog.ipc("IPC: CANCEL_PROCESS - Process cancelled");
       return { success: true };
     }
+    debugLog.warn("IPC: CANCEL_PROCESS - No process is running");
     return { success: false, message: "No process is running" };
   });
 
   ipcMain.handle(FFMPEG_CHANNELS.CHECK_GPU, async () => {
-    return await FFmpegProcessor.checkGpuAvailability();
+    debugLog.ipc("IPC: CHECK_GPU called");
+    const result = await FFmpegProcessor.checkGpuAvailability();
+    debugLog.ipc(`IPC: CHECK_GPU - Result: ${result.available ? 'Available' : 'Not available'}`);
+    if (result.available) {
+      debugLog.ipc(`IPC: CHECK_GPU - Info: ${result.info}`);
+    }
+    return result;
   });
 
   ipcMain.handle(FFMPEG_CHANNELS.OPEN_OUTPUT_FOLDER, async (_event, filePath: string) => {
+    debugLog.ipc(`IPC: OPEN_OUTPUT_FOLDER called: ${filePath}`);
     try {
       // Show the file in the folder (opens file explorer with file selected)
       shell.showItemInFolder(filePath);
+      debugLog.ipc("IPC: OPEN_OUTPUT_FOLDER - Opened successfully");
       return { success: true };
     } catch (error) {
+      debugLog.error(`IPC: OPEN_OUTPUT_FOLDER - Failed: ${error}`);
       console.error("Failed to open output folder:", error);
       return { success: false, error: String(error) };
     }
@@ -158,14 +189,20 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
 
   // FFmpeg Download
   ipcMain.handle(FFMPEG_CHANNELS.CHECK_INSTALLED, async () => {
-    return { installed: FFmpegDownloader.isInstalled() };
+    debugLog.ipc("IPC: CHECK_INSTALLED called");
+    const installed = FFmpegDownloader.isInstalled();
+    debugLog.ipc(`IPC: CHECK_INSTALLED - Result: ${installed}`);
+    return { installed };
   });
 
   ipcMain.handle(FFMPEG_CHANNELS.START_DOWNLOAD, async () => {
+    debugLog.ipc("IPC: START_DOWNLOAD called");
     if (currentDownloader) {
+      debugLog.error("IPC: START_DOWNLOAD - Download already in progress");
       throw new Error("A download is already in progress");
     }
 
+    debugLog.info("Starting FFmpeg download...");
     currentDownloader = new FFmpegDownloader({
       onProgress: (progress) => {
         mainWindow.webContents.send(FFMPEG_CHANNELS.DOWNLOAD_PROGRESS, progress);
@@ -174,11 +211,13 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
 
     try {
       await currentDownloader.downloadAndInstall();
+      debugLog.success("FFmpeg download completed successfully");
       mainWindow.webContents.send(FFMPEG_CHANNELS.DOWNLOAD_COMPLETE);
       currentDownloader = null;
       return { success: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      debugLog.error(`FFmpeg download failed: ${errorMessage}`);
       mainWindow.webContents.send(FFMPEG_CHANNELS.DOWNLOAD_ERROR, errorMessage);
       currentDownloader = null;
       throw error;

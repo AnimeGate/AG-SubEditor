@@ -14,6 +14,7 @@ import { Flame, StopCircle, Sparkles, FolderOpen, Download, HelpCircle } from "l
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useWypalarkaTour } from "@/hooks/use-wypalarka-tour";
+import { debugLog } from "@/helpers/debug-logger";
 
 type ProcessStatus = "idle" | "processing" | "completed" | "error";
 
@@ -243,10 +244,12 @@ export default function Wypalarka() {
   // Queue handlers
   const handleAddFilesToQueue = async (files: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>) => {
     try {
+      debugLog.queue(`Adding ${files.length} items to queue`);
       // Settings are automatically synced via useEffect, just add items
       await window.ffmpegAPI.queueAddItems(files);
     } catch (error) {
       console.error("Failed to add files to queue:", error);
+      debugLog.error(`Failed to add files to queue: ${error}`);
     }
   };
 
@@ -268,30 +271,36 @@ export default function Wypalarka() {
 
   const handleStartQueue = async () => {
     try {
+      debugLog.queue("Starting queue processing");
       setIsQueueProcessing(true);
       await window.ffmpegAPI.queueStart();
     } catch (error) {
       setIsQueueProcessing(false);
       console.error("Failed to start queue:", error);
+      debugLog.error(`Failed to start queue: ${error}`);
     }
   };
 
   const handlePauseQueue = async () => {
     try {
+      debugLog.queue("Pausing queue processing");
       await window.ffmpegAPI.queuePause();
       setIsQueueProcessing(false);
     } catch (error) {
       console.error("Failed to pause queue:", error);
+      debugLog.error(`Failed to pause queue: ${error}`);
     }
   };
 
   const handleResumeQueue = async () => {
     try {
+      debugLog.queue("Resuming queue processing");
       setIsQueueProcessing(true);
       await window.ffmpegAPI.queueResume();
     } catch (error) {
       setIsQueueProcessing(false);
       console.error("Failed to resume queue:", error);
+      debugLog.error(`Failed to resume queue: ${error}`);
     }
   };
 

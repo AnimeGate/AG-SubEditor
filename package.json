@@ -1,12 +1,14 @@
 {
   "name": "ag-subeditor",
   "productName": "AG-SubEditor",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Professional ASS subtitle editor built with Electron",
   "main": "dist-electron/main.js",
   "private": true,
   "scripts": {
     "start": "vite",
+    "start:debug": "cross-env DEBUG=1 vite",
+    "start:debug:win": "set DEBUG=1 && vite",
     "build": "vite build",
     "dist": "vite build && electron-builder",
     "dist:dir": "vite build && electron-builder --dir",
@@ -78,6 +80,7 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
     "babel-plugin-react-compiler": "^19.1.0-rc.3",
+    "cross-env": "^10.1.0",
     "electron": "^38.1.2",
     "electron-builder": "^26.0.12",
     "electron-devtools-installer": "^4.0.0",

@@ -19,6 +19,8 @@ AG-SubEditor is a professional ASS (Advanced SubStation Alpha) subtitle editor b
 
 ### Development
 - `npm start` - Start the app in development mode with Vite hot reload
+- `npm run start:debug` - Start the app with debug mode enabled (opens debug console window)
+- `npm run start:debug:win` - Windows-specific debug mode command
 - `npm run lint` - Run ESLint to check code quality
 - `npm run format` - Check code formatting with Prettier (non-destructive)
 - `npm run format:write` - Format all code with Prettier
@@ -249,3 +251,203 @@ If `npm run dist` fails with "process cannot access the file":
 - Colors use oklch color space in `src/styles/global.css`
 - Theme stored in localStorage via IPC
 - Check `syncThemeWithLocal()` is called on app start
+
+## Debug Mode System
+
+AG-SubEditor includes a comprehensive debug mode with a separate console window for troubleshooting and development.
+
+### Architecture
+
+Debug mode consists of three components:
+
+1. **Debug Mode Core** (`src/helpers/debug-mode.ts`)
+   - `initializeDebugMode()` - Detects `DEBUG=1` env var or `--debug` flag
+   - `createDebugConsole()` - Creates separate debug window
+   - `debugLog` - Main process logger with categories
+   - `sendToDebugConsole()` - Sends logs to debug window
+
+2. **Debug Console Window** (`src/debug-console.html`)
+   - Standalone HTML/CSS/JS window (no React)
+   - Real-time log streaming
+   - Color-coded categories
+   - Export and clear functionality
+   - Statistics tracking
+
+3. **IPC Debug Bridge** (`src/helpers/ipc/debug/`)
+   - `debug-channels.ts` - Channel constants
+   - `debug-context.ts` - Exposes debug API to renderer
+   - `debug-listeners.ts` - Routes renderer logs to main process
+   - `debug-console-preload.ts` - Preload for debug window
+
+4. **Renderer Debug Logger** (`src/helpers/debug-logger.ts`)
+   - Wrapper around `window.debugAPI`
+   - Same API as main process `debugLog`
+   - Sends logs via IPC to main process
+
+### Enabling Debug Mode
+
+**Development:**
+```bash
+npm run start:debug
+```
+
+**Production:**
+```bash
+AG-SubEditor.exe --debug
+```
+
+**What happens when enabled:**
+- ✅ Separate debug console window opens
+- ✅ DevTools auto-opens in main window
+- ✅ All logs sent to three places: console window, terminal, and log file
+- ✅ Logs saved to `%APPDATA%\ag-subeditor\logs\debug.log`
+
+### Log Categories
+
+The debug system uses categorized logging:
+
+- **info** - General information (blue)
+- **success** - Successful operations (green)
+- **warn** - Warnings (yellow)
+- **error** - Errors (red)
+- **debug** - Debug information (gray)
+- **route** - Page navigation (purple)
+- **file** - File operations (cyan)
+- **ffmpeg** - FFmpeg output, unfiltered (orange-red)
+- **queue** - Queue operations (orange)
+- **ipc** - IPC communication (green)
+
+### Adding Debug Logs
+
+**In Main Process:**
+```typescript
+import { debugLog } from "./helpers/debug-mode";
+
+debugLog.info("Creating main window...");
+debugLog.success("Window created successfully");
+debugLog.error("Failed to load file");
+debugLog.route("Navigated to /wypalarka");
+debugLog.file("Loading subtitle file: example.ass (1024 bytes)");
+debugLog.ffmpeg("ffmpeg version 2024.12.11-full_build...");
+debugLog.queue("Processing item: video.mkv (ID: 12345)");
+```
+
+**In Renderer Process:**
+```typescript
+import { debugLog } from "@/helpers/debug-logger";
+
+debugLog.file(`Selected video file: ${fileName}`);
+debugLog.queue(`Adding ${files.length} items to queue`);
+debugLog.route("Navigated to: /wypalarka");
+```
+
+### Adding New Log Categories
+
+To add a new log category (e.g., "database"):
+
+1. **Update Main Process Logger** (`src/helpers/debug-mode.ts`):
+```typescript
+export const debugLog = {
+  // ... existing categories ...
+
+  database: (message: string, ...args: unknown[]) => {
+    if (isDebugMode) {
+      log.info(`💾 [DATABASE] ${message}`, ...args);
+      sendToDebugConsole("database", message, args);
+    }
+  },
+};
+```
+
+2. **Update Renderer Logger** (`src/helpers/debug-logger.ts`):
+```typescript
+export const debugLog = {
+  // ... existing categories ...
+
+  database: (message: string, ...args: unknown[]) => {
+    if (window.debugAPI) {
+      window.debugAPI.log("database", message, ...args);
+    }
+  },
+};
+```
+
+3. **Update TypeScript Types** (`src/types.d.ts`):
+```typescript
+interface DebugAPI {
+  log: (
+    level: "info" | "success" | "warn" | "error" | "debug" | "route" | "file" | "ffmpeg" | "queue" | "ipc" | "database",
+    message: string,
+    ...args: unknown[]
+  ) => void;
+  // ... other methods ...
+  database: (message: string, ...args: unknown[]) => void;
+}
+```
+
+4. **Update IPC Listener** (`src/helpers/ipc/debug/debug-listeners.ts`):
+```typescript
+switch (level) {
+  // ... existing cases ...
+  case "database":
+    debugLog.database(message, ...args);
+    break;
+}
+```
+
+5. **Update Context** (`src/helpers/ipc/debug/debug-context.ts`):
+```typescript
+contextBridge.exposeInMainWorld("debugAPI", {
+  // ... existing methods ...
+  database: (message: string, ...args: unknown[]) => {
+    ipcRenderer.send(DEBUG_CHANNELS.LOG, { level: "database", message, args });
+  },
+});
+```
+
+6. **Update Debug Console Styling** (`src/debug-console.html`):
+```javascript
+function getLevelDisplay(level) {
+  const displays = {
+    // ... existing categories ...
+    database: '💾 DATABASE'
+  };
+  return displays[level] || level.toUpperCase();
+}
+```
+
+```css
+.log-entry.database {
+  border-left-color: #58d3ff;
+  color: #58d3ff;
+}
+```
+
+### Best Practices
+
+1. **Use Appropriate Categories**: Choose the category that best describes the log
+2. **Include Context**: Add relevant details (file names, sizes, IDs, paths)
+3. **Log Key Operations**: File loads, processing starts/completions, errors
+4. **Avoid Sensitive Data**: Don't log passwords, API keys, or personal data
+5. **Keep Messages Concise**: One line per log, use args for additional data
+
+### Debug Console Window Features
+
+- **Real-time streaming** - Logs appear instantly
+- **Auto-scroll** - Automatically scrolls to new logs (stops when you scroll up)
+- **Export** - Save logs to a text file
+- **Clear** - Reset the console
+- **Statistics** - See total logs, errors, and warnings at bottom
+
+### Implementation Details
+
+**Vite Configuration:**
+- `debug-console-preload.ts` added to preload builds
+- `debug-console.html` copied to `dist-electron/` via custom Vite plugin
+- Multi-entry preload configuration with `inlineDynamicImports: false`
+
+**Path Handling:**
+- Development: Loads from `src/debug-console.html`
+- Production: Loads from `dist-electron/debug-console.html`
+
+See `DEBUG.md` for user-facing debug mode documentation.

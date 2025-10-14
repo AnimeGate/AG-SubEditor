@@ -4,6 +4,7 @@ import { TimeAdjustmentPanel } from "./TimeAdjustmentPanel";
 import { SubtitleGrid } from "./SubtitleGrid";
 import { InfoBar } from "./InfoBar";
 import { parseASSFile, exportASSFile, type SubtitleLine } from "@/lib/ass-parser";
+import { debugLog } from "@/helpers/debug-logger";
 
 export default function SubtitleEditor() {
   const [fileName, setFileName] = useState<string>("");
@@ -12,9 +13,11 @@ export default function SubtitleEditor() {
   const [originalFileContent, setOriginalFileContent] = useState<string>("");
 
   const handleFileUpload = async (file: File) => {
+    debugLog.file(`Loading subtitle file: ${file.name} (${file.size} bytes)`);
     const content = await file.text();
     setOriginalFileContent(content);
     const parsed = parseASSFile(content);
+    debugLog.file(`Parsed ${parsed.length} subtitle lines from ${file.name}`);
     setFileName(file.name);
     setSubtitles(parsed);
     setSelectedIndices(new Set());
@@ -23,6 +26,7 @@ export default function SubtitleEditor() {
   const handleExport = () => {
     if (!originalFileContent) return;
 
+    debugLog.file(`Exporting subtitle file: ${fileName} (${subtitles.length} lines)`);
     const exported = exportASSFile(originalFileContent, subtitles);
     const blob = new Blob([exported], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -31,6 +35,7 @@ export default function SubtitleEditor() {
     a.download = fileName || "subtitles.ass";
     a.click();
     URL.revokeObjectURL(url);
+    debugLog.file(`Successfully exported ${fileName} (${blob.size} bytes)`);
   };
 
   const handleTimeAdjustment = (
