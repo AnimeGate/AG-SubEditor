@@ -1,7 +1,7 @@
 {
   "name": "ag-subeditor",
   "productName": "AG-SubEditor",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Professional ASS subtitle editor built with Electron",
   "main": "dist-electron/main.js",
   "private": true,
