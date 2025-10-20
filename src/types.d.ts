@@ -39,8 +39,21 @@ interface FFmpegStartParams {
   subtitlePath: string;
   outputPath: string;
   settings?: {
+    // Legacy fields (preserved)
     bitrate: string;
-    useHardwareAccel: boolean;
+    useHardwareAccel?: boolean;
+    // New optional fields for advanced control
+    gpuEncode?: boolean; // replaces useHardwareAccel
+    gpuDecode?: boolean;
+    codec?: "h264" | "hevc";
+    preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+    qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+    cq?: number;
+    spatialAQ?: boolean;
+    temporalAQ?: boolean;
+    rcLookahead?: number;
+    scaleWidth?: number;
+    scaleHeight?: number;
   };
 }
 
@@ -96,6 +109,7 @@ interface FFmpegAPI {
   selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
   selectSubtitleFile: () => Promise<{ filePath: string; fileName: string } | null>;
   selectOutputPath: (defaultName: string) => Promise<string | null>;
+  getDefaultOutputPath: (videoPath: string, override?: { prefix?: string; directory?: string | null }) => Promise<string>;
   startProcess: (params: FFmpegStartParams) => Promise<{ success: boolean }>;
   cancelProcess: () => Promise<{ success: boolean; message?: string }>;
   checkGpu: () => Promise<{ available: boolean; info: string }>;
@@ -121,7 +135,23 @@ interface FFmpegAPI {
   queueResume: () => Promise<{ success: boolean; message?: string }>;
   queueGetAll: () => Promise<{ queue: QueueItem[] }>;
   queueGetStats: () => Promise<QueueStats>;
-  queueUpdateSettings: (settings: { bitrate: string; useHardwareAccel: boolean }) => Promise<{ success: boolean }>;
+  queueUpdateSettings: (settings: {
+    // Legacy and basic
+    bitrate: string;
+    useHardwareAccel?: boolean;
+    // Extended (optional)
+    gpuEncode?: boolean;
+    gpuDecode?: boolean;
+    codec?: "h264" | "hevc";
+    preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+    qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+    cq?: number;
+    spatialAQ?: boolean;
+    temporalAQ?: boolean;
+    rcLookahead?: number;
+    scaleWidth?: number;
+    scaleHeight?: number;
+  }) => Promise<{ success: boolean }>;
   queueSelectFiles: () => Promise<{ success: boolean; files: Array<{ filePath: string; fileName: string }> }>;
   // Queue Event Listeners
   onQueueUpdate: (callback: (queue: QueueItem[]) => void) => () => void;
@@ -139,4 +169,11 @@ declare interface Window {
   fileAPI: FileAPI;
   ffmpegAPI: FFmpegAPI;
   debugAPI: DebugAPI;
+  settingsAPI: {
+    getAll: () => Promise<any>;
+    getOutput: () => Promise<{ locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }>;
+    updateOutput: (partial: Partial<{ locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }>) => Promise<{ locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }>;
+    selectOutputFolder: () => Promise<string | null>;
+    onOutputUpdated: (callback: (output: { locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }) => void) => () => void;
+  };
 }
