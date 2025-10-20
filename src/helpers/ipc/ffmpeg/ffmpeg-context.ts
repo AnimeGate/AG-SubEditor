@@ -28,6 +28,9 @@ export function exposeFfmpegContext() {
     selectOutputPath: async (defaultName: string) => {
       return await ipcRenderer.invoke(FFMPEG_CHANNELS.SELECT_OUTPUT_PATH, defaultName);
     },
+    getDefaultOutputPath: async (videoPath: string, override?: { prefix?: string; directory?: string | null }) => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.GET_DEFAULT_OUTPUT_PATH, videoPath, override);
+    },
 
     // Process control
     startProcess: async (params: FFmpegStartParams) => {

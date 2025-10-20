@@ -5,6 +5,8 @@ import { FFmpegDownloader } from "@/lib/ffmpeg-downloader";
 import { QueueProcessor } from "@/lib/queue-processor";
 import { debugLog } from "../../debug-mode";
 import * as path from "path";
+import * as fs from "fs";
+import { SettingsStore } from "@/helpers/settings/settings-store";
 
 let currentProcessor: FFmpegProcessor | null = null;
 let currentDownloader: FFmpegDownloader | null = null;
@@ -78,6 +80,54 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     return result.filePath;
   });
 
+  // Resolve default output path based on settings and simple prefix
+  ipcMain.handle(
+    FFMPEG_CHANNELS.GET_DEFAULT_OUTPUT_PATH,
+    async (_event, videoPath: string, override?: { prefix?: string; directory?: string | null }) => {
+      const store = SettingsStore.getInstance();
+      const outputSettings = store.getOutput();
+
+      try {
+        const videoDir = path.dirname(videoPath);
+        const base = path.basename(videoPath, path.extname(videoPath));
+
+        const prefix = (override?.prefix ?? outputSettings.filenamePrefix ?? "").trim();
+        const customDir = override?.directory === undefined ? outputSettings.customFolder : override.directory;
+        const useCustom = (outputSettings.locationMode === "custom_folder" && !!customDir) || (!!customDir && customDir.length > 0);
+        const subfolderMode = outputSettings.locationMode === "input_subfolder";
+        const targetDir = useCustom ? (customDir as string) : (subfolderMode ? path.join(videoDir, "wypalone") : videoDir);
+
+        // ensure target dir exists if subfolder
+        if (subfolderMode) {
+          try { fs.mkdirSync(targetDir, { recursive: true }); } catch {}
+        }
+
+        const suffixWithSpace = prefix ? ` ${prefix}` : "";
+        const sanitizedBase = sanitizeFileName(base + suffixWithSpace);
+        const fileName = `${sanitizedBase}.mp4`;
+        const full = path.join(targetDir, fileName);
+
+        debugLog.ipc(`Resolved default output: ${full}`);
+        return full;
+      } catch (e) {
+        debugLog.error(`Failed to resolve default output path: ${e}`);
+        // Fallback: same folder, basic suffix
+        try {
+          const videoDir = path.dirname(videoPath);
+          const base = path.basename(videoPath, path.extname(videoPath));
+          return path.join(videoDir, `${base}_with_subs.mp4`);
+        } catch {
+          return "output_with_subs.mp4";
+        }
+      }
+    }
+  );
+
+  function sanitizeFileName(name: string): string {
+    // remove invalid characters for Windows/macOS/Linux
+    return name.replace(/[<>:"/\\|?*]/g, "").replace(/\s+/g, " ").trim();
+  }
+
   // Process control
   ipcMain.handle(FFMPEG_CHANNELS.START_PROCESS, async (_event, params: {
     videoPath: string;
@@ -85,7 +135,18 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     outputPath: string;
     settings?: {
       bitrate: string;
-      useHardwareAccel: boolean;
+      useHardwareAccel?: boolean;
+      gpuEncode?: boolean;
+      gpuDecode?: boolean;
+      codec?: "h264" | "hevc";
+      preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+      qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+      cq?: number;
+      spatialAQ?: boolean;
+      temporalAQ?: boolean;
+      rcLookahead?: number;
+      scaleWidth?: number;
+      scaleHeight?: number;
     };
   }) => {
     debugLog.ipc("IPC: START_PROCESS called");
@@ -93,7 +154,10 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     debugLog.ipc(`  Subtitle: ${params.subtitlePath}`);
     debugLog.ipc(`  Output: ${params.outputPath}`);
     if (params.settings) {
-      debugLog.ipc(`  Settings: bitrate=${params.settings.bitrate}, hwAccel=${params.settings.useHardwareAccel}`);
+      const s = params.settings as any;
+      debugLog.ipc(
+        `  Settings: bitrate=${s.bitrate}, gpuEncode=${s.gpuEncode ?? s.useHardwareAccel}, gpuDecode=${s.gpuDecode}, codec=${s.codec ?? "h264"}, preset=${s.preset ?? "p4"}, rc=${s.qualityMode ?? "vbr_hq"}, cq=${s.cq ?? 19}`
+      );
     }
 
     if (currentProcessor?.isRunning()) {
@@ -101,12 +165,16 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
       throw new Error("A process is already running. Please cancel it first.");
     }
 
+    const singleVideoName = path.basename(params.videoPath || "");
+
     currentProcessor = new FFmpegProcessor({
       onProgress: (progress) => {
         mainWindow.webContents.send(FFMPEG_CHANNELS.PROGRESS_UPDATE, progress);
       },
       onLog: (log, type) => {
         mainWindow.webContents.send(FFMPEG_CHANNELS.LOG_OUTPUT, { log, type });
+        // Mirror FFmpeg logs to Debug Console for single-file mode as well
+        debugLog.ffmpeg(`[${singleVideoName}] ${log}`);
       },
       onComplete: (outputPath) => {
         mainWindow.webContents.send(FFMPEG_CHANNELS.PROCESS_COMPLETE, outputPath);
@@ -226,7 +294,21 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
 
   // ========== Queue Management ==========
 
-  function initializeQueueProcessor(settings?: { bitrate: string; useHardwareAccel: boolean }) {
+  function initializeQueueProcessor(settings?: {
+    bitrate: string;
+    useHardwareAccel?: boolean;
+    gpuEncode?: boolean;
+    gpuDecode?: boolean;
+    codec?: "h264" | "hevc";
+    preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+    qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+    cq?: number;
+    spatialAQ?: boolean;
+    temporalAQ?: boolean;
+    rcLookahead?: number;
+    scaleWidth?: number;
+    scaleHeight?: number;
+  }) {
     if (!queueProcessor) {
       queueProcessor = new QueueProcessor(
         {
@@ -374,7 +456,16 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
 
   ipcMain.handle(FFMPEG_CHANNELS.QUEUE_UPDATE_SETTINGS, async (_event, settings: {
     bitrate: string;
-    useHardwareAccel: boolean;
+    useHardwareAccel?: boolean;
+    gpuEncode?: boolean;
+    gpuDecode?: boolean;
+    codec?: "h264" | "hevc";
+    preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+    qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+    cq?: number;
+    spatialAQ?: boolean;
+    temporalAQ?: boolean;
+    rcLookahead?: number;
   }) => {
     initializeQueueProcessor(settings);
     queueProcessor!.updateSettings(settings);

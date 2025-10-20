@@ -33,7 +33,7 @@ export class QueueProcessor {
   private callbacks: QueueCallbacks;
   private settings: EncodingSettings;
 
-  constructor(callbacks: QueueCallbacks, settings: EncodingSettings = { bitrate: "2400k", useHardwareAccel: false }) {
+  constructor(callbacks: QueueCallbacks, settings: EncodingSettings = { bitrate: "2400k" }) {
     this.callbacks = callbacks;
     this.settings = settings;
   }
@@ -193,7 +193,15 @@ export class QueueProcessor {
     debugLog.queue(`Video: ${nextItem.videoPath}`);
     debugLog.queue(`Subtitle: ${nextItem.subtitlePath}`);
     debugLog.queue(`Output: ${nextItem.outputPath}`);
-    debugLog.queue(`Settings: bitrate=${this.settings.bitrate}, hwAccel=${this.settings.useHardwareAccel}`);
+    debugLog.queue(
+      `Settings: bitrate=${this.settings.bitrate}` +
+      (this.settings.gpuEncode !== undefined ? `, gpuEncode=${this.settings.gpuEncode}` : this.settings.useHardwareAccel !== undefined ? `, hwAccel=${this.settings.useHardwareAccel}` : "") +
+      (this.settings.gpuDecode !== undefined ? `, gpuDecode=${this.settings.gpuDecode}` : "") +
+      (this.settings.codec ? `, codec=${this.settings.codec}` : "") +
+      (this.settings.preset ? `, preset=${this.settings.preset}` : "") +
+      (this.settings.qualityMode ? `, rc=${this.settings.qualityMode}` : "") +
+      (this.settings.cq !== undefined ? `, cq=${this.settings.cq}` : "")
+    );
     this.callbacks.onItemUpdate({ ...nextItem });
 
     // Create FFmpeg processor for this item

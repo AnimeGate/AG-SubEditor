@@ -8,6 +8,7 @@ export const FFMPEG_CHANNELS = {
   SELECT_VIDEO_FILE: "ffmpeg:selectVideo",
   SELECT_SUBTITLE_FILE: "ffmpeg:selectSubtitle",
   SELECT_OUTPUT_PATH: "ffmpeg:selectOutput",
+  GET_DEFAULT_OUTPUT_PATH: "ffmpeg:getDefaultOutputPath",
   CHECK_GPU: "ffmpeg:checkGpu",
   OPEN_OUTPUT_FOLDER: "ffmpeg:openOutputFolder",
   // FFmpeg Download

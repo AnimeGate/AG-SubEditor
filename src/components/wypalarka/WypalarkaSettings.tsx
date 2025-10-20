@@ -11,6 +11,29 @@ export interface EncodingSettings {
   qualityPreset: "ultra" | "high" | "medium" | "low" | "custom";
   customBitrate: string;
   useHardwareAccel: boolean;
+  // Extended options (optional; configured in Settings Modal)
+  profile?:
+    | "custom"
+    | "4k_anime_eff"
+    | "4k_live_quality"
+    | "1080p_quality"
+    | "1080p_efficiency"
+    | "720p_web"
+    | "1080p_cinema"
+    | "4k_cinema"
+    | "1080p_quality_scaled"
+    | "1080p_efficiency_scaled";
+  gpuDecode?: boolean;
+  codec?: "h264" | "hevc";
+  preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+  qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+  cq?: number;
+  spatialAQ?: boolean;
+  temporalAQ?: boolean;
+  rcLookahead?: number;
+  // Optional scaling
+  scaleWidth?: number;
+  scaleHeight?: number;
 }
 
 interface WypalarkaSettingsProps {

@@ -15,8 +15,19 @@ export interface FFmpegProgress {
 }
 
 export interface EncodingSettings {
+  // Legacy/basic
   bitrate: string;
-  useHardwareAccel: boolean;
+  useHardwareAccel?: boolean;
+  // Extended (all optional)
+  gpuEncode?: boolean; // replaces useHardwareAccel
+  gpuDecode?: boolean; // default false for hard-subs
+  codec?: "h264" | "hevc";
+  preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
+  qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
+  cq?: number;
+  spatialAQ?: boolean;
+  temporalAQ?: boolean;
+  rcLookahead?: number;
 }
 
 export interface FFmpegCallbacks {
@@ -36,6 +47,55 @@ export class FFmpegProcessor {
 
   constructor(callbacks: FFmpegCallbacks) {
     this.callbacks = callbacks;
+  }
+
+  private normalizeSettings(input: EncodingSettings): EncodingSettings & {
+    gpuEncode: boolean;
+    gpuDecode: boolean;
+    codec: "h264" | "hevc";
+    hwEncoder: "nvenc" | "qsv" | "amf" | "auto";
+    preset: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7" | undefined;
+    qualityMode: "cq" | "vbr" | "vbr_hq" | "cbr" | undefined;
+    cq: number | undefined;
+    spatialAQ: boolean | undefined;
+    temporalAQ: boolean | undefined;
+    rcLookahead: number | undefined;
+    bitrate: string;
+  } {
+    const gpuEncode = input.gpuEncode ?? input.useHardwareAccel ?? false;
+    const gpuDecode = input.gpuDecode ?? false;
+    const codec = input.codec ?? "h264";
+
+    // Determine available hardware encoders from last GPU check info is not cached here; use heuristic
+    // Prefer NVENC by default; FFmpeg will error if unavailable and we log the command
+    let hwEncoder: "nvenc" | "qsv" | "amf" | "auto" = "auto";
+    if (gpuEncode) {
+      // We can't synchronously query -encoders here; choose NVENC as default
+      hwEncoder = "nvenc";
+    }
+
+    const preset = input.preset ?? "p4";
+    const qualityMode = input.qualityMode ?? "vbr_hq";
+    const cq = input.cq ?? 19;
+    const spatialAQ = input.spatialAQ ?? true;
+    const temporalAQ = input.temporalAQ ?? true;
+    const rcLookahead = input.rcLookahead ?? 20;
+    const bitrate = input.bitrate;
+
+    return {
+      ...input,
+      gpuEncode,
+      gpuDecode,
+      codec,
+      hwEncoder,
+      preset,
+      qualityMode,
+      cq,
+      spatialAQ,
+      temporalAQ,
+      rcLookahead,
+      bitrate,
+    };
   }
 
   private getFfmpegPath(): string {
@@ -80,7 +140,7 @@ export class FFmpegProcessor {
         return;
       }
 
-      // Run ffmpeg with encoders list to check for NVENC
+      // Run ffmpeg with encoders list to check for NVENC/QSV/AMF
       const ffmpegProcess = spawn(ffmpegPath, ["-encoders"]);
       let output = "";
 
@@ -94,9 +154,9 @@ export class FFmpegProcessor {
 
       ffmpegProcess.on("close", () => {
         // Check for hardware encoders
-        const hasNVENC = output.includes("h264_nvenc");
-        const hasQSV = output.includes("h264_qsv");
-        const hasAMF = output.includes("h264_amf");
+        const hasNVENC = output.includes("h264_nvenc") || output.includes("hevc_nvenc");
+        const hasQSV = output.includes("h264_qsv") || output.includes("hevc_qsv");
+        const hasAMF = output.includes("h264_amf") || output.includes("hevc_amf");
 
         if (hasNVENC) {
           resolve({ available: true, info: "NVIDIA NVENC detected" });
@@ -244,7 +304,7 @@ export class FFmpegProcessor {
     videoPath: string,
     subtitlePath: string,
     outputPath: string,
-    settings: EncodingSettings = { bitrate: "2400k", useHardwareAccel: false }
+    settings: EncodingSettings = { bitrate: "2400k" }
   ): Promise<void> {
     if (this.process) {
       throw new Error("A process is already running");
@@ -258,7 +318,22 @@ export class FFmpegProcessor {
       throw new Error(`Subtitle file not found: ${subtitlePath}`);
     }
 
-    this.outputPath = outputPath;
+    // Resolve output path to an absolute path and ensure directory exists
+    let resolvedOutputPath = outputPath;
+    try {
+      if (!path.isAbsolute(resolvedOutputPath)) {
+        const baseDir = path.dirname(videoPath);
+        resolvedOutputPath = path.join(baseDir, resolvedOutputPath);
+      }
+      const outDir = path.dirname(resolvedOutputPath);
+      fs.mkdirSync(outDir, { recursive: true });
+      this.callbacks.onLog(`Resolved output path: ${resolvedOutputPath}`, "info");
+    } catch (e) {
+      // Fallback to original outputPath if something went wrong
+      this.callbacks.onLog(`Failed to ensure output directory: ${String(e)}`, "warning");
+    }
+
+    this.outputPath = resolvedOutputPath;
     this.videoDuration = 0;
     this.startTime = Date.now();
 
@@ -272,8 +347,15 @@ export class FFmpegProcessor {
     this.callbacks.onLog(`FFmpeg path: ${ffmpegPath}`, "debug");
     this.callbacks.onLog(`Video: ${videoPath}`, "info");
     this.callbacks.onLog(`Subtitles: ${subtitlePath}`, "info");
-    this.callbacks.onLog(`Output: ${outputPath}`, "info");
-    this.callbacks.onLog(`Quality: ${settings.bitrate} | Hardware Accel: ${settings.useHardwareAccel ? "ON" : "OFF"}`, "info");
+    this.callbacks.onLog(`Output: ${this.outputPath}`, "info");
+    // Normalize settings with safe defaults
+    const normalized = this.normalizeSettings(settings);
+    this.callbacks.onLog(
+      `Quality: ${normalized.qualityMode ?? "vbr_hq"}${normalized.cq !== undefined ? ", CQ=" + normalized.cq : ""} | ` +
+      `Encoder: ${normalized.codec ?? "h264"} ${normalized.hwEncoder ?? "auto"} | ` +
+      `GPU Encode: ${normalized.gpuEncode ? "ON" : "OFF"} | GPU Decode: ${normalized.gpuDecode ? "ON" : "OFF"}`,
+      "info"
+    );
 
     // Escape subtitle path for FFmpeg's subtitles filter
     // Replace backslashes with escaped backslashes and escape special characters
@@ -285,38 +367,65 @@ export class FFmpegProcessor {
     // Build FFmpeg arguments
     const args: string[] = [];
 
-    // Hardware acceleration (must come before input)
-    if (settings.useHardwareAccel) {
-      // Try NVENC (NVIDIA), fallback handled by FFmpeg
-      args.push("-hwaccel", "auto");
-      this.callbacks.onLog(`Hardware acceleration enabled`, "info");
+    // Hardware decode (must come before input) — default off for hard-subs
+    if (normalized.gpuDecode) {
+      if (normalized.hwEncoder === "nvenc" || normalized.hwEncoder === "amf") {
+        args.push("-hwaccel", "d3d11va");
+      } else if (normalized.hwEncoder === "qsv") {
+        args.push("-hwaccel", "qsv");
+      } else {
+        args.push("-hwaccel", "d3d11va");
+      }
+      this.callbacks.onLog(`Hardware decode enabled`, "info");
     }
 
     // Input
     args.push("-i", videoPath);
 
-    // Video filter (subtitles + format conversion)
-    // Add format=yuv420p to ensure 8-bit output for hardware encoders
-    // This fixes 10-bit input videos that h264_nvenc cannot encode directly
-    if (settings.useHardwareAccel) {
-      args.push("-vf", `subtitles='${escapedSubtitlePath}',format=yuv420p`);
-    } else {
-      args.push("-vf", `subtitles='${escapedSubtitlePath}'`);
+    // Video filter chain: optional scale -> subtitles -> format
+    const vfParts: string[] = [];
+    if (typeof (settings as any).scaleWidth === "number" && typeof (settings as any).scaleHeight === "number") {
+      const w = (settings as any).scaleWidth;
+      const h = (settings as any).scaleHeight;
+      // Keep exact WxH; rely on libass to render in scaled frame; if AR differs, users can adjust later
+      vfParts.push(`scale=${w}:${h}`);
     }
+    vfParts.push(`subtitles='${escapedSubtitlePath}'`);
+    if (normalized.gpuEncode) {
+      vfParts.push("format=yuv420p");
+    }
+    args.push("-vf", vfParts.join(","));
 
     // Video codec and quality
-    if (settings.useHardwareAccel) {
-      // Try hardware encoder, FFmpeg will fallback if not available
-      args.push("-c:v", "h264_nvenc"); // NVIDIA
-      args.push("-b:v", settings.bitrate);
-      args.push("-preset", "p2");
+    if (normalized.gpuEncode) {
+      // Hardware encoder choice
+      const codec = (normalized.codec ?? "h264") === "hevc" ? "hevc" : "h264";
+      const encoder = normalized.hwEncoder === "qsv" ? `${codec}_qsv`
+        : normalized.hwEncoder === "amf" ? `${codec}_amf` : `${codec}_nvenc`;
+      args.push("-c:v", encoder);
+
+      // Rate control
+      const rc = normalized.qualityMode ?? "vbr_hq";
+      if (rc) args.push("-rc:v", rc);
+      if ((rc === "cq" || rc === "vbr_hq") && normalized.cq !== undefined) {
+        args.push("-cq:v", String(normalized.cq));
+      }
+      if (normalized.preset) args.push("-preset", normalized.preset);
       args.push("-tune", "hq");
-      args.push("-rc:v", "vbr"); // Variable bitrate for better quality/speed balance
-      args.push("-gpu", "0"); // Explicitly use first GPU
+      if (normalized.spatialAQ) args.push("-spatial_aq", "1");
+      if (normalized.temporalAQ) args.push("-temporal_aq", "1");
+      if (typeof normalized.rcLookahead === "number") args.push("-rc-lookahead", String(normalized.rcLookahead));
+      // For CQ-based VBR, allow unconstrained bitrate
+      if (rc === "vbr_hq" || rc === "cq") {
+        args.push("-b:v", "0");
+      } else {
+        args.push("-b:v", normalized.bitrate);
+      }
     } else {
       // Software encoding
-      args.push("-c:v", "libx264");
-      args.push("-b:v", settings.bitrate);
+      const sw = (normalized.codec ?? "h264") === "hevc" ? "libx265" : "libx264";
+      args.push("-c:v", sw);
+      args.push("-b:v", normalized.bitrate);
       args.push("-preset", "veryfast");
       args.push("-tune", "animation");
     }
@@ -324,12 +433,20 @@ export class FFmpegProcessor {
     // Audio copy (no re-encoding)
     args.push("-c:a", "copy");
 
-    // Overwrite output
+    // MP4 faststart and overwrite
+    if (this.outputPath.toLowerCase().endsWith(".mp4")) {
+      args.push("-movflags", "+faststart");
+    }
     args.push("-y");
 
     // Output file
-    args.push(outputPath);
+    args.push(this.outputPath);
 
+    // Log pipeline summary
+    this.callbacks.onLog(
+      `Pipeline: subtitles filter is CPU (libass). This pipeline is CPU-bound for text render.`,
+      "metadata"
+    );
     this.callbacks.onLog(`Command: ${ffmpegPath} ${args.join(" ")}`, "debug");
 
     return new Promise((resolve, reject) => {

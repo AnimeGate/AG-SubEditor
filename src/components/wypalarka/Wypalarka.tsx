@@ -36,6 +36,14 @@ export default function Wypalarka() {
     qualityPreset: "medium",
     customBitrate: "2400k",
     useHardwareAccel: false,
+    codec: "h264",
+    preset: "p4",
+    qualityMode: "vbr_hq",
+    cq: 19,
+    gpuDecode: false,
+    spatialAQ: true,
+    temporalAQ: true,
+    rcLookahead: 20,
   });
   const [gpuAvailable, setGpuAvailable] = useState<boolean | undefined>(undefined);
   const [gpuInfo, setGpuInfo] = useState<string>("");
@@ -164,6 +172,18 @@ export default function Wypalarka() {
         await window.ffmpegAPI.queueUpdateSettings({
           bitrate,
           useHardwareAccel: encodingSettings.useHardwareAccel,
+          gpuEncode: encodingSettings.useHardwareAccel,
+          gpuDecode: encodingSettings.gpuDecode,
+          codec: encodingSettings.codec,
+          preset: encodingSettings.preset,
+          qualityMode: encodingSettings.qualityMode,
+          cq: encodingSettings.cq,
+          spatialAQ: encodingSettings.spatialAQ,
+          temporalAQ: encodingSettings.temporalAQ,
+          rcLookahead: encodingSettings.rcLookahead,
+          // pass optional scale hints (main process ignores if undefined)
+          scaleWidth: encodingSettings.scaleWidth,
+          scaleHeight: encodingSettings.scaleHeight,
         });
       } catch (error) {
         console.error("Failed to sync settings with queue processor:", error);
@@ -192,6 +212,17 @@ export default function Wypalarka() {
         settings: {
           bitrate,
           useHardwareAccel: encodingSettings.useHardwareAccel,
+          gpuEncode: encodingSettings.useHardwareAccel,
+          gpuDecode: encodingSettings.gpuDecode,
+          codec: encodingSettings.codec,
+          preset: encodingSettings.preset,
+          qualityMode: encodingSettings.qualityMode,
+          cq: encodingSettings.cq,
+          spatialAQ: encodingSettings.spatialAQ,
+          temporalAQ: encodingSettings.temporalAQ,
+          rcLookahead: encodingSettings.rcLookahead,
+          scaleWidth: encodingSettings.scaleWidth,
+          scaleHeight: encodingSettings.scaleHeight,
         },
       });
     } catch (error) {
