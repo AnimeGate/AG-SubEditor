@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Film, FileText, FolderOutput } from "lucide-react";
@@ -15,6 +15,20 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
   const [videoFile, setVideoFile] = useState<{ path: string; name: string } | null>(null);
   const [subtitleFile, setSubtitleFile] = useState<{ path: string; name: string } | null>(null);
   const [outputPath, setOutputPath] = useState<string | null>(null);
+  // Recompute output when output defaults change while a video is already selected
+  useEffect(() => {
+    const unsubscribe = (window as any).settingsAPI?.onOutputUpdated?.(async () => {
+      if (videoFile) {
+        try {
+          const resolved = await window.ffmpegAPI.getDefaultOutputPath(videoFile.path);
+          setOutputPath(resolved || null);
+        } catch {}
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
+  }, [videoFile]);
 
   const handleSelectVideo = async () => {
     const result = await window.ffmpegAPI.selectVideoFile();
@@ -22,9 +36,14 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
       debugLog.file(`Selected video file: ${result.fileName}`);
       debugLog.file(`Video path: ${result.filePath}`);
       setVideoFile({ path: result.filePath, name: result.fileName });
-      // Auto-generate output filename based on video name
-      const baseName = result.fileName.replace(/\.[^.]+$/, "");
-      setOutputPath(`${baseName}_with_subs.mp4`);
+      // Resolve absolute default output path via main process (settings-aware)
+      try {
+        const resolved = await window.ffmpegAPI.getDefaultOutputPath(result.filePath);
+        setOutputPath(resolved || null);
+      } catch {
+        const baseName = result.fileName.replace(/\.[^.]+$/, "");
+        setOutputPath(`${baseName}_with_subs.mp4`);
+      }
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,6 +41,34 @@ export function WypalarkaAddFilesDialog({ open, onOpenChange, onFilesAdded }: Wy
     ]);
   };
 
+  // If output settings change while dialog is open, recompute outputs for pairs
+  useEffect(() => {
+    const unsubscribe = (window as any).settingsAPI?.onOutputUpdated?.(async () => {
+      try {
+        const pairs = filePairs;
+        const updated = await Promise.all(
+          pairs.map(async (p) => {
+            if (p.videoPath) {
+              try {
+                const resolved = await window.ffmpegAPI.getDefaultOutputPath(p.videoPath);
+                return { ...p, outputPath: resolved } as FilePair;
+              } catch {
+                return p;
+              }
+            }
+            return p;
+          })
+        );
+        setFilePairs(updated);
+      } catch {
+        // ignore
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
+  }, [open, filePairs]);
+
   const removePair = (id: string) => {
     setFilePairs(filePairs.filter(pair => pair.id !== id));
   };
@@ -48,7 +76,13 @@ export function WypalarkaAddFilesDialog({ open, onOpenChange, onFilesAdded }: Wy
   const handleSelectVideo = async (pairId: string) => {
     const result = await window.ffmpegAPI.selectVideoFile();
     if (result) {
-      const baseName = result.fileName.replace(/\.[^.]+$/, "");
+      let defaultOut = "";
+      try {
+        defaultOut = await window.ffmpegAPI.getDefaultOutputPath(result.filePath);
+      } catch {
+        const baseName = result.fileName.replace(/\.[^.]+$/, "");
+        defaultOut = `${baseName}_with_subs.mp4`;
+      }
       setFilePairs(
         filePairs.map(pair =>
           pair.id === pairId
@@ -56,7 +90,7 @@ export function WypalarkaAddFilesDialog({ open, onOpenChange, onFilesAdded }: Wy
                 ...pair,
                 videoPath: result.filePath,
                 videoName: result.fileName,
-                outputPath: pair.outputPath || `${baseName}_with_subs.mp4`,
+                outputPath: pair.outputPath || defaultOut,
               }
             : pair
         )
