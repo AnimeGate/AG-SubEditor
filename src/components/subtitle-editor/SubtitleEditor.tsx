@@ -3,6 +3,7 @@ import { FileUploadSection } from "./FileUploadSection";
 import { TimeAdjustmentPanel } from "./TimeAdjustmentPanel";
 import { SubtitleGrid } from "./SubtitleGrid";
 import { InfoBar } from "./InfoBar";
+import { TimingSyncDialog } from "./TimingSyncDialog";
 import { parseASSFile, exportASSFile, type SubtitleLine } from "@/lib/ass-parser";
 import { debugLog } from "@/helpers/debug-logger";
 
@@ -11,6 +12,7 @@ export default function SubtitleEditor() {
   const [subtitles, setSubtitles] = useState<SubtitleLine[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [originalFileContent, setOriginalFileContent] = useState<string>("");
+  const [timingSyncDialogOpen, setTimingSyncDialogOpen] = useState<boolean>(false);
 
   const handleFileUpload = async (file: File) => {
     debugLog.file(`Loading subtitle file: ${file.name} (${file.size} bytes)`);
@@ -84,6 +86,16 @@ export default function SubtitleEditor() {
     setSelectedIndices(indices);
   };
 
+  const handleOpenTimingSync = () => {
+    debugLog.file("Opening timing sync dialog");
+    setTimingSyncDialogOpen(true);
+  };
+
+  const handleApplyTimingSync = (updatedSubtitles: SubtitleLine[]) => {
+    debugLog.file(`Applying timing sync to ${updatedSubtitles.length} subtitle lines`);
+    setSubtitles(updatedSubtitles);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <FileUploadSection
@@ -91,6 +103,7 @@ export default function SubtitleEditor() {
         totalLines={subtitles.length}
         onFileUpload={handleFileUpload}
         onExport={handleExport}
+        onImportTiming={handleOpenTimingSync}
         hasFile={subtitles.length > 0}
       />
 
@@ -115,6 +128,13 @@ export default function SubtitleEditor() {
         selectedCount={selectedIndices.size}
         totalCount={subtitles.length}
         subtitles={subtitles}
+      />
+
+      <TimingSyncDialog
+        open={timingSyncDialogOpen}
+        onOpenChange={setTimingSyncDialogOpen}
+        currentSubtitles={subtitles}
+        onApplyTiming={handleApplyTimingSync}
       />
     </div>
   );

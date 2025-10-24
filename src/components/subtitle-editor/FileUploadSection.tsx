@@ -1,6 +1,6 @@
 import type React from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, FileText } from "lucide-react";
+import { Upload, Download, FileText, Clock } from "lucide-react";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -9,6 +9,7 @@ interface FileUploadSectionProps {
   totalLines: number;
   onFileUpload: (file: File) => void;
   onExport: () => void;
+  onImportTiming: () => void;
   hasFile: boolean;
 }
 
@@ -17,6 +18,7 @@ export function FileUploadSection({
   totalLines,
   onFileUpload,
   onExport,
+  onImportTiming,
   hasFile,
 }: FileUploadSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,16 +62,29 @@ export function FileUploadSection({
           )}
         </div>
 
-        <Button
-          size="lg"
-          variant="default"
-          onClick={onExport}
-          disabled={!hasFile}
-          className="gap-2"
-        >
-          <Download className="h-5 w-5" />
-          {t("exportFile")}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={onImportTiming}
+            disabled={!hasFile}
+            className="gap-2"
+          >
+            <Clock className="h-5 w-5" />
+            {t("importTiming")}
+          </Button>
+
+          <Button
+            size="lg"
+            variant="default"
+            onClick={onExport}
+            disabled={!hasFile}
+            className="gap-2"
+          >
+            <Download className="h-5 w-5" />
+            {t("exportFile")}
+          </Button>
+        </div>
       </div>
     </div>
   );
