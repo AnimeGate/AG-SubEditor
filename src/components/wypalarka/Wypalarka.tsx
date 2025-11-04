@@ -34,7 +34,7 @@ export default function Wypalarka() {
   const [completedOutputPath, setCompletedOutputPath] = useState<string | null>(null);
   const [encodingSettings, setEncodingSettings] = useState<EncodingSettings>({
     qualityPreset: "medium",
-    customBitrate: "2400k",
+    customBitrate: "4000k",  // Increased from 2400k for better quality
     useHardwareAccel: false,
     codec: "h264",
     preset: "p4",

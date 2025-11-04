@@ -97,7 +97,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "hevc";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 20;  // High quality for 4K anime
         s.customBitrate = "10M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -108,7 +109,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "hevc";
         s.preset = "p5";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 18;  // Best quality for 4K live action
         s.customBitrate = "16M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -119,7 +121,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 18;  // High quality for 1080p
         s.customBitrate = "6M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -130,7 +133,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "hevc";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 21;  // Balanced quality/efficiency for 1080p
         s.customBitrate = "3.5M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -141,7 +145,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "hevc";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 21;  // Balanced quality/efficiency for 1080p scaled
         s.customBitrate = "3.5M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -154,7 +159,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 18;  // High quality for 1080p scaled
         s.customBitrate = "6M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -167,7 +173,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p3";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 22;  // Web-optimized quality for 720p
         s.customBitrate = "2M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -179,7 +186,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "hevc";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 20;  // High quality for cinema aspect ratio
         s.customBitrate = "3.5M";
         s.gpuDecode = false;
         s.spatialAQ = true;
@@ -193,7 +201,8 @@ export function WypalarkaSettingsModal({
         s.useHardwareAccel = true;
         s.codec = "hevc";
         s.preset = "p4";
-        s.qualityMode = "vbr";
+        s.qualityMode = "vbr_hq";
+        s.cq = 19;  // Best quality for 4K cinema
         s.customBitrate = "10M";
         s.gpuDecode = false;
         s.spatialAQ = true;

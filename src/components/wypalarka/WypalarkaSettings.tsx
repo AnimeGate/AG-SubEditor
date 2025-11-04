@@ -43,10 +43,10 @@ interface WypalarkaSettingsProps {
 }
 
 const QUALITY_PRESETS = {
-  ultra: { bitrate: "6000k", label: "Ultra (6000k)", description: "Best quality, large file" },
-  high: { bitrate: "4000k", label: "High (4000k)", description: "Great quality" },
-  medium: { bitrate: "2400k", label: "Medium (2400k)", description: "Balanced" },
-  low: { bitrate: "1200k", label: "Low (1200k)", description: "Small file, web" },
+  ultra: { bitrate: "8000k", label: "Ultra (8000k)", description: "Best quality, large file" },
+  high: { bitrate: "6000k", label: "High (6000k)", description: "Great quality" },
+  medium: { bitrate: "4000k", label: "Medium (4000k)", description: "Balanced" },
+  low: { bitrate: "2400k", label: "Low (2400k)", description: "Small file, web" },
   custom: { bitrate: "custom", label: "Custom", description: "Set your own bitrate" },
 };
 

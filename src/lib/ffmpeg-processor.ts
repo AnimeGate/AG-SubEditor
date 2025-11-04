@@ -391,9 +391,8 @@ export class FFmpegProcessor {
       vfParts.push(`scale=${w}:${h}`);
     }
     vfParts.push(`subtitles='${escapedSubtitlePath}'`);
-    if (normalized.gpuEncode) {
-      vfParts.push("format=yuv420p");
-    }
+    // Always ensure yuv420p for maximum compatibility and consistent quality
+    vfParts.push("format=yuv420p");
     args.push("-vf", vfParts.join(","));
 
     // Video codec and quality
@@ -425,13 +424,35 @@ export class FFmpegProcessor {
       // Software encoding
       const sw = (normalized.codec ?? "h264") === "hevc" ? "libx265" : "libx264";
       args.push("-c:v", sw);
-      args.push("-b:v", normalized.bitrate);
-      args.push("-preset", "veryfast");
+
+      // Use CRF (Constant Rate Factor) for better quality
+      // CRF 18-23 is visually lossless to high quality
+      const crf = normalized.cq ?? 20; // Use CQ value as CRF, default 20
+      args.push("-crf", String(crf));
+
+      // Bitrate as maximum constraint (not primary control)
+      args.push("-maxrate", normalized.bitrate);
+      args.push("-bufsize", normalized.bitrate.replace(/k$/i, "000").replace(/M$/i, "000000")); // 1x bitrate buffer
+
+      // Use "slow" preset for much better quality (still reasonable speed)
+      args.push("-preset", "slow");
       args.push("-tune", "animation");
+
+      // Set proper profile for compatibility
+      if (sw === "libx264") {
+        args.push("-profile:v", "high");
+        args.push("-level", "4.1");
+      }
     }
 
     // Audio copy (no re-encoding)
     args.push("-c:a", "copy");
+
+    // Color space and range settings to prevent dark pixels and color issues
+    args.push("-colorspace", "bt709");       // Standard HD color space
+    args.push("-color_primaries", "bt709");  // BT.709 primaries for HD content
+    args.push("-color_trc", "bt709");        // BT.709 transfer characteristics
+    args.push("-color_range", "tv");         // Limited range (16-235), standard for video
 
     // MP4 faststart and overwrite
     if (this.outputPath.toLowerCase().endsWith(".mp4")) {
