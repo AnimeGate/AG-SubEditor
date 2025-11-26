@@ -21,7 +21,7 @@ export interface EncodingSettings {
   // Extended (all optional)
   gpuEncode?: boolean; // replaces useHardwareAccel
   gpuDecode?: boolean; // default false for hard-subs
-  codec?: "h264" | "hevc";
+  codec?: "h264";
   preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
   qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
   cq?: number;
@@ -52,7 +52,7 @@ export class FFmpegProcessor {
   private normalizeSettings(input: EncodingSettings): EncodingSettings & {
     gpuEncode: boolean;
     gpuDecode: boolean;
-    codec: "h264" | "hevc";
+    codec: "h264";
     hwEncoder: "nvenc" | "qsv" | "amf" | "auto";
     preset: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7" | undefined;
     qualityMode: "cq" | "vbr" | "vbr_hq" | "cbr" | undefined;
@@ -153,10 +153,10 @@ export class FFmpegProcessor {
       });
 
       ffmpegProcess.on("close", () => {
-        // Check for hardware encoders
-        const hasNVENC = output.includes("h264_nvenc") || output.includes("hevc_nvenc");
-        const hasQSV = output.includes("h264_qsv") || output.includes("hevc_qsv");
-        const hasAMF = output.includes("h264_amf") || output.includes("hevc_amf");
+        // Check for hardware encoders (H.264 only)
+        const hasNVENC = output.includes("h264_nvenc");
+        const hasQSV = output.includes("h264_qsv");
+        const hasAMF = output.includes("h264_amf");
 
         if (hasNVENC) {
           resolve({ available: true, info: "NVIDIA NVENC detected" });
@@ -396,12 +396,11 @@ export class FFmpegProcessor {
     }
     args.push("-vf", vfParts.join(","));
 
-    // Video codec and quality
+    // Video codec and quality (H.264 only)
     if (normalized.gpuEncode) {
-      // Hardware encoder choice
-      const codec = (normalized.codec ?? "h264") === "hevc" ? "hevc" : "h264";
-      const encoder = normalized.hwEncoder === "qsv" ? `${codec}_qsv`
-        : normalized.hwEncoder === "amf" ? `${codec}_amf` : `${codec}_nvenc`;
+      // Hardware encoder choice (always H.264)
+      const encoder = normalized.hwEncoder === "qsv" ? "h264_qsv"
+        : normalized.hwEncoder === "amf" ? "h264_amf" : "h264_nvenc";
       args.push("-c:v", encoder);
 
       // Rate control
@@ -422,9 +421,8 @@ export class FFmpegProcessor {
         args.push("-b:v", normalized.bitrate);
       }
     } else {
-      // Software encoding
-      const sw = (normalized.codec ?? "h264") === "hevc" ? "libx265" : "libx264";
-      args.push("-c:v", sw);
+      // Software encoding (always H.264)
+      args.push("-c:v", "libx264");
       args.push("-b:v", normalized.bitrate);
       args.push("-preset", "veryfast");
       args.push("-tune", "animation");

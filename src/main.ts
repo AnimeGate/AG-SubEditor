@@ -1,9 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import registerListeners from "./helpers/ipc/listeners-register";
 import { initializeAutoUpdater } from "./helpers/updater/auto-updater";
-import { initializeDebugMode, isDebugEnabled, debugLog, createDebugConsole } from "./helpers/debug-mode";
-// "electron-squirrel-startup" seems broken when packaging with vite
-//import started from "electron-squirrel-startup";
+import { initializeDebugMode, debugLog, createDebugConsole } from "./helpers/debug-mode";
 import path from "path";
 
 const inDevelopment = process.env.NODE_ENV === "development";

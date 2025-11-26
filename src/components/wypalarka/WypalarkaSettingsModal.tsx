@@ -95,10 +95,10 @@ export function WypalarkaSettingsModal({
     switch (profile) {
       case "4k_anime_eff":
         s.useHardwareAccel = true;
-        s.codec = "hevc";
+        s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "10M";
+        s.customBitrate = "14M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -106,10 +106,10 @@ export function WypalarkaSettingsModal({
         break;
       case "4k_live_quality":
         s.useHardwareAccel = true;
-        s.codec = "hevc";
+        s.codec = "h264";
         s.preset = "p5";
         s.qualityMode = "vbr";
-        s.customBitrate = "16M";
+        s.customBitrate = "22M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -128,10 +128,10 @@ export function WypalarkaSettingsModal({
         break;
       case "1080p_efficiency":
         s.useHardwareAccel = true;
-        s.codec = "hevc";
+        s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "3.5M";
+        s.customBitrate = "5M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -139,10 +139,10 @@ export function WypalarkaSettingsModal({
         break;
       case "1080p_efficiency_scaled":
         s.useHardwareAccel = true;
-        s.codec = "hevc";
+        s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "3.5M";
+        s.customBitrate = "5M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -177,10 +177,10 @@ export function WypalarkaSettingsModal({
       case "1080p_cinema":
         // 1920x804 for ~2.39:1 active picture inside 1080 height
         s.useHardwareAccel = true;
-        s.codec = "hevc";
+        s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "3.5M";
+        s.customBitrate = "5M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -191,10 +191,10 @@ export function WypalarkaSettingsModal({
       case "4k_cinema":
         // 3840x1608 for ~2.39:1 in 4K width
         s.useHardwareAccel = true;
-        s.codec = "hevc";
+        s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "10M";
+        s.customBitrate = "14M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -627,7 +627,6 @@ export function WypalarkaSettingsModal({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="h264">H.264</SelectItem>
-                    <SelectItem value="hevc">HEVC (H.265)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">{t("wypalarkaEncoderCodecDesc")}</p>

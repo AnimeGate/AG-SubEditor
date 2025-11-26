@@ -138,7 +138,7 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
       useHardwareAccel?: boolean;
       gpuEncode?: boolean;
       gpuDecode?: boolean;
-      codec?: "h264" | "hevc";
+      codec?: "h264";
       preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
       qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
       cq?: number;
@@ -299,7 +299,7 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     useHardwareAccel?: boolean;
     gpuEncode?: boolean;
     gpuDecode?: boolean;
-    codec?: "h264" | "hevc";
+    codec?: "h264";
     preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
     qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
     cq?: number;
@@ -459,7 +459,7 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     useHardwareAccel?: boolean;
     gpuEncode?: boolean;
     gpuDecode?: boolean;
-    codec?: "h264" | "hevc";
+    codec?: "h264";
     preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
     qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
     cq?: number;

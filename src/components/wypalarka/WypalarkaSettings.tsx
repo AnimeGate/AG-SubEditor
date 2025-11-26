@@ -24,7 +24,7 @@ export interface EncodingSettings {
     | "1080p_quality_scaled"
     | "1080p_efficiency_scaled";
   gpuDecode?: boolean;
-  codec?: "h264" | "hevc";
+  codec?: "h264";
   preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
   qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
   cq?: number;
