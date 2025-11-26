@@ -7,13 +7,10 @@ import { WypalarkaQueuePanel } from "./WypalarkaQueuePanel";
 import { WypalarkaQueueProgressPanel } from "./WypalarkaQueueProgressPanel";
 import { WypalarkaSettingsModal } from "./WypalarkaSettingsModal";
 import { WypalarkaFfmpegDownloadDialog } from "./WypalarkaFfmpegDownloadDialog";
-import { WypalarkaTour } from "./WypalarkaTour";
 import type { EncodingSettings } from "./WypalarkaSettings";
 import { useTranslation } from "react-i18next";
-import { Flame, StopCircle, Sparkles, FolderOpen, Download, HelpCircle } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Flame, StopCircle, FolderOpen, Download } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useWypalarkaTour } from "@/hooks/use-wypalarka-tour";
 import { debugLog } from "@/helpers/debug-logger";
 
 type ProcessStatus = "idle" | "processing" | "completed" | "error";
@@ -62,9 +59,6 @@ export default function Wypalarka() {
     cancelled: 0,
   });
   const [isQueueProcessing, setIsQueueProcessing] = useState(false);
-
-  // Tour management
-  const { runTour, handleTourCallback, restartTour } = useWypalarkaTour();
 
   // Check FFmpeg installation on mount
   useEffect(() => {
@@ -343,32 +337,8 @@ export default function Wypalarka() {
     }
   };
 
-  // Handle tour step changes - auto-open settings dialog
-  const handleTourStepChange = (stepIndex: number) => {
-    // Steps 4, 5, 6 are the settings button, quality preset, and GPU acceleration
-    // Keep the dialog open during all these steps
-    if (stepIndex >= 4 && stepIndex <= 6) {
-      if (!settingsDialogOpen) {
-        setTimeout(() => setSettingsDialogOpen(true), 300);
-      }
-    } else if (stepIndex > 6) {
-      // Close settings dialog when moving past step 6
-      if (settingsDialogOpen) {
-        setSettingsDialogOpen(false);
-      }
-    }
-  };
-
   return (
-    <>
-      {/* Tour Component */}
-      <WypalarkaTour
-        run={runTour}
-        onCallback={handleTourCallback}
-        onStepChange={handleTourStepChange}
-      />
-
-      <div className="flex flex-col h-full p-6 gap-6">
+    <div className="flex flex-col h-full p-6 gap-6">
         <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Flame className="h-8 w-8 text-orange-500" />
@@ -379,15 +349,6 @@ export default function Wypalarka() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={restartTour}
-            title={t("tourShowGuide")}
-          >
-            <HelpCircle className="h-4 w-4" />
-          </Button>
-
           <WypalarkaSettingsModal
             settings={encodingSettings}
             onSettingsChange={setEncodingSettings}
@@ -506,7 +467,6 @@ export default function Wypalarka() {
         open={showDownloadDialog}
         onClose={handleDownloadDialogClose}
       />
-      </div>
-    </>
+    </div>
   );
 }

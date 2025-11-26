@@ -7,9 +7,16 @@ export interface ThemePreferences {
   local: ThemeMode | null;
 }
 
+/**
+ * Get the theme stored in localStorage synchronously
+ */
+export function getLocalTheme(): ThemeMode | null {
+  return localStorage.getItem(THEME_KEY) as ThemeMode | null;
+}
+
 export async function getCurrentTheme(): Promise<ThemePreferences> {
   const currentTheme = await window.themeMode.current();
-  const localTheme = localStorage.getItem(THEME_KEY) as ThemeMode | null;
+  const localTheme = getLocalTheme();
 
   return {
     system: currentTheme,
@@ -45,14 +52,44 @@ export async function toggleTheme() {
   localStorage.setItem(THEME_KEY, newTheme);
 }
 
-export async function syncThemeWithLocal() {
-  const { local } = await getCurrentTheme();
-  if (!local) {
-    setTheme("system");
-    return;
+/**
+ * Apply theme immediately from localStorage (synchronous, for initial render).
+ * This ensures the UI has the correct theme class before React renders.
+ */
+export function applyThemeImmediately(): void {
+  const localTheme = getLocalTheme();
+  if (localTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else if (localTheme === "light") {
+    document.documentElement.classList.remove("dark");
+  } else {
+    // System theme - check system preference
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   }
+}
 
-  await setTheme(local);
+export async function syncThemeWithLocal() {
+  const localTheme = getLocalTheme();
+
+  // First, immediately apply the document class for consistent UI
+  applyThemeImmediately();
+
+  // Then sync with native theme (for Electron dialogs, etc.)
+  try {
+    if (!localTheme) {
+      await setTheme("system");
+      return;
+    }
+    await setTheme(localTheme);
+  } catch (error) {
+    console.error("Failed to sync theme with native:", error);
+    // UI theme class is already applied, so the app will still look correct
+  }
 }
 
 function updateDocumentTheme(isDarkMode: boolean) {

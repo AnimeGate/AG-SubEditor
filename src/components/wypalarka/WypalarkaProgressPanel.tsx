@@ -70,7 +70,7 @@ export function WypalarkaProgressPanel({
   };
 
   return (
-    <Card className="flex flex-col h-full" data-tour="progress-panel">
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

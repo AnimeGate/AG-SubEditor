@@ -292,7 +292,6 @@ export function WypalarkaSettingsModal({
           size="icon"
           disabled={disabled}
           title={t("wypalarkaEncodingSettings")}
-          data-tour="settings-button"
         >
           <Settings2 className="h-4 w-4" />
         </Button>
@@ -308,7 +307,7 @@ export function WypalarkaSettingsModal({
 
         <div className="space-y-6 py-4">
           {/* Output Defaults */}
-          <div className="space-y-3" data-tour="output-defaults">
+          <div className="space-y-3">
             <Label>{t("outputDefaults", { defaultValue: "Domyślne wyjście / Output defaults" })}</Label>
             <div className="grid grid-cols-1 gap-3">
               <div className="space-y-1">
@@ -468,7 +467,7 @@ export function WypalarkaSettingsModal({
             />
           </div>
           {/* Quality Preset (bitrate presets) */}
-          <div className="space-y-3" data-tour="quality-preset">
+          <div className="space-y-3">
             <Label htmlFor="quality-preset">{t("wypalarkaQualityPreset")}</Label>
             <Select
               value={settings.qualityPreset}
@@ -530,7 +529,7 @@ export function WypalarkaSettingsModal({
           )}
 
           {/* Hardware Acceleration & Advanced */}
-          <div className="space-y-3 pt-2 border-t" data-tour="gpu-acceleration">
+          <div className="space-y-3 pt-2 border-t">
             <div className="flex items-start space-x-3">
               <Checkbox
                 id="hardware-accel"
