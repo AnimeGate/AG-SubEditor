@@ -46,6 +46,14 @@ export function exposeFfmpegContext() {
       return await ipcRenderer.invoke(FFMPEG_CHANNELS.OPEN_OUTPUT_FOLDER, filePath);
     },
 
+    // Output conflict detection
+    checkOutputExists: async (outputPath: string): Promise<boolean> => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.CHECK_OUTPUT_EXISTS, outputPath);
+    },
+    resolveOutputConflict: async (outputPath: string): Promise<string> => {
+      return await ipcRenderer.invoke(FFMPEG_CHANNELS.RESOLVE_OUTPUT_CONFLICT, outputPath);
+    },
+
     // FFmpeg Download
     checkInstalled: async () => {
       return await ipcRenderer.invoke(FFMPEG_CHANNELS.CHECK_INSTALLED);

@@ -150,6 +150,12 @@ i18n.use(initReactI18next).init({
         wypalarkaTemporalAQDesc: "Poprawia jakość w ruchu; lepszy rozdział bitów między klatkami.",
         wypalarkaRcLookahead: "RC Lookahead",
         wypalarkaRcLookaheadDesc: "Ilość przyszłych klatek analizowanych przez RC. Więcej = lepsze decyzje kosztem opóźnienia. Typowo 0–32.",
+        // Output Conflict
+        wypalarkaConflictTitle: "Plik już istnieje",
+        wypalarkaConflictDescription: "Plik wyjściowy \"{{fileName}}\" już istnieje. Co chcesz zrobić?",
+        wypalarkaConflictOverwrite: "Nadpisz istniejący plik",
+        wypalarkaConflictAutoRename: "Użyj nowej nazwy automatycznie",
+        wypalarkaConflictChooseNew: "Wybierz inną lokalizację",
         // FFmpeg Download
         wypalarkaFfmpegRequired: "FFmpeg jest wymagany",
         wypalarkaFfmpegNotInstalled: "FFmpeg nie jest zainstalowany. Pobierz i zainstaluj aby korzystać z funkcji wypalania napisów.",
@@ -389,6 +395,12 @@ i18n.use(initReactI18next).init({
         wypalarkaTemporalAQDesc: "Improves quality in motion by distributing bits across frames.",
         wypalarkaRcLookahead: "RC Lookahead",
         wypalarkaRcLookaheadDesc: "Number of future frames RC analyzes. Higher = better decisions at the cost of latency. Typical 0–32.",
+        // Output Conflict
+        wypalarkaConflictTitle: "File already exists",
+        wypalarkaConflictDescription: "Output file \"{{fileName}}\" already exists. What do you want to do?",
+        wypalarkaConflictOverwrite: "Overwrite existing file",
+        wypalarkaConflictAutoRename: "Use auto-generated name",
+        wypalarkaConflictChooseNew: "Choose different location",
         // FFmpeg Download
         wypalarkaFfmpegRequired: "FFmpeg is required",
         wypalarkaFfmpegNotInstalled: "FFmpeg is not installed. Download and install it to use the subtitle burning feature.",

@@ -114,6 +114,9 @@ interface FFmpegAPI {
   cancelProcess: () => Promise<{ success: boolean; message?: string }>;
   checkGpu: () => Promise<{ available: boolean; info: string }>;
   openOutputFolder: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+  // Output conflict detection
+  checkOutputExists: (outputPath: string) => Promise<boolean>;
+  resolveOutputConflict: (outputPath: string) => Promise<string>;
   onProgress: (callback: (progress: FFmpegProgress) => void) => () => void;
   onLog: (callback: (data: { log: string; type: LogType }) => void) => () => void;
   onComplete: (callback: (outputPath: string) => void) => () => void;

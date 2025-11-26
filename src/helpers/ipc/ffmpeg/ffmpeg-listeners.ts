@@ -128,6 +128,30 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     return name.replace(/[<>:"/\\|?*]/g, "").replace(/\s+/g, " ").trim();
   }
 
+  // Output conflict detection
+  ipcMain.handle(FFMPEG_CHANNELS.CHECK_OUTPUT_EXISTS, async (_event, outputPath: string) => {
+    debugLog.ipc(`IPC: CHECK_OUTPUT_EXISTS called: ${outputPath}`);
+    const exists = fs.existsSync(outputPath);
+    debugLog.ipc(`IPC: CHECK_OUTPUT_EXISTS - Result: ${exists}`);
+    return exists;
+  });
+
+  ipcMain.handle(FFMPEG_CHANNELS.RESOLVE_OUTPUT_CONFLICT, async (_event, outputPath: string) => {
+    debugLog.ipc(`IPC: RESOLVE_OUTPUT_CONFLICT called: ${outputPath}`);
+    const dir = path.dirname(outputPath);
+    const ext = path.extname(outputPath);
+    const base = path.basename(outputPath, ext);
+
+    let counter = 1;
+    let newPath = outputPath;
+    while (fs.existsSync(newPath)) {
+      newPath = path.join(dir, `${base}_${counter}${ext}`);
+      counter++;
+    }
+    debugLog.ipc(`IPC: RESOLVE_OUTPUT_CONFLICT - Resolved to: ${newPath}`);
+    return newPath;
+  });
+
   // Process control
   ipcMain.handle(FFMPEG_CHANNELS.START_PROCESS, async (_event, params: {
     videoPath: string;
