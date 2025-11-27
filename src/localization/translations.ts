@@ -69,6 +69,15 @@ export const translations = {
       wypalarkaSubtitleFile: "Plik napisów",
       wypalarkaSubtitleFileDesc: "Wybierz plik napisów ASS",
       wypalarkaSelectSubtitle: "Wybierz plik napisów",
+      wypalarkaDropHint: "Lub przeciągnij i upuść plik tutaj",
+      wypalarkaQueueDropFilesHere: "Upuść pliki tutaj",
+      wypalarkaQueueDropHint:
+        "Przeciągnij pliki wideo i napisy - zostaną automatycznie sparowane",
+      // Unpaired Videos Dialog
+      wypalarkaUnpairedTitle: "Brak pasujących napisów",
+      wypalarkaUnpairedDescription:
+        "Nie znaleziono napisów dla {{count}} plików wideo. Wybierz plik napisów do zastosowania dla wszystkich.",
+      wypalarkaUnpairedSelectSubtitle: "Wybierz napisy",
       wypalarkaOutputFile: "Plik wyjściowy",
       wypalarkaOutputFileDesc: "Wybierz lokalizację zapisu filmu z napisami",
       wypalarkaSelectOutput: "Wybierz lokalizację zapisu",
@@ -392,6 +401,15 @@ export const translations = {
       wypalarkaSubtitleFile: "Subtitle File",
       wypalarkaSubtitleFileDesc: "Select ASS subtitle file",
       wypalarkaSelectSubtitle: "Select subtitle file",
+      wypalarkaDropHint: "Or drag and drop file here",
+      wypalarkaQueueDropFilesHere: "Drop files here",
+      wypalarkaQueueDropHint:
+        "Drag video and subtitle files - they will be auto-paired",
+      // Unpaired Videos Dialog
+      wypalarkaUnpairedTitle: "No matching subtitles",
+      wypalarkaUnpairedDescription:
+        "No subtitles found for {{count}} video files. Select a subtitle file to apply to all.",
+      wypalarkaUnpairedSelectSubtitle: "Select subtitle",
       wypalarkaOutputFile: "Output File",
       wypalarkaOutputFileDesc: "Choose location to save video with subtitles",
       wypalarkaSelectOutput: "Choose save location",
