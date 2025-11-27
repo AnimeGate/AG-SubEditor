@@ -41,11 +41,22 @@ export class FFmpegDownloader {
   }
 
   /**
-   * Check if FFmpeg is already installed
+   * Get the path where FFprobe should be located
+   */
+  static getFfprobePath(): string {
+    const userDataPath = app.getPath("userData");
+    const ffmpegDir = path.join(userDataPath, "WYPALANIE");
+    return path.join(ffmpegDir, "ffprobe.exe");
+  }
+
+  /**
+   * Check if FFmpeg and FFprobe are both installed
    */
   static isInstalled(): boolean {
     const ffmpegPath = FFmpegDownloader.getFfmpegPath();
-    return fs.existsSync(ffmpegPath);
+    const ffprobePath = FFmpegDownloader.getFfprobePath();
+    // Both must exist for full functionality
+    return fs.existsSync(ffmpegPath) && fs.existsSync(ffprobePath);
   }
 
   /**
@@ -207,39 +218,46 @@ export class FFmpegDownloader {
   }
 
   /**
-   * Move ffmpeg.exe from the extracted nested directory to WYPALANIE root
+   * Move ffmpeg.exe and ffprobe.exe from the extracted nested directory to WYPALANIE root
    */
   private async moveFfmpegExecutable(ffmpegDir: string): Promise<void> {
     const tempExtractDir = path.join(ffmpegDir, "temp_extract");
 
     // Find ffmpeg.exe in the extracted directory structure
-    const ffmpegExe = this.findFfmpegExecutable(tempExtractDir);
+    const ffmpegExe = this.findExecutable(tempExtractDir, "ffmpeg.exe");
 
     if (!ffmpegExe) {
       throw new Error("Could not find ffmpeg.exe in the extracted archive");
     }
 
-    // Move to WYPALANIE root
-    const targetPath = path.join(ffmpegDir, "ffmpeg.exe");
-    fs.copyFileSync(ffmpegExe, targetPath);
+    // Move ffmpeg.exe to WYPALANIE root
+    const ffmpegTargetPath = path.join(ffmpegDir, "ffmpeg.exe");
+    fs.copyFileSync(ffmpegExe, ffmpegTargetPath);
+
+    // Also copy ffprobe.exe (in same directory as ffmpeg.exe)
+    const ffprobeExe = this.findExecutable(tempExtractDir, "ffprobe.exe");
+    if (ffprobeExe) {
+      const ffprobeTargetPath = path.join(ffmpegDir, "ffprobe.exe");
+      fs.copyFileSync(ffprobeExe, ffprobeTargetPath);
+    }
 
     // Clean up temp directory
     fs.rmSync(tempExtractDir, { recursive: true, force: true });
   }
 
   /**
-   * Recursively find ffmpeg.exe in a directory
+   * Recursively find an executable in a directory
    */
-  private findFfmpegExecutable(dir: string): string | null {
+  private findExecutable(dir: string, execName: string): string | null {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
 
       if (entry.isDirectory()) {
-        const found = this.findFfmpegExecutable(fullPath);
+        const found = this.findExecutable(fullPath, execName);
         if (found) return found;
-      } else if (entry.name === "ffmpeg.exe") {
+      } else if (entry.name === execName) {
         return fullPath;
       }
     }

@@ -177,6 +177,26 @@ export const translations = {
       wypalarkaConflictOverwrite: "Nadpisz istniejący plik",
       wypalarkaConflictAutoRename: "Użyj nowej nazwy automatycznie",
       wypalarkaConflictChooseNew: "Wybierz inną lokalizację",
+      // Disk Space Check
+      wypalarkaDiskSpaceTitle: "Niewystarczająca ilość miejsca na dysku",
+      wypalarkaDiskSpaceDescription:
+        "Na dysku docelowym może nie być wystarczającej ilości miejsca dla pliku wyjściowego.",
+      wypalarkaDiskSpaceRequired: "Wymagane (szacunkowo)",
+      wypalarkaDiskSpaceAvailable: "Dostępne",
+      wypalarkaDiskSpaceOutputLocation: "Lokalizacja wyjściowa",
+      wypalarkaDiskSpaceWarning:
+        "Kontynuowanie może spowodować uszkodzenie pliku wyjściowego, jeśli zabraknie miejsca podczas kodowania.",
+      wypalarkaDiskSpaceChangeLocation: "Zmień lokalizację",
+      wypalarkaDiskSpaceProceedAnyway: "Kontynuuj mimo to",
+      wypalarkaDiskSpaceSelectOutput: "Wybierz lokalizację wyjściową...",
+      wypalarkaDiskSpaceEstimated: "Szacowany rozmiar",
+      wypalarkaDiskSpaceLowWarning: "Mało miejsca!",
+      // Queue Disk Space
+      wypalarkaQueueDiskSpaceTitle: "Wykryto problemy z miejscem na dysku",
+      wypalarkaQueueDiskSpaceDescription:
+        "{{count}} plików w kolejce może mieć niewystarczającą ilość miejsca na dysku docelowym.",
+      wypalarkaQueueDiskSpaceWarning:
+        "Kontynuowanie może spowodować niepowodzenie kodowania lub uszkodzenie plików wyjściowych.",
       // FFmpeg Download
       wypalarkaFfmpegRequired: "FFmpeg jest wymagany",
       wypalarkaFfmpegNotInstalled:
@@ -464,6 +484,26 @@ export const translations = {
       wypalarkaConflictOverwrite: "Overwrite existing file",
       wypalarkaConflictAutoRename: "Use auto-generated name",
       wypalarkaConflictChooseNew: "Choose different location",
+      // Disk Space Check
+      wypalarkaDiskSpaceTitle: "Insufficient disk space",
+      wypalarkaDiskSpaceDescription:
+        "The target drive may not have enough space for the output file.",
+      wypalarkaDiskSpaceRequired: "Required (estimated)",
+      wypalarkaDiskSpaceAvailable: "Available",
+      wypalarkaDiskSpaceOutputLocation: "Output location",
+      wypalarkaDiskSpaceWarning:
+        "Proceeding may result in a corrupted output file if disk space runs out during encoding.",
+      wypalarkaDiskSpaceChangeLocation: "Change location",
+      wypalarkaDiskSpaceProceedAnyway: "Proceed anyway",
+      wypalarkaDiskSpaceSelectOutput: "Select output location...",
+      wypalarkaDiskSpaceEstimated: "Estimated size",
+      wypalarkaDiskSpaceLowWarning: "Low space!",
+      // Queue Disk Space
+      wypalarkaQueueDiskSpaceTitle: "Disk space issues detected",
+      wypalarkaQueueDiskSpaceDescription:
+        "{{count}} files in the queue may not have sufficient disk space on the target drive.",
+      wypalarkaQueueDiskSpaceWarning:
+        "Proceeding may result in encoding failures or corrupted output files.",
       // FFmpeg Download
       wypalarkaFfmpegRequired: "FFmpeg is required",
       wypalarkaFfmpegNotInstalled:

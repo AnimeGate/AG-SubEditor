@@ -99,6 +99,49 @@ export function exposeFfmpegContext() {
         ipcRenderer.removeListener(FFMPEG_CHANNELS.DOWNLOAD_ERROR, listener);
     },
 
+    // Disk Space Check
+    getDiskSpace: async (
+      targetPath: string,
+    ): Promise<{
+      available: number;
+      total: number;
+      driveLetter: string;
+    }> => {
+      return await ipcRenderer.invoke(
+        FFMPEG_CHANNELS.GET_DISK_SPACE,
+        targetPath,
+      );
+    },
+    getVideoDuration: async (videoPath: string): Promise<number> => {
+      return await ipcRenderer.invoke(
+        FFMPEG_CHANNELS.GET_VIDEO_DURATION,
+        videoPath,
+      );
+    },
+    checkDiskSpace: async (
+      outputPath: string,
+      videoPath: string,
+      settings: {
+        bitrate?: string;
+        qualityMode?: string;
+        cqValue?: number;
+      },
+    ): Promise<{
+      sufficient: boolean;
+      available: number;
+      required: number;
+      availableFormatted: string;
+      requiredFormatted: string;
+      driveLetter: string;
+    }> => {
+      return await ipcRenderer.invoke(
+        FFMPEG_CHANNELS.CHECK_DISK_SPACE,
+        outputPath,
+        videoPath,
+        settings,
+      );
+    },
+
     // Event listeners
     onProgress: (callback: (progress: FFmpegProgress) => void) => {
       const listener = (_event: any, progress: FFmpegProgress) =>

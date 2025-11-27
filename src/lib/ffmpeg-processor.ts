@@ -679,3 +679,68 @@ export class FFmpegProcessor {
     return this.process !== null;
   }
 }
+
+/**
+ * Get path to FFprobe executable.
+ */
+function getFFprobePath(): string {
+  return FFmpegDownloader.getFfprobePath();
+}
+
+/**
+ * Get video duration in milliseconds using FFprobe.
+ */
+export async function getVideoDuration(videoPath: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const ffprobePath = getFFprobePath();
+
+    if (!fs.existsSync(ffprobePath)) {
+      reject(new Error("FFprobe not found"));
+      return;
+    }
+
+    const ffprobeProcess = spawn(ffprobePath, [
+      "-v",
+      "error",
+      "-show_entries",
+      "format=duration",
+      "-of",
+      "default=noprint_wrappers=1:nokey=1",
+      videoPath,
+    ]);
+
+    let output = "";
+    let errorOutput = "";
+
+    ffprobeProcess.stdout?.on("data", (data: Buffer) => {
+      output += data.toString();
+    });
+
+    ffprobeProcess.stderr?.on("data", (data: Buffer) => {
+      errorOutput += data.toString();
+    });
+
+    ffprobeProcess.on("close", (code) => {
+      if (code === 0) {
+        const durationSeconds = parseFloat(output.trim());
+        if (!isNaN(durationSeconds)) {
+          resolve(durationSeconds * 1000);
+        } else {
+          reject(new Error("Failed to parse video duration"));
+        }
+      } else {
+        reject(new Error(`FFprobe exited with code ${code}: ${errorOutput}`));
+      }
+    });
+
+    ffprobeProcess.on("error", (error) => {
+      reject(new Error(`FFprobe process error: ${error.message}`));
+    });
+
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      ffprobeProcess.kill();
+      reject(new Error("Duration check timed out"));
+    }, 10000);
+  });
+}

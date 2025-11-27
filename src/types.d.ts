@@ -135,6 +135,29 @@ interface FFmpegAPI {
   // Output conflict detection
   checkOutputExists: (outputPath: string) => Promise<boolean>;
   resolveOutputConflict: (outputPath: string) => Promise<string>;
+  // Disk Space Check
+  getDiskSpace: (targetPath: string) => Promise<{
+    available: number;
+    total: number;
+    driveLetter: string;
+  }>;
+  getVideoDuration: (videoPath: string) => Promise<number>;
+  checkDiskSpace: (
+    outputPath: string,
+    videoPath: string,
+    settings: {
+      bitrate?: string;
+      qualityMode?: string;
+      cqValue?: number;
+    },
+  ) => Promise<{
+    sufficient: boolean;
+    available: number;
+    required: number;
+    availableFormatted: string;
+    requiredFormatted: string;
+    driveLetter: string;
+  }>;
   onProgress: (callback: (progress: FFmpegProgress) => void) => () => void;
   onLog: (
     callback: (data: { log: string; type: LogType }) => void,

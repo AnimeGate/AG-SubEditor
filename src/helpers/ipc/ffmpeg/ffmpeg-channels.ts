@@ -41,4 +41,8 @@ export const FFMPEG_CHANNELS = {
   QUEUE_ITEM_COMPLETE: "ffmpeg:queue:itemComplete",
   QUEUE_ITEM_ERROR: "ffmpeg:queue:itemError",
   QUEUE_COMPLETE: "ffmpeg:queue:complete",
+  // Disk Space Check
+  CHECK_DISK_SPACE: "ffmpeg:checkDiskSpace",
+  GET_DISK_SPACE: "ffmpeg:getDiskSpace",
+  GET_VIDEO_DURATION: "ffmpeg:getVideoDuration",
 } as const;

@@ -15,11 +15,15 @@ import { WypalarkaOutputConflictDialog } from "./WypalarkaOutputConflictDialog";
 interface WypalarkaFileInputProps {
   onFilesSelected: (video: string, subtitle: string, output: string) => void;
   disabled?: boolean;
+  onVideoPathChange?: (path: string | null) => void;
+  onOutputPathChange?: (path: string | null) => void;
 }
 
 export function WypalarkaFileInput({
   onFilesSelected,
   disabled,
+  onVideoPathChange,
+  onOutputPathChange,
 }: WypalarkaFileInputProps) {
   const { t } = useTranslation();
   const [videoFile, setVideoFile] = useState<{
@@ -32,6 +36,17 @@ export function WypalarkaFileInput({
   } | null>(null);
   const [outputPath, setOutputPath] = useState<string | null>(null);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
+
+  // Notify parent of video path changes
+  useEffect(() => {
+    onVideoPathChange?.(videoFile?.path ?? null);
+  }, [videoFile, onVideoPathChange]);
+
+  // Notify parent of output path changes
+  useEffect(() => {
+    onOutputPathChange?.(outputPath);
+  }, [outputPath, onOutputPathChange]);
+
   // Recompute output when output defaults change while a video is already selected
   useEffect(() => {
     const unsubscribe = (window as any).settingsAPI?.onOutputUpdated?.(

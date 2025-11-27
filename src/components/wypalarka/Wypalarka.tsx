@@ -7,6 +7,9 @@ import { WypalarkaQueuePanel } from "./WypalarkaQueuePanel";
 import { WypalarkaQueueProgressPanel } from "./WypalarkaQueueProgressPanel";
 import { WypalarkaSettingsModal } from "./WypalarkaSettingsModal";
 import { WypalarkaFfmpegDownloadDialog } from "./WypalarkaFfmpegDownloadDialog";
+import { WypalarkaDiskSpaceBar } from "./WypalarkaDiskSpaceBar";
+import { WypalarkaDiskSpaceDialog } from "./WypalarkaDiskSpaceDialog";
+import { WypalarkaQueueDiskSpaceDialog } from "./WypalarkaQueueDiskSpaceDialog";
 import type { EncodingSettings } from "./WypalarkaSettings";
 import { useTranslation } from "react-i18next";
 import { Flame, StopCircle, FolderOpen, Download } from "lucide-react";
@@ -52,6 +55,35 @@ export default function Wypalarka() {
   const [ffmpegInstalled, setFfmpegInstalled] = useState<boolean | null>(null);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+
+  // Disk space tracking for footer bar
+  const [currentVideoPath, setCurrentVideoPath] = useState<string | null>(null);
+  const [currentOutputPath, setCurrentOutputPath] = useState<string | null>(null);
+
+  // Disk space dialog state (single file mode)
+  const [diskSpaceDialogOpen, setDiskSpaceDialogOpen] = useState(false);
+  const [diskSpaceCheckResult, setDiskSpaceCheckResult] = useState<{
+    availableFormatted: string;
+    requiredFormatted: string;
+    driveLetter: string;
+    outputPath: string;
+    pendingProcess: {
+      videoPath: string;
+      subtitlePath: string;
+      outputPath: string;
+    } | null;
+  } | null>(null);
+
+  // Queue disk space check state
+  const [queueDiskSpaceDialogOpen, setQueueDiskSpaceDialogOpen] = useState(false);
+  const [queueDiskSpaceIssues, setQueueDiskSpaceIssues] = useState<
+    Array<{
+      videoName: string;
+      driveLetter: string;
+      availableFormatted: string;
+      requiredFormatted: string;
+    }>
+  >([]);
 
   // Queue state
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -193,7 +225,8 @@ export default function Wypalarka() {
     syncSettings();
   }, [encodingSettings]);
 
-  const handleStartProcess = async (
+  // Actually start the FFmpeg process (called after disk space check passes or user proceeds anyway)
+  const doStartProcess = async (
     videoPath: string,
     subtitlePath: string,
     outputPath: string,
@@ -241,6 +274,54 @@ export default function Wypalarka() {
     }
   };
 
+  // Entry point when user clicks start - checks disk space first
+  const handleStartProcess = async (
+    videoPath: string,
+    subtitlePath: string,
+    outputPath: string,
+  ) => {
+    try {
+      // Check disk space before starting
+      const bitrate =
+        encodingSettings.qualityPreset === "custom"
+          ? encodingSettings.customBitrate
+          : encodingSettings.customBitrate;
+
+      const diskCheck = await window.ffmpegAPI.checkDiskSpace(
+        outputPath,
+        videoPath,
+        {
+          bitrate,
+          qualityMode: encodingSettings.qualityMode,
+          cqValue: encodingSettings.cq,
+        },
+      );
+
+      if (!diskCheck.sufficient) {
+        // Show warning dialog
+        debugLog.warn(
+          `Insufficient disk space: ${diskCheck.availableFormatted} available, ${diskCheck.requiredFormatted} required`,
+        );
+        setDiskSpaceCheckResult({
+          availableFormatted: diskCheck.availableFormatted,
+          requiredFormatted: diskCheck.requiredFormatted,
+          driveLetter: diskCheck.driveLetter,
+          outputPath,
+          pendingProcess: { videoPath, subtitlePath, outputPath },
+        });
+        setDiskSpaceDialogOpen(true);
+        return;
+      }
+
+      // Disk space is sufficient, proceed with encoding
+      await doStartProcess(videoPath, subtitlePath, outputPath);
+    } catch (error) {
+      // If disk space check fails, proceed anyway (fail gracefully)
+      debugLog.warn(`Disk space check failed, proceeding anyway: ${error}`);
+      await doStartProcess(videoPath, subtitlePath, outputPath);
+    }
+  };
+
   const handleCancelProcess = async () => {
     try {
       await window.ffmpegAPI.cancelProcess();
@@ -260,6 +341,57 @@ export default function Wypalarka() {
     setProgress(null);
     setErrorMessage(undefined);
     setCompletedOutputPath(null);
+  };
+
+  // Disk space dialog handlers
+  const handleDiskSpaceProceed = async () => {
+    setDiskSpaceDialogOpen(false);
+    if (diskSpaceCheckResult?.pendingProcess) {
+      const { videoPath, subtitlePath, outputPath } =
+        diskSpaceCheckResult.pendingProcess;
+      debugLog.warn(`User proceeding despite low disk space`);
+      await doStartProcess(videoPath, subtitlePath, outputPath);
+    }
+    setDiskSpaceCheckResult(null);
+  };
+
+  const handleDiskSpaceChangeLocation = async () => {
+    setDiskSpaceDialogOpen(false);
+    // Let user select a new output location
+    if (diskSpaceCheckResult?.outputPath) {
+      const result = await window.ffmpegAPI.selectOutputPath(
+        diskSpaceCheckResult.outputPath,
+      );
+      if (result && diskSpaceCheckResult.pendingProcess) {
+        const { videoPath, subtitlePath } = diskSpaceCheckResult.pendingProcess;
+        debugLog.file(`User changed output to: ${result}`);
+        // Re-trigger the start process with new output path (will check disk space again)
+        setDiskSpaceCheckResult(null);
+        await handleStartProcess(videoPath, subtitlePath, result);
+      } else {
+        setDiskSpaceCheckResult(null);
+      }
+    }
+  };
+
+  const handleDiskSpaceCancel = () => {
+    setDiskSpaceDialogOpen(false);
+    setDiskSpaceCheckResult(null);
+    debugLog.info(`User cancelled due to low disk space`);
+  };
+
+  // Queue disk space dialog handlers
+  const handleQueueDiskSpaceProceed = async () => {
+    setQueueDiskSpaceDialogOpen(false);
+    setQueueDiskSpaceIssues([]);
+    debugLog.warn(`User proceeding with queue despite low disk space warnings`);
+    await doStartQueue();
+  };
+
+  const handleQueueDiskSpaceCancel = () => {
+    setQueueDiskSpaceDialogOpen(false);
+    setQueueDiskSpaceIssues([]);
+    debugLog.info(`User cancelled queue start due to low disk space`);
   };
 
   const handleOpenOutputFolder = async () => {
@@ -313,7 +445,8 @@ export default function Wypalarka() {
     }
   };
 
-  const handleStartQueue = async () => {
+  // Actually start the queue (after disk space checks pass or user proceeds anyway)
+  const doStartQueue = async () => {
     try {
       debugLog.queue("Starting queue processing");
       setIsQueueProcessing(true);
@@ -322,6 +455,79 @@ export default function Wypalarka() {
       setIsQueueProcessing(false);
       console.error("Failed to start queue:", error);
       debugLog.error(`Failed to start queue: ${error}`);
+    }
+  };
+
+  // Entry point when user clicks start queue - checks disk space first
+  const handleStartQueue = async () => {
+    try {
+      // Get pending items from queue
+      const pendingItems = queue.filter((item) => item.status === "pending");
+
+      if (pendingItems.length === 0) {
+        debugLog.queue("No pending items to process");
+        return;
+      }
+
+      // Get bitrate for estimation
+      const bitrate =
+        encodingSettings.qualityPreset === "custom"
+          ? encodingSettings.customBitrate
+          : encodingSettings.customBitrate;
+
+      const checkSettings = {
+        bitrate,
+        qualityMode: encodingSettings.qualityMode,
+        cqValue: encodingSettings.cq,
+      };
+
+      // Check disk space for each pending item
+      const issues: Array<{
+        videoName: string;
+        driveLetter: string;
+        availableFormatted: string;
+        requiredFormatted: string;
+      }> = [];
+
+      for (const item of pendingItems) {
+        try {
+          const diskCheck = await window.ffmpegAPI.checkDiskSpace(
+            item.outputPath,
+            item.videoPath,
+            checkSettings,
+          );
+
+          if (!diskCheck.sufficient) {
+            issues.push({
+              videoName: item.videoName,
+              driveLetter: diskCheck.driveLetter,
+              availableFormatted: diskCheck.availableFormatted,
+              requiredFormatted: diskCheck.requiredFormatted,
+            });
+          }
+        } catch (error) {
+          // If check fails for an item, skip it (fail gracefully)
+          debugLog.warn(
+            `Disk space check failed for ${item.videoName}: ${error}`,
+          );
+        }
+      }
+
+      if (issues.length > 0) {
+        debugLog.warn(
+          `${issues.length} queue items have insufficient disk space`,
+        );
+        setQueueDiskSpaceIssues(issues);
+        setQueueDiskSpaceDialogOpen(true);
+        return;
+      }
+
+      // All checks passed, start the queue
+      await doStartQueue();
+    } catch (error) {
+      // If overall check fails, proceed anyway
+      debugLog.warn(`Queue disk space check failed, proceeding anyway: ${error}`);
+      await doStartQueue();
     }
   };
 
@@ -356,11 +562,23 @@ export default function Wypalarka() {
     }
   };
 
+  // Get encoding settings for disk space estimation
+  const diskSpaceEncodingSettings = {
+    bitrate:
+      encodingSettings.qualityPreset === "custom"
+        ? encodingSettings.customBitrate
+        : encodingSettings.customBitrate,
+    qualityMode: encodingSettings.qualityMode,
+    cqValue: encodingSettings.cq,
+  };
+
   return (
-    <div className="flex h-full flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Flame className="h-8 w-8 text-orange-500" />
+    <div className="flex h-full flex-col">
+      {/* Main content area with padding */}
+      <div className="flex min-h-0 flex-1 flex-col gap-6 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Flame className="h-8 w-8 text-orange-500" />
           <div>
             <h1 className="text-3xl font-bold">{t("wypalarkaTitle")}</h1>
             <p className="text-muted-foreground">{t("wypalarkaSubtitle")}</p>
@@ -445,6 +663,8 @@ export default function Wypalarka() {
             <WypalarkaFileInput
               onFilesSelected={handleStartProcess}
               disabled={status === "processing" || !ffmpegInstalled}
+              onVideoPathChange={setCurrentVideoPath}
+              onOutputPathChange={setCurrentOutputPath}
             />
           </div>
 
@@ -488,11 +708,39 @@ export default function Wypalarka() {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
+
+      {/* Disk Space Footer Bar */}
+      <WypalarkaDiskSpaceBar
+        outputPath={currentOutputPath}
+        videoPath={currentVideoPath}
+        encodingSettings={diskSpaceEncodingSettings}
+      />
 
       {/* FFmpeg Download Dialog */}
       <WypalarkaFfmpegDownloadDialog
         open={showDownloadDialog}
         onClose={handleDownloadDialogClose}
+      />
+
+      {/* Disk Space Warning Dialog (Single File) */}
+      <WypalarkaDiskSpaceDialog
+        open={diskSpaceDialogOpen}
+        availableFormatted={diskSpaceCheckResult?.availableFormatted ?? ""}
+        requiredFormatted={diskSpaceCheckResult?.requiredFormatted ?? ""}
+        driveLetter={diskSpaceCheckResult?.driveLetter ?? ""}
+        outputPath={diskSpaceCheckResult?.outputPath ?? ""}
+        onProceed={handleDiskSpaceProceed}
+        onChangeLocation={handleDiskSpaceChangeLocation}
+        onCancel={handleDiskSpaceCancel}
+      />
+
+      {/* Queue Disk Space Warning Dialog */}
+      <WypalarkaQueueDiskSpaceDialog
+        open={queueDiskSpaceDialogOpen}
+        issues={queueDiskSpaceIssues}
+        onProceed={handleQueueDiskSpaceProceed}
+        onCancel={handleQueueDiskSpaceCancel}
       />
     </div>
   );
