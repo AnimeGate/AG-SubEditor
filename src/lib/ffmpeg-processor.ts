@@ -147,6 +147,7 @@ export class FFmpegProcessor {
   private outputPath: string = "";
   private startTime: number = 0;
   private lastProgressTime: number = 0;
+  private wasCancelled: boolean = false;
 
   constructor(callbacks: FFmpegCallbacks) {
     this.callbacks = callbacks;
@@ -485,6 +486,7 @@ export class FFmpegProcessor {
     this.outputPath = resolvedOutputPath;
     this.videoDuration = 0;
     this.startTime = Date.now();
+    this.wasCancelled = false;
 
     const ffmpegPath = this.getFfmpegPath();
 
@@ -643,8 +645,21 @@ export class FFmpegProcessor {
           this.callbacks.onError(error);
           reject(new Error(error));
         } else {
-          // Process was cancelled
+          // Process was cancelled - delete partial output file now that process has closed
           this.callbacks.onLog("Process was cancelled", "warning");
+          if (this.wasCancelled && this.outputPath) {
+            try {
+              if (fs.existsSync(this.outputPath)) {
+                fs.unlinkSync(this.outputPath);
+                this.callbacks.onLog("Partial output file deleted", "info");
+              }
+            } catch (err) {
+              this.callbacks.onLog(
+                `Failed to delete partial output: ${err}`,
+                "warning",
+              );
+            }
+          }
           resolve();
         }
       });
@@ -654,23 +669,9 @@ export class FFmpegProcessor {
   cancel(): void {
     if (this.process) {
       this.callbacks.onLog("Cancelling process...", "warning");
+      this.wasCancelled = true;
       this.process.kill("SIGTERM");
-      this.process = null;
-
-      // Delete partial output file if it exists
-      if (this.outputPath) {
-        try {
-          if (fs.existsSync(this.outputPath)) {
-            fs.unlinkSync(this.outputPath);
-            this.callbacks.onLog("Partial output file deleted", "info");
-          }
-        } catch (err) {
-          this.callbacks.onLog(
-            `Failed to delete partial output: ${err}`,
-            "warning",
-          );
-        }
-      }
+      // File deletion happens in close event handler after process releases the file
     }
   }
 
