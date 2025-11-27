@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import { Flame, FolderOpen, Download } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { debugLog } from "@/helpers/debug-logger";
+import { useProcessing } from "@/contexts/ProcessingContext";
 
 type ProcessStatus = "idle" | "processing" | "completed" | "error";
 
@@ -32,6 +33,7 @@ interface LogEntry {
 
 export default function Wypalarka() {
   const { t } = useTranslation();
+  const { setIsProcessing } = useProcessing();
 
   // State
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -108,6 +110,12 @@ export default function Wypalarka() {
     cancelled: 0,
   });
   const [isQueueProcessing, setIsQueueProcessing] = useState(false);
+
+  // Sync processing state to context (for navbar locking)
+  useEffect(() => {
+    const isAnyProcessing = status === "processing" || isQueueProcessing;
+    setIsProcessing(isAnyProcessing);
+  }, [status, isQueueProcessing, setIsProcessing]);
 
   // Check FFmpeg installation on mount
   useEffect(() => {
@@ -788,8 +796,18 @@ export default function Wypalarka() {
 
       <Tabs defaultValue="single" className="flex min-h-0 flex-1 flex-col">
         <TabsList className="w-fit">
-          <TabsTrigger value="single">{t("wypalarkaSingleMode")}</TabsTrigger>
-          <TabsTrigger value="queue">{t("wypalarkaQueueMode")}</TabsTrigger>
+          <TabsTrigger
+            value="single"
+            disabled={status === "processing" || isQueueProcessing}
+          >
+            {t("wypalarkaSingleMode")}
+          </TabsTrigger>
+          <TabsTrigger
+            value="queue"
+            disabled={status === "processing" || isQueueProcessing}
+          >
+            {t("wypalarkaQueueMode")}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="single" className="mt-4 flex min-h-0 flex-1 gap-6">

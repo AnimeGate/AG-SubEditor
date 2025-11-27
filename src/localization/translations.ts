@@ -9,6 +9,7 @@ export const translations = {
       // Navbar
       navSubtitleEditor: "Edytor napisów",
       navWypalarka: "Wypalarka",
+      navDisabledWhileProcessing: "Niedostępne podczas przetwarzania",
       settings: "Ustawienia",
       // Settings Modal
       settingsTitle: "Ustawienia aplikacji",
@@ -350,6 +351,7 @@ export const translations = {
       // Navbar
       navSubtitleEditor: "Subtitle Editor",
       navWypalarka: "Burner",
+      navDisabledWhileProcessing: "Disabled while processing",
       settings: "Settings",
       // Settings Modal
       settingsTitle: "Application Settings",
