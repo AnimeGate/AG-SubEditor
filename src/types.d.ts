@@ -20,6 +20,8 @@ interface ElectronWindow {
 interface FileAPI {
   openFile: () => Promise<{ fileName: string; content: string } | null>;
   saveFile: (fileName: string, content: string) => Promise<boolean>;
+  /** Get the filesystem path from a dropped File object */
+  getPathForFile: (file: File) => string;
 }
 
 interface FFmpegProgress {

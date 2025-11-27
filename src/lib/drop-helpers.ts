@@ -1,11 +1,21 @@
 /**
+ * Get the filesystem path from a dropped File object.
+ * Uses Electron's webUtils.getPathForFile() via the preload API.
+ */
+function getFilePath(file: File): string {
+  // Use Electron's webUtils API exposed through fileAPI
+  if (window.fileAPI?.getPathForFile) {
+    return window.fileAPI.getPathForFile(file);
+  }
+  // Fallback for older Electron versions (deprecated)
+  return (file as File & { path?: string }).path || "";
+}
+
+/**
  * Extract file paths from dropped File objects.
- * In Electron, File objects have a `path` property with the full filesystem path.
  */
 export function getDroppedFilePaths(files: File[]): string[] {
-  return files
-    .map((file) => (file as File & { path: string }).path)
-    .filter(Boolean);
+  return files.map(getFilePath).filter(Boolean);
 }
 
 /**
@@ -35,7 +45,7 @@ export function categorizeDroppedFiles(files: File[]): {
   };
 
   for (const file of files) {
-    const path = (file as File & { path: string }).path;
+    const path = getFilePath(file);
     if (!path) continue;
 
     const ext = "." + path.split(".").pop()?.toLowerCase();

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer, webUtils } from "electron";
 import { FILE_CHANNELS } from "./file-channels";
 
 export function exposeFileContext() {
@@ -12,6 +12,13 @@ export function exposeFileContext() {
         fileName,
         content,
       );
+    },
+    /**
+     * Get the filesystem path from a dropped File object.
+     * In modern Electron, File.path is no longer available - use webUtils instead.
+     */
+    getPathForFile: (file: File): string => {
+      return webUtils.getPathForFile(file);
     },
   });
 }
