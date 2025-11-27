@@ -215,6 +215,13 @@ export function exposeFfmpegContext() {
     queueSelectFiles: async () => {
       return await ipcRenderer.invoke(FFMPEG_CHANNELS.QUEUE_SELECT_FILES);
     },
+    queueUpdateItemOutput: async (itemId: string, newOutputPath: string) => {
+      return await ipcRenderer.invoke(
+        FFMPEG_CHANNELS.QUEUE_UPDATE_ITEM_OUTPUT,
+        itemId,
+        newOutputPath,
+      );
+    },
 
     // Queue Event Listeners
     onQueueUpdate: (callback: (queue: any[]) => void) => {

@@ -203,6 +203,13 @@ export const translations = {
         "{{count}} plików w kolejce może mieć niewystarczającą ilość miejsca na dysku docelowym.",
       wypalarkaQueueDiskSpaceWarning:
         "Kontynuowanie może spowodować niepowodzenie kodowania lub uszkodzenie plików wyjściowych.",
+      // Queue Output Conflict
+      wypalarkaQueueConflictTitle: "Wykryto konflikty plików wyjściowych",
+      wypalarkaQueueConflictDescription:
+        "{{count}} plików w kolejce zostanie nadpisanych, ponieważ pliki wyjściowe już istnieją.",
+      wypalarkaQueueConflictAutoRename:
+        "Zmień nazwy automatycznie (dodaj _1, _2, itp.)",
+      wypalarkaQueueConflictOverwrite: "Nadpisz wszystkie istniejące pliki",
       // FFmpeg Download
       wypalarkaFfmpegRequired: "FFmpeg jest wymagany",
       wypalarkaFfmpegNotInstalled:
@@ -535,6 +542,12 @@ export const translations = {
         "{{count}} files in the queue may not have sufficient disk space on the target drive.",
       wypalarkaQueueDiskSpaceWarning:
         "Proceeding may result in encoding failures or corrupted output files.",
+      // Queue Output Conflict
+      wypalarkaQueueConflictTitle: "Output file conflicts detected",
+      wypalarkaQueueConflictDescription:
+        "{{count}} files in the queue will overwrite existing output files.",
+      wypalarkaQueueConflictAutoRename: "Auto-rename all (add _1, _2, etc.)",
+      wypalarkaQueueConflictOverwrite: "Overwrite all existing files",
       // FFmpeg Download
       wypalarkaFfmpegRequired: "FFmpeg is required",
       wypalarkaFfmpegNotInstalled:

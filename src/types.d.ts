@@ -213,6 +213,10 @@ interface FFmpegAPI {
     success: boolean;
     files: Array<{ filePath: string; fileName: string }>;
   }>;
+  queueUpdateItemOutput: (
+    itemId: string,
+    newOutputPath: string,
+  ) => Promise<{ success: boolean }>;
   // Queue Event Listeners
   onQueueUpdate: (callback: (queue: QueueItem[]) => void) => () => void;
   onQueueItemUpdate: (callback: (item: QueueItem) => void) => () => void;

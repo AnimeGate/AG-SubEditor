@@ -4,6 +4,7 @@ import {
   EncodingSettings,
 } from "./ffmpeg-processor";
 import { debugLog } from "../helpers/debug-mode";
+import * as fs from "fs";
 
 export interface QueueItem {
   id: string;
@@ -95,6 +96,27 @@ export class QueueProcessor {
     this.callbacks.onQueueUpdate([...this.queue]);
   }
 
+  updateItemOutput(id: string, newOutputPath: string): boolean {
+    const item = this.queue.find((i) => i.id === id);
+    if (!item) {
+      return false;
+    }
+
+    // Don't allow updating currently processing item
+    if (item.status === "processing") {
+      debugLog.warn(
+        `Cannot update output path for item ${id} - currently processing`,
+      );
+      return false;
+    }
+
+    item.outputPath = newOutputPath;
+    this.callbacks.onItemUpdate({ ...item });
+    this.callbacks.onQueueUpdate([...this.queue]);
+    debugLog.queue(`Updated output path for ${item.videoName}: ${newOutputPath}`);
+    return true;
+  }
+
   clearQueue(): void {
     if (this.isProcessing) {
       this.pause();
@@ -154,6 +176,20 @@ export class QueueProcessor {
       if (this.currentItemId) {
         const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
+          // Delete partial output file if it exists
+          try {
+            if (fs.existsSync(item.outputPath)) {
+              fs.unlinkSync(item.outputPath);
+              debugLog.queue(`Deleted partial output file: ${item.outputPath}`);
+              item.logs.push({
+                log: "Partial output file deleted",
+                type: "info",
+              });
+            }
+          } catch (err) {
+            debugLog.warn(`Failed to delete partial output: ${err}`);
+          }
+
           item.status = "pending";
           item.progress = null;
           item.logs.push({ log: "Process paused by user", type: "warning" });
