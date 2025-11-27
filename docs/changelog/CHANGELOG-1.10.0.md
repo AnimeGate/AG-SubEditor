@@ -8,7 +8,7 @@ Nowa funkcjonalność sprawdzająca dostępne miejsce na dysku przed rozpoczęci
 
 **Pasek informacyjny z miejscem na dysku:**
 
-- Nowy pasek na dole okna Wypalarka pokazujący informacje o dysku docelowym
+- Nowy pasek na dole okna Wypalarki pokazujący informacje o dysku docelowym
 - Wyświetla literę dysku, dostępne miejsce i szacowany rozmiar pliku wyjściowego
 - Ostrzeżenie wizualne (żółty/czerwony kolor) gdy miejsca jest mało
 - Automatyczne odświeżanie co 30 sekund
