@@ -30,12 +30,13 @@ export default function Wypalarka() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [completedOutputPath, setCompletedOutputPath] = useState<string | null>(null);
   const [encodingSettings, setEncodingSettings] = useState<EncodingSettings>({
+    profile: "1080p",
     qualityPreset: "medium",
     customBitrate: "2400k",
-    useHardwareAccel: false,
+    useHardwareAccel: true,
     codec: "h264",
     preset: "p4",
-    qualityMode: "vbr_hq",
+    qualityMode: "vbr",
     cq: 19,
     gpuDecode: false,
     spatialAQ: true,

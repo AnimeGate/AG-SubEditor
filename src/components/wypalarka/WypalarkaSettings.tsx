@@ -14,15 +14,11 @@ export interface EncodingSettings {
   // Extended options (optional; configured in Settings Modal)
   profile?:
     | "custom"
-    | "4k_anime_eff"
-    | "4k_live_quality"
-    | "1080p_quality"
-    | "1080p_efficiency"
-    | "720p_web"
+    | "1080p"
+    | "1080p_downscale"
     | "1080p_cinema"
-    | "4k_cinema"
-    | "1080p_quality_scaled"
-    | "1080p_efficiency_scaled";
+    | "4k"
+    | "4k_cinema";
   gpuDecode?: boolean;
   codec?: "h264";
   preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
