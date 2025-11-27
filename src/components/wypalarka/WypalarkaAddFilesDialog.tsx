@@ -193,7 +193,7 @@ export function WypalarkaAddFilesDialog({
                 <div key={pair.id} className="space-y-3 rounded-lg border p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      Pair {index + 1}
+                      {t("wypalarkaQueuePair", { number: index + 1 })}
                     </span>
                     <Button
                       variant="ghost"
