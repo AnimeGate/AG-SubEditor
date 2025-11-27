@@ -153,7 +153,6 @@ export function WypalarkaSettingsModal({
         s.preset = "p4";
         s.qualityMode = "vbr";
         s.customBitrate = "2400k";
-        s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
         s.rcLookahead = 20;
@@ -165,7 +164,6 @@ export function WypalarkaSettingsModal({
         s.preset = "p4";
         s.qualityMode = "vbr";
         s.customBitrate = "2400k";
-        s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
         s.rcLookahead = 20;
@@ -179,7 +177,6 @@ export function WypalarkaSettingsModal({
         s.preset = "p4";
         s.qualityMode = "vbr";
         s.customBitrate = "2400k";
-        s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
         s.rcLookahead = 20;
@@ -193,7 +190,6 @@ export function WypalarkaSettingsModal({
         s.preset = "p4";
         s.qualityMode = "vbr";
         s.customBitrate = "6M";
-        s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
         s.rcLookahead = 20;
@@ -205,7 +201,6 @@ export function WypalarkaSettingsModal({
         s.preset = "p4";
         s.qualityMode = "vbr";
         s.customBitrate = "6M";
-        s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
         s.rcLookahead = 20;
@@ -231,13 +226,6 @@ export function WypalarkaSettingsModal({
     onSettingsChange({
       ...settings,
       useHardwareAccel: checked,
-    });
-  };
-
-  const handleGpuDecodeChange = (checked: boolean) => {
-    onSettingsChange({
-      ...settings,
-      gpuDecode: checked,
     });
   };
 
@@ -765,27 +753,6 @@ export function WypalarkaSettingsModal({
                 })}
               </summary>
               <div className="mt-3 space-y-4">
-                {/* GPU Decode toggle */}
-                <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="gpu-decode"
-                    checked={!!settings.gpuDecode}
-                    onCheckedChange={handleGpuDecodeChange}
-                    disabled={disabled || gpuAvailable === false}
-                  />
-                  <div className="space-y-1 leading-none">
-                    <Label
-                      htmlFor="gpu-decode"
-                      className="cursor-pointer font-medium"
-                    >
-                      {t("wypalarkaGpuDecode")}
-                    </Label>
-                    <p className="text-muted-foreground text-xs">
-                      {t("wypalarkaGpuDecodeDesc")}
-                    </p>
-                  </div>
-                </div>
-
                 {/* Advanced encoder controls */}
                 <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-1">

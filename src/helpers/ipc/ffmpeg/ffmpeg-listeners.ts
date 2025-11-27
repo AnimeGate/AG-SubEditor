@@ -207,7 +207,6 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
           bitrate: string;
           useHardwareAccel?: boolean;
           gpuEncode?: boolean;
-          gpuDecode?: boolean;
           codec?: "h264";
           preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
           qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
@@ -227,7 +226,7 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
       if (params.settings) {
         const s = params.settings as any;
         debugLog.ipc(
-          `  Settings: bitrate=${s.bitrate}, gpuEncode=${s.gpuEncode ?? s.useHardwareAccel}, gpuDecode=${s.gpuDecode}, codec=${s.codec ?? "h264"}, preset=${s.preset ?? "p4"}, rc=${s.qualityMode ?? "vbr_hq"}, cq=${s.cq ?? 19}`,
+          `  Settings: bitrate=${s.bitrate}, gpuEncode=${s.gpuEncode ?? s.useHardwareAccel}, codec=${s.codec ?? "h264"}, preset=${s.preset ?? "p4"}, rc=${s.qualityMode ?? "vbr_hq"}, cq=${s.cq ?? 19}`,
         );
       }
 
@@ -491,7 +490,6 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     bitrate: string;
     useHardwareAccel?: boolean;
     gpuEncode?: boolean;
-    gpuDecode?: boolean;
     codec?: "h264";
     preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
     qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
@@ -691,7 +689,6 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
         bitrate: string;
         useHardwareAccel?: boolean;
         gpuEncode?: boolean;
-        gpuDecode?: boolean;
         codec?: "h264";
         preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
         qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";

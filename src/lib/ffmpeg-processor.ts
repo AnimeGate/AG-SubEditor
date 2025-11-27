@@ -121,7 +121,6 @@ export interface EncodingSettings {
   useHardwareAccel?: boolean;
   // Extended (all optional)
   gpuEncode?: boolean; // replaces useHardwareAccel
-  gpuDecode?: boolean; // default false for hard-subs
   codec?: "h264";
   preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
   qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
@@ -155,7 +154,6 @@ export class FFmpegProcessor {
 
   private normalizeSettings(input: EncodingSettings): EncodingSettings & {
     gpuEncode: boolean;
-    gpuDecode: boolean;
     codec: "h264";
     hwEncoder: "nvenc" | "qsv" | "amf" | "auto";
     preset: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7" | undefined;
@@ -167,7 +165,6 @@ export class FFmpegProcessor {
     bitrate: string;
   } {
     const gpuEncode = input.gpuEncode ?? input.useHardwareAccel ?? false;
-    const gpuDecode = input.gpuDecode ?? false;
     const codec = input.codec ?? "h264";
 
     // Determine available hardware encoders from last GPU check info is not cached here; use heuristic
@@ -189,7 +186,6 @@ export class FFmpegProcessor {
     return {
       ...input,
       gpuEncode,
-      gpuDecode,
       codec,
       hwEncoder,
       preset,
@@ -506,7 +502,7 @@ export class FFmpegProcessor {
     this.callbacks.onLog(
       `Quality: ${normalized.qualityMode ?? "vbr_hq"}${normalized.cq !== undefined ? ", CQ=" + normalized.cq : ""} | ` +
         `Encoder: ${normalized.codec ?? "h264"} ${normalized.hwEncoder ?? "auto"} | ` +
-        `GPU Encode: ${normalized.gpuEncode ? "ON" : "OFF"} | GPU Decode: ${normalized.gpuDecode ? "ON" : "OFF"}`,
+        `GPU Encode: ${normalized.gpuEncode ? "ON" : "OFF"}`,
       "info",
     );
 
@@ -515,18 +511,6 @@ export class FFmpegProcessor {
 
     // Build FFmpeg arguments
     const args: string[] = [];
-
-    // Hardware decode (must come before input) — default off for hard-subs
-    if (normalized.gpuDecode) {
-      if (normalized.hwEncoder === "nvenc" || normalized.hwEncoder === "amf") {
-        args.push("-hwaccel", "d3d11va");
-      } else if (normalized.hwEncoder === "qsv") {
-        args.push("-hwaccel", "qsv");
-      } else {
-        args.push("-hwaccel", "d3d11va");
-      }
-      this.callbacks.onLog(`Hardware decode enabled`, "info");
-    }
 
     // Input
     args.push("-i", videoPath);

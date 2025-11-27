@@ -227,9 +227,6 @@ export class QueueProcessor {
           : this.settings.useHardwareAccel !== undefined
             ? `, hwAccel=${this.settings.useHardwareAccel}`
             : "") +
-        (this.settings.gpuDecode !== undefined
-          ? `, gpuDecode=${this.settings.gpuDecode}`
-          : "") +
         (this.settings.codec ? `, codec=${this.settings.codec}` : "") +
         (this.settings.preset ? `, preset=${this.settings.preset}` : "") +
         (this.settings.qualityMode ? `, rc=${this.settings.qualityMode}` : "") +

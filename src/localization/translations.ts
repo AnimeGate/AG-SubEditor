@@ -135,9 +135,6 @@ export const translations = {
       wypalarkaGpuSetup3: "Uruchom ponownie aplikację po instalacji",
       wypalarkaGpuDownload: "Pobierz CUDA Toolkit",
       // Advanced Encoder Settings
-      wypalarkaGpuDecode: "GPU Decode",
-      wypalarkaGpuDecodeDesc:
-        "Napisy renderowane są na CPU (libass). Włącz GPU decode tylko gdy używasz filtrów GPU; w przeciwnym razie może zwiększyć transfery pamięci.",
       wypalarkaEncoderCodec: "Kodek",
       wypalarkaEncoderCodecDesc:
         "H.264: najlepsza kompatybilność z wszystkimi urządzeniami i platformami (w tym Google Drive).",
@@ -461,9 +458,6 @@ export const translations = {
       wypalarkaGpuSetup3: "Restart the application after installation",
       wypalarkaGpuDownload: "Download CUDA Toolkit",
       // Advanced Encoder Settings
-      wypalarkaGpuDecode: "GPU Decode",
-      wypalarkaGpuDecodeDesc:
-        "Subtitles are rendered on CPU (libass). Enable GPU decode only if you also use GPU filters; otherwise it may add memory transfers.",
       wypalarkaEncoderCodec: "Codec",
       wypalarkaEncoderCodecDesc:
         "H.264: best compatibility with all devices and platforms (including Google Drive).",
