@@ -656,6 +656,21 @@ export class FFmpegProcessor {
       this.callbacks.onLog("Cancelling process...", "warning");
       this.process.kill("SIGTERM");
       this.process = null;
+
+      // Delete partial output file if it exists
+      if (this.outputPath) {
+        try {
+          if (fs.existsSync(this.outputPath)) {
+            fs.unlinkSync(this.outputPath);
+            this.callbacks.onLog("Partial output file deleted", "info");
+          }
+        } catch (err) {
+          this.callbacks.onLog(
+            `Failed to delete partial output: ${err}`,
+            "warning",
+          );
+        }
+      }
     }
   }
 
