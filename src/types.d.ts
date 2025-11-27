@@ -266,4 +266,41 @@ declare interface Window {
     getLanguage: () => Promise<"pl" | "en">;
     setLanguage: (lang: "pl" | "en") => Promise<"pl" | "en">;
   };
+  updaterAPI: {
+    // Commands
+    startDownload: () => void;
+    installNow: () => void;
+    checkForUpdates: () => void;
+    // DEV ONLY: Test methods
+    _testShowUpdate: () => void;
+    _testSimulateDownload: () => void;
+    // Event listeners
+    onCheckingForUpdate: (callback: () => void) => () => void;
+    onUpdateAvailable: (
+      callback: (info: {
+        version: string;
+        releaseNotes: string | null;
+        releaseDate: string;
+      }) => void,
+    ) => () => void;
+    onUpdateNotAvailable: (
+      callback: (info: { version: string }) => void,
+    ) => () => void;
+    onDownloadProgress: (
+      callback: (progress: {
+        bytesPerSecond: number;
+        percent: number;
+        transferred: number;
+        total: number;
+      }) => void,
+    ) => () => void;
+    onUpdateDownloaded: (
+      callback: (info: {
+        version: string;
+        releaseNotes: string | null;
+        releaseDate: string;
+      }) => void,
+    ) => () => void;
+    onUpdateError: (callback: (error: string) => void) => () => void;
+  };
 }

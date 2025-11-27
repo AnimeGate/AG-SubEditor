@@ -1,15 +1,15 @@
-import { autoUpdater } from "electron-updater";
-import { dialog } from "electron";
+import { autoUpdater, UpdateInfo as ElectronUpdateInfo } from "electron-updater";
 import log from "electron-log";
 import { debugLog } from "../debug-mode";
+import { UPDATER_CHANNELS } from "../ipc/updater/updater-channels";
+import { sendUpdaterEvent } from "../ipc/updater/updater-listeners";
 
 // Configure logging
 log.transports.file.level = "info";
 autoUpdater.logger = log;
 
-// For private repos with public releases, electron-updater can access updates
-// without authentication. The repository stays private, only releases are public.
-autoUpdater.autoDownload = true;
+// Disable auto-download - user will click to download
+autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
 // Explicitly set the GitHub provider configuration
@@ -17,8 +17,38 @@ autoUpdater.setFeedURL({
   provider: "github",
   owner: "AnimeGate",
   repo: "AG-SubEditor",
-  private: false, // Set to false to use public releases
+  private: false,
 });
+
+/**
+ * Parse release notes from electron-updater format.
+ * Release notes can be a string or an array of objects.
+ */
+function parseReleaseNotes(
+  releaseNotes: ElectronUpdateInfo["releaseNotes"],
+): string | null {
+  if (!releaseNotes) return null;
+
+  if (typeof releaseNotes === "string") {
+    return releaseNotes;
+  }
+
+  // Handle array format (multiple releases)
+  if (Array.isArray(releaseNotes)) {
+    return releaseNotes
+      .map((note) => {
+        if (typeof note === "string") return note;
+        if (note && typeof note === "object" && "note" in note) {
+          return (note as { note: string }).note;
+        }
+        return "";
+      })
+      .filter(Boolean)
+      .join("\n\n");
+  }
+
+  return null;
+}
 
 export function initializeAutoUpdater(isDevelopment: boolean) {
   if (isDevelopment) {
@@ -27,13 +57,11 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
     return;
   }
 
-  log.info("Initializing electron-updater for private repository");
+  log.info("Initializing electron-updater with custom UI");
   debugLog.info(
     "Auto-updater: Initializing for GitHub repository (AnimeGate/AG-SubEditor)",
   );
-  debugLog.info(
-    "Auto-updater: Auto-download enabled, auto-install on quit enabled",
-  );
+  debugLog.info("Auto-updater: Auto-download disabled, waiting for user action");
 
   // Check for updates on app start (wait 3 seconds after launch)
   setTimeout(() => {
@@ -50,31 +78,47 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
       checkForUpdates();
     },
     60 * 60 * 1000,
-  ); // 1 hour
+  );
 
   // Auto-updater event handlers
   autoUpdater.on("checking-for-update", () => {
     log.info("Checking for updates...");
     debugLog.info("Auto-updater: Checking for updates...");
+    sendUpdaterEvent(UPDATER_CHANNELS.CHECKING_FOR_UPDATE);
   });
 
-  autoUpdater.on("update-available", (info) => {
+  autoUpdater.on("update-available", (info: ElectronUpdateInfo) => {
     log.info("Update available:", info.version);
     debugLog.success(
       `Auto-updater: Update available - Version ${info.version}`,
     );
+
+    const releaseNotes = parseReleaseNotes(info.releaseNotes);
+
+    sendUpdaterEvent(UPDATER_CHANNELS.UPDATE_AVAILABLE, {
+      version: info.version,
+      releaseNotes,
+      releaseDate: info.releaseDate,
+    });
   });
 
-  autoUpdater.on("update-not-available", (info) => {
+  autoUpdater.on("update-not-available", (info: ElectronUpdateInfo) => {
     log.info("No updates available. Current version:", info.version);
     debugLog.info(
       `Auto-updater: No updates available - Current version: ${info.version}`,
     );
+    sendUpdaterEvent(UPDATER_CHANNELS.UPDATE_NOT_AVAILABLE, {
+      version: info.version,
+    });
   });
 
   autoUpdater.on("error", (error) => {
     log.error("Error in auto-updater:", error);
     debugLog.error(`Auto-updater: Error occurred - ${error.message || error}`);
+    sendUpdaterEvent(
+      UPDATER_CHANNELS.UPDATE_ERROR,
+      error.message || String(error),
+    );
   });
 
   autoUpdater.on("download-progress", (progressObj) => {
@@ -86,38 +130,28 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
     debugLog.info(
       `Auto-updater: Download progress - ${percentRounded}% (${speedMB} MB/s)`,
     );
+
+    sendUpdaterEvent(UPDATER_CHANNELS.DOWNLOAD_PROGRESS, {
+      bytesPerSecond: progressObj.bytesPerSecond,
+      percent: progressObj.percent,
+      transferred: progressObj.transferred,
+      total: progressObj.total,
+    });
   });
 
-  autoUpdater.on("update-downloaded", (info) => {
+  autoUpdater.on("update-downloaded", (info: ElectronUpdateInfo) => {
     log.info("Update downloaded:", info.version);
     debugLog.success(
       `Auto-updater: Update downloaded - Version ${info.version}`,
     );
-    debugLog.info("Auto-updater: Showing installation dialog to user");
 
-    // Notify user about the update
-    dialog
-      .showMessageBox({
-        type: "info",
-        title: "Aktualizacja dostępna",
-        message: "Nowa wersja została pobrana",
-        detail: `Wersja ${info.version} jest gotowa do zainstalowania. Aplikacja zostanie zrestartowana.`,
-        buttons: ["Zainstaluj teraz", "Później"],
-        defaultId: 0,
-      })
-      .then((result) => {
-        if (result.response === 0) {
-          // User clicked "Install now"
-          debugLog.info(
-            "Auto-updater: User chose to install now - Quitting and installing",
-          );
-          setImmediate(() => autoUpdater.quitAndInstall());
-        } else {
-          debugLog.info(
-            "Auto-updater: User chose to install later - Will install on app quit",
-          );
-        }
-      });
+    const releaseNotes = parseReleaseNotes(info.releaseNotes);
+
+    sendUpdaterEvent(UPDATER_CHANNELS.UPDATE_DOWNLOADED, {
+      version: info.version,
+      releaseNotes,
+      releaseDate: info.releaseDate,
+    });
   });
 }
 

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { updateAppLanguage } from "./helpers/language_helpers";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./utils/routes";
+import { UpdateDialog } from "./components/UpdateDialog";
 import "./localization/i18n";
 
 // Apply theme immediately before React renders to avoid flash of wrong theme
@@ -22,7 +23,12 @@ export default function App() {
     updateAppLanguage(i18n);
   }, [i18n]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <UpdateDialog />
+    </>
+  );
 }
 
 const root = createRoot(document.getElementById("app")!);

@@ -33,6 +33,20 @@ npm run build
 npm run dist
 ```
 
+## Testing
+
+### Auto-Updater Testing
+
+To test the update dialog UI locally, open DevTools (F12) and run in the console:
+
+```javascript
+// Show update available dialog with mock changelog
+window.updaterAPI._testShowUpdate()
+
+// Simulate download progress after showing update dialog
+window.updaterAPI._testSimulateDownload()
+```
+
 ## Tech Stack
 
 - Electron 38
