@@ -10,6 +10,10 @@ import { WypalarkaFfmpegDownloadDialog } from "./WypalarkaFfmpegDownloadDialog";
 import { WypalarkaDiskSpaceBar } from "./WypalarkaDiskSpaceBar";
 import { WypalarkaDiskSpaceDialog } from "./WypalarkaDiskSpaceDialog";
 import { WypalarkaQueueDiskSpaceDialog } from "./WypalarkaQueueDiskSpaceDialog";
+import {
+  WypalarkaQueueConflictDialog,
+  type QueueConflict,
+} from "./WypalarkaQueueConflictDialog";
 import type { EncodingSettings } from "./WypalarkaSettings";
 import { useTranslation } from "react-i18next";
 import { Flame, StopCircle, FolderOpen, Download } from "lucide-react";
@@ -83,6 +87,10 @@ export default function Wypalarka() {
       requiredFormatted: string;
     }>
   >([]);
+
+  // Queue output conflict state
+  const [queueConflictDialogOpen, setQueueConflictDialogOpen] = useState(false);
+  const [queueConflicts, setQueueConflicts] = useState<QueueConflict[]>([]);
 
   // Queue state
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -189,6 +197,23 @@ export default function Wypalarka() {
       setIsQueueProcessing(stats.processing > 0);
     };
     updateStats();
+  }, [queue]);
+
+  // Update disk space bar paths based on queue items (for queue mode)
+  useEffect(() => {
+    // Only update paths for queue mode - check if we have pending items
+    const pendingItems = queue.filter((item) => item.status === "pending");
+
+    if (pendingItems.length > 0) {
+      // Use the first pending item for disk space display (drive letter)
+      setCurrentVideoPath(pendingItems[0].videoPath);
+      setCurrentOutputPath(pendingItems[0].outputPath);
+    } else if (queue.length === 0) {
+      // Queue is empty - clear the paths (only if not in single file mode)
+      // We check by seeing if current paths match any queue item that existed
+      setCurrentVideoPath(null);
+      setCurrentOutputPath(null);
+    }
   }, [queue]);
 
   // Sync encoding settings changes with queue processor
@@ -455,7 +480,31 @@ export default function Wypalarka() {
     }
   };
 
-  // Entry point when user clicks start queue - checks disk space first
+  // Check for output file conflicts before starting queue
+  const checkQueueConflicts = async (
+    pendingItems: QueueItem[],
+  ): Promise<QueueConflict[]> => {
+    const conflicts: QueueConflict[] = [];
+
+    for (const item of pendingItems) {
+      try {
+        const exists = await window.ffmpegAPI.checkOutputExists(item.outputPath);
+        if (exists) {
+          conflicts.push({
+            itemId: item.id,
+            videoName: item.videoName,
+            outputPath: item.outputPath,
+          });
+        }
+      } catch (error) {
+        debugLog.warn(`Output check failed for ${item.videoName}: ${error}`);
+      }
+    }
+
+    return conflicts;
+  };
+
+  // Entry point when user clicks start queue - checks conflicts and disk space first
   const handleStartQueue = async () => {
     try {
       // Get pending items from queue
@@ -466,66 +515,131 @@ export default function Wypalarka() {
         return;
       }
 
-      // Get bitrate for estimation
-      const bitrate =
-        encodingSettings.qualityPreset === "custom"
-          ? encodingSettings.customBitrate
-          : encodingSettings.customBitrate;
-
-      const checkSettings = {
-        bitrate,
-        qualityMode: encodingSettings.qualityMode,
-        cqValue: encodingSettings.cq,
-      };
-
-      // Check disk space for each pending item
-      const issues: Array<{
-        videoName: string;
-        driveLetter: string;
-        availableFormatted: string;
-        requiredFormatted: string;
-      }> = [];
-
-      for (const item of pendingItems) {
-        try {
-          const diskCheck = await window.ffmpegAPI.checkDiskSpace(
-            item.outputPath,
-            item.videoPath,
-            checkSettings,
-          );
-
-          if (!diskCheck.sufficient) {
-            issues.push({
-              videoName: item.videoName,
-              driveLetter: diskCheck.driveLetter,
-              availableFormatted: diskCheck.availableFormatted,
-              requiredFormatted: diskCheck.requiredFormatted,
-            });
-          }
-        } catch (error) {
-          // If check fails for an item, skip it (fail gracefully)
-          debugLog.warn(
-            `Disk space check failed for ${item.videoName}: ${error}`,
-          );
-        }
-      }
-
-      if (issues.length > 0) {
+      // Check for output file conflicts first
+      const conflicts = await checkQueueConflicts(pendingItems);
+      if (conflicts.length > 0) {
         debugLog.warn(
-          `${issues.length} queue items have insufficient disk space`,
+          `${conflicts.length} queue items have output file conflicts`,
         );
-        setQueueDiskSpaceIssues(issues);
-        setQueueDiskSpaceDialogOpen(true);
+        setQueueConflicts(conflicts);
+        setQueueConflictDialogOpen(true);
         return;
       }
 
-      // All checks passed, start the queue
-      await doStartQueue();
+      // Then check disk space
+      await checkDiskSpaceAndStart(pendingItems);
     } catch (error) {
       // If overall check fails, proceed anyway
-      debugLog.warn(`Queue disk space check failed, proceeding anyway: ${error}`);
+      debugLog.warn(`Queue pre-start check failed, proceeding anyway: ${error}`);
       await doStartQueue();
     }
+  };
+
+  // Check disk space for pending items and start if OK
+  const checkDiskSpaceAndStart = async (pendingItems: QueueItem[]) => {
+    // Get bitrate for estimation
+    const bitrate =
+      encodingSettings.qualityPreset === "custom"
+        ? encodingSettings.customBitrate
+        : encodingSettings.customBitrate;
+
+    const checkSettings = {
+      bitrate,
+      qualityMode: encodingSettings.qualityMode,
+      cqValue: encodingSettings.cq,
+    };
+
+    // Check disk space for each pending item
+    const issues: Array<{
+      videoName: string;
+      driveLetter: string;
+      availableFormatted: string;
+      requiredFormatted: string;
+    }> = [];
+
+    for (const item of pendingItems) {
+      try {
+        const diskCheck = await window.ffmpegAPI.checkDiskSpace(
+          item.outputPath,
+          item.videoPath,
+          checkSettings,
+        );
+
+        if (!diskCheck.sufficient) {
+          issues.push({
+            videoName: item.videoName,
+            driveLetter: diskCheck.driveLetter,
+            availableFormatted: diskCheck.availableFormatted,
+            requiredFormatted: diskCheck.requiredFormatted,
+          });
+        }
+      } catch (error) {
+        // If check fails for an item, skip it (fail gracefully)
+        debugLog.warn(
+          `Disk space check failed for ${item.videoName}: ${error}`,
+        );
+      }
+    }
+
+    if (issues.length > 0) {
+      debugLog.warn(
+        `${issues.length} queue items have insufficient disk space`,
+      );
+      setQueueDiskSpaceIssues(issues);
+      setQueueDiskSpaceDialogOpen(true);
+      return;
+    }
+
+    // All checks passed, start the queue
+    await doStartQueue();
+  };
+
+  // Handle queue conflict - auto-rename all conflicting outputs
+  const handleQueueConflictAutoRename = async () => {
+    setQueueConflictDialogOpen(false);
+
+    // Rename all conflicting output paths
+    for (const conflict of queueConflicts) {
+      try {
+        const newPath = await window.ffmpegAPI.resolveOutputConflict(
+          conflict.outputPath,
+        );
+        // Update the queue item with new output path
+        await window.ffmpegAPI.queueUpdateItemOutput(conflict.itemId, newPath);
+        debugLog.file(
+          `Auto-renamed output for ${conflict.videoName}: ${newPath}`,
+        );
+      } catch (error) {
+        debugLog.error(`Failed to auto-rename ${conflict.outputPath}: ${error}`);
+      }
+    }
+
+    setQueueConflicts([]);
+
+    // Fetch fresh queue data after updates and continue with disk space check
+    const { queue: freshQueue } = await window.ffmpegAPI.queueGetAll();
+    const pendingItems = freshQueue.filter(
+      (item: QueueItem) => item.status === "pending",
+    );
+    await checkDiskSpaceAndStart(pendingItems);
+  };
+
+  // Handle queue conflict - overwrite all existing files
+  const handleQueueConflictOverwrite = async () => {
+    setQueueConflictDialogOpen(false);
+    setQueueConflicts([]);
+    debugLog.warn("User chose to overwrite all conflicting output files");
+
+    // Continue with disk space check
+    const pendingItems = queue.filter((item) => item.status === "pending");
+    await checkDiskSpaceAndStart(pendingItems);
+  };
+
+  // Handle queue conflict - cancel
+  const handleQueueConflictCancel = () => {
+    setQueueConflictDialogOpen(false);
+    setQueueConflicts([]);
+    debugLog.info("User cancelled queue start due to output conflicts");
   };
 
   const handlePauseQueue = async () => {
@@ -540,14 +654,39 @@ export default function Wypalarka() {
   };
 
   const handleResumeQueue = async () => {
+    // Resume also goes through conflict/disk space checks in case new items were added while paused
     try {
-      debugLog.queue("Resuming queue processing");
-      setIsQueueProcessing(true);
-      await window.ffmpegAPI.queueResume();
+      const pendingItems = queue.filter((item) => item.status === "pending");
+
+      if (pendingItems.length === 0) {
+        debugLog.queue("No pending items to resume");
+        return;
+      }
+
+      // Check for output file conflicts
+      const conflicts = await checkQueueConflicts(pendingItems);
+      if (conflicts.length > 0) {
+        debugLog.warn(
+          `${conflicts.length} queue items have output file conflicts`,
+        );
+        setQueueConflicts(conflicts);
+        setQueueConflictDialogOpen(true);
+        return;
+      }
+
+      // Check disk space
+      await checkDiskSpaceAndStart(pendingItems);
     } catch (error) {
-      setIsQueueProcessing(false);
-      console.error("Failed to resume queue:", error);
-      debugLog.error(`Failed to resume queue: ${error}`);
+      debugLog.warn(`Queue resume check failed, proceeding anyway: ${error}`);
+      // Fallback to direct resume
+      try {
+        setIsQueueProcessing(true);
+        await window.ffmpegAPI.queueResume();
+      } catch (resumeError) {
+        setIsQueueProcessing(false);
+        console.error("Failed to resume queue:", resumeError);
+        debugLog.error(`Failed to resume queue: ${resumeError}`);
+      }
     }
   };
 
@@ -685,10 +824,6 @@ export default function Wypalarka() {
               isProcessing={isQueueProcessing}
               onAddFiles={handleAddFilesToQueue}
               onRemoveItem={handleRemoveFromQueue}
-              onClearQueue={handleClearQueue}
-              onStart={handleStartQueue}
-              onPause={handlePauseQueue}
-              onResume={handleResumeQueue}
               onOpenFolder={handleOpenQueueItemFolder}
             />
           </div>
@@ -701,6 +836,12 @@ export default function Wypalarka() {
               }
               stats={queueStats}
               queue={queue}
+              isProcessing={isQueueProcessing}
+              onAddFiles={handleAddFilesToQueue}
+              onStart={handleStartQueue}
+              onPause={handlePauseQueue}
+              onResume={handleResumeQueue}
+              onClearQueue={handleClearQueue}
             />
           </div>
         </TabsContent>
@@ -712,6 +853,12 @@ export default function Wypalarka() {
         outputPath={currentOutputPath}
         videoPath={currentVideoPath}
         encodingSettings={diskSpaceEncodingSettings}
+        queueItems={queue
+          .filter((item) => item.status === "pending")
+          .map((item) => ({
+            videoPath: item.videoPath,
+            outputPath: item.outputPath,
+          }))}
       />
 
       {/* FFmpeg Download Dialog */}
@@ -738,6 +885,15 @@ export default function Wypalarka() {
         issues={queueDiskSpaceIssues}
         onProceed={handleQueueDiskSpaceProceed}
         onCancel={handleQueueDiskSpaceCancel}
+      />
+
+      {/* Queue Output Conflict Dialog */}
+      <WypalarkaQueueConflictDialog
+        open={queueConflictDialogOpen}
+        conflicts={queueConflicts}
+        onAutoRenameAll={handleQueueConflictAutoRename}
+        onOverwriteAll={handleQueueConflictOverwrite}
+        onCancel={handleQueueConflictCancel}
       />
     </div>
   );
