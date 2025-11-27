@@ -14,7 +14,13 @@ import { CommandDialog } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Settings2, Zap, AlertCircle, CheckCircle2, ExternalLink } from "lucide-react";
+import { Settings2, Zap, AlertCircle, CheckCircle2, ExternalLink, HelpCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import type { EncodingSettings } from "./WypalarkaSettings";
 
@@ -92,70 +98,30 @@ export function WypalarkaSettingsModal({
   const applyProfile = (profile: string) => {
     // Map simple profiles to underlying settings
     const s = { ...settings, profile: profile as EncodingSettings["profile"] } as EncodingSettings;
+    // Clear any previous scale settings
+    s.scaleWidth = undefined;
+    s.scaleHeight = undefined;
+
     switch (profile) {
-      case "4k_anime_eff":
+      case "1080p":
+        // Standard 1080p output (no scaling)
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "14M";
+        s.customBitrate = "2400k";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
         s.rcLookahead = 20;
         break;
-      case "4k_live_quality":
-        s.useHardwareAccel = true;
-        s.codec = "h264";
-        s.preset = "p5";
-        s.qualityMode = "vbr";
-        s.customBitrate = "22M";
-        s.gpuDecode = false;
-        s.spatialAQ = true;
-        s.temporalAQ = true;
-        s.rcLookahead = 24;
-        break;
-      case "1080p_quality":
+      case "1080p_downscale":
+        // For 4K sources → 1080p
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "6M";
-        s.gpuDecode = false;
-        s.spatialAQ = true;
-        s.temporalAQ = true;
-        s.rcLookahead = 20;
-        break;
-      case "1080p_efficiency":
-        s.useHardwareAccel = true;
-        s.codec = "h264";
-        s.preset = "p4";
-        s.qualityMode = "vbr";
-        s.customBitrate = "5M";
-        s.gpuDecode = false;
-        s.spatialAQ = true;
-        s.temporalAQ = true;
-        s.rcLookahead = 20;
-        break;
-      case "1080p_efficiency_scaled":
-        s.useHardwareAccel = true;
-        s.codec = "h264";
-        s.preset = "p4";
-        s.qualityMode = "vbr";
-        s.customBitrate = "5M";
-        s.gpuDecode = false;
-        s.spatialAQ = true;
-        s.temporalAQ = true;
-        s.rcLookahead = 20;
-        s.scaleWidth = 1920;
-        s.scaleHeight = 1080; // approximate; will letterbox maintain aspect via libass render frame
-        break;
-      case "1080p_quality_scaled":
-        s.useHardwareAccel = true;
-        s.codec = "h264";
-        s.preset = "p4";
-        s.qualityMode = "vbr";
-        s.customBitrate = "6M";
+        s.customBitrate = "2400k";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -163,24 +129,13 @@ export function WypalarkaSettingsModal({
         s.scaleWidth = 1920;
         s.scaleHeight = 1080;
         break;
-      case "720p_web":
-        s.useHardwareAccel = true;
-        s.codec = "h264";
-        s.preset = "p3";
-        s.qualityMode = "vbr";
-        s.customBitrate = "2M";
-        s.gpuDecode = false;
-        s.spatialAQ = true;
-        s.temporalAQ = true;
-        s.rcLookahead = 16;
-        break;
       case "1080p_cinema":
-        // 1920x804 for ~2.39:1 active picture inside 1080 height
+        // 1920x804 for ~2.39:1 letterbox
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "5M";
+        s.customBitrate = "2400k";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
@@ -188,17 +143,29 @@ export function WypalarkaSettingsModal({
         s.scaleWidth = 1920;
         s.scaleHeight = 804;
         break;
-      case "4k_cinema":
-        // 3840x1608 for ~2.39:1 in 4K width
+      case "4k":
+        // Standard 4K output (no scaling)
         s.useHardwareAccel = true;
         s.codec = "h264";
         s.preset = "p4";
         s.qualityMode = "vbr";
-        s.customBitrate = "14M";
+        s.customBitrate = "6M";
         s.gpuDecode = false;
         s.spatialAQ = true;
         s.temporalAQ = true;
-        s.rcLookahead = 24;
+        s.rcLookahead = 20;
+        break;
+      case "4k_cinema":
+        // 3840x1608 for ~2.39:1 letterbox in 4K
+        s.useHardwareAccel = true;
+        s.codec = "h264";
+        s.preset = "p4";
+        s.qualityMode = "vbr";
+        s.customBitrate = "6M";
+        s.gpuDecode = false;
+        s.spatialAQ = true;
+        s.temporalAQ = true;
+        s.rcLookahead = 20;
         s.scaleWidth = 3840;
         s.scaleHeight = 1608;
         break;
@@ -394,7 +361,28 @@ export function WypalarkaSettingsModal({
           </div>
           {/* Profiles (Command dialog only) */}
           <div className="space-y-2">
-            <Label>{t("wypalarkaProfile")}</Label>
+            <div className="flex items-center gap-2">
+              <Label>{t("wypalarkaProfile")}</Label>
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs p-3">
+                    <div className="space-y-2 text-sm">
+                      <p className="font-semibold">{t("wypalarkaProfileHelpTitle")}</p>
+                      <ul className="space-y-1.5 text-muted-foreground">
+                        <li><span className="font-medium text-foreground">1080p</span> – {t("wypalarkaProfileHelp1080p")}</li>
+                        <li><span className="font-medium text-foreground">1080p (downscale)</span> – {t("wypalarkaProfileHelp1080pDownscale")}</li>
+                        <li><span className="font-medium text-foreground">1080p Cinema</span> – {t("wypalarkaProfileHelp1080pCinema")}</li>
+                        <li><span className="font-medium text-foreground">4K</span> – {t("wypalarkaProfileHelp4k")}</li>
+                        <li><span className="font-medium text-foreground">4K Cinema</span> – {t("wypalarkaProfileHelp4kCinema")}</li>
+                      </ul>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Button
               variant="outline"
               type="button"
@@ -404,24 +392,16 @@ export function WypalarkaSettingsModal({
               {(() => {
                 const p = settings.profile ?? "custom";
                 switch (p) {
-                  case "4k_anime_eff":
-                    return t("wypalarkaProfile4kAnimeEff");
-                  case "4k_live_quality":
-                    return t("wypalarkaProfile4kLiveQuality");
+                  case "1080p":
+                    return t("wypalarkaProfile1080p");
+                  case "1080p_downscale":
+                    return t("wypalarkaProfile1080pDownscale");
+                  case "1080p_cinema":
+                    return t("wypalarkaProfile1080pCinema");
+                  case "4k":
+                    return t("wypalarkaProfile4k");
                   case "4k_cinema":
                     return t("wypalarkaProfile4kCinema");
-                  case "1080p_quality":
-                    return t("wypalarkaProfile1080Quality");
-                  case "1080p_quality_scaled":
-                    return (t("wypalarkaProfile1080Quality") as string) + " (downscale)";
-                  case "1080p_efficiency":
-                    return t("wypalarkaProfile1080Efficiency");
-                  case "1080p_efficiency_scaled":
-                    return t("wypalarkaProfile1080EfficiencyScaled");
-                  case "1080p_cinema":
-                    return t("wypalarkaProfile1080Cinema");
-                  case "720p_web":
-                    return t("wypalarkaProfile720Web");
                   default:
                     return t("wypalarkaProfileCustom");
                 }
@@ -434,27 +414,18 @@ export function WypalarkaSettingsModal({
               onSelect={(value) => applyProfile(value)}
               groups={[
                 {
-                  title: "4K",
-                  items: [
-                    { value: "4k_anime_eff", label: t("wypalarkaProfile4kAnimeEff") as string },
-                    { value: "4k_live_quality", label: t("wypalarkaProfile4kLiveQuality") as string },
-                    { value: "4k_cinema", label: t("wypalarkaProfile4kCinema") as string },
-                  ],
-                },
-                {
                   title: "1080p",
                   items: [
-                    { value: "1080p_quality", label: t("wypalarkaProfile1080Quality") as string },
-                    { value: "1080p_quality_scaled", label: (t("wypalarkaProfile1080Quality") as string) + " (downscale)" },
-                    { value: "1080p_efficiency", label: t("wypalarkaProfile1080Efficiency") as string },
-                    { value: "1080p_efficiency_scaled", label: t("wypalarkaProfile1080EfficiencyScaled") as string },
-                    { value: "1080p_cinema", label: t("wypalarkaProfile1080Cinema") as string },
+                    { value: "1080p", label: t("wypalarkaProfile1080p") as string },
+                    { value: "1080p_downscale", label: t("wypalarkaProfile1080pDownscale") as string },
+                    { value: "1080p_cinema", label: t("wypalarkaProfile1080pCinema") as string },
                   ],
                 },
                 {
-                  title: "720p",
+                  title: "4K",
                   items: [
-                    { value: "720p_web", label: t("wypalarkaProfile720Web") as string },
+                    { value: "4k", label: t("wypalarkaProfile4k") as string },
+                    { value: "4k_cinema", label: t("wypalarkaProfile4kCinema") as string },
                   ],
                 },
                 {
@@ -466,13 +437,13 @@ export function WypalarkaSettingsModal({
               ]}
             />
           </div>
-          {/* Quality Preset (bitrate presets) */}
+          {/* Quality Preset (bitrate presets) - only enabled when profile is "custom" */}
           <div className="space-y-3">
             <Label htmlFor="quality-preset">{t("wypalarkaQualityPreset")}</Label>
             <Select
               value={settings.qualityPreset}
               onValueChange={handlePresetChange}
-              disabled={settings.qualityMode === "cq" || settings.qualityMode === "vbr_hq"}
+              disabled={(settings.profile !== "custom" && settings.profile !== undefined) || settings.qualityMode === "cq" || settings.qualityMode === "vbr_hq"}
             >
               <SelectTrigger id="quality-preset">
                 <SelectValue />
@@ -506,6 +477,11 @@ export function WypalarkaSettingsModal({
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">{currentPreset.description}</p>
+            {settings.profile !== "custom" && settings.profile !== undefined && (
+              <p className="text-xs text-muted-foreground">
+                {t("wypalarkaQualityPresetLockedByProfile")}
+              </p>
+            )}
             {(settings.qualityMode === "cq" || settings.qualityMode === "vbr_hq") && (
               <p className="text-xs text-muted-foreground">
                 {t("bitrateNotUsedCQVBRHQ")}
@@ -513,8 +489,8 @@ export function WypalarkaSettingsModal({
             )}
           </div>
 
-          {/* Custom Bitrate Input */}
-          {settings.qualityPreset === "custom" && (
+          {/* Custom Bitrate Input - only shown when profile is "custom" or undefined, and qualityPreset is "custom" */}
+          {(settings.profile === "custom" || settings.profile === undefined) && settings.qualityPreset === "custom" && (
             <div className="space-y-3">
               <Label htmlFor="custom-bitrate">{t("wypalarkaCustomBitrate")}</Label>
               <Input
