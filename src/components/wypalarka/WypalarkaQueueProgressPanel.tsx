@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -6,8 +6,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Terminal,
   Zap,
@@ -15,22 +22,62 @@ import {
   XCircle,
   Clock,
   ListChecks,
+  Plus,
+  Play,
+  Pause,
+  Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { WypalarkaAddFilesDialog } from "./WypalarkaAddFilesDialog";
 
 interface WypalarkaQueueProgressPanelProps {
   currentItem: QueueItem | null;
   stats: QueueStats;
   queue: QueueItem[];
+  isProcessing: boolean;
+  onAddFiles: (
+    files: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>,
+  ) => void;
+  onStart: () => void;
+  onPause: () => void;
+  onResume: () => void;
+  onClearQueue: () => void;
 }
 
 export function WypalarkaQueueProgressPanel({
   currentItem,
   stats,
   queue,
+  isProcessing,
+  onAddFiles,
+  onStart,
+  onPause,
+  onResume,
+  onClearQueue,
 }: WypalarkaQueueProgressPanelProps) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+
+  // Queue is "paused" only if it was previously started (has processing history)
+  // and is not currently processing. A fresh queue should show "Start", not "Resume".
+  const hasBeenStarted = queue.some(
+    (item) =>
+      item.logs.length > 0 ||
+      item.status === "completed" ||
+      item.status === "error" ||
+      item.status === "cancelled",
+  );
+  const isPaused =
+    hasBeenStarted && stats.processing === 0 && stats.pending > 0 && !isProcessing;
+  const hasItems = queue.length > 0;
+  const hasProcessableItems = stats.pending > 0 || stats.processing > 0;
+
+  const handleFilesAdded = async (
+    files: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>,
+  ) => {
+    onAddFiles(files);
+  };
 
   // If no current item, find the last processed item (completed, error, or cancelled) to show its logs
   const displayItem =
@@ -120,17 +167,88 @@ export function WypalarkaQueueProgressPanel({
     stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
 
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Terminal className="h-5 w-5" />
-            <CardTitle>{t("wypalarkaProgressTitle")}</CardTitle>
+    <>
+      <Card className="flex h-full flex-col">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Terminal className="h-5 w-5" />
+              <CardTitle>{t("wypalarkaProgressTitle")}</CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Queue Control Buttons */}
+              <TooltipProvider>
+                {/* Add Files */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setAddDialogOpen(true)}
+                      disabled={isProcessing}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("wypalarkaQueueAddFiles")}</TooltipContent>
+                </Tooltip>
+
+                {/* Start/Pause/Resume */}
+                {!isProcessing && !isPaused && hasProcessableItems && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="default" size="icon" onClick={onStart}>
+                        <Play className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("wypalarkaQueueStart")}</TooltipContent>
+                  </Tooltip>
+                )}
+
+                {isProcessing && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="secondary" size="icon" onClick={onPause}>
+                        <Pause className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("wypalarkaQueuePause")}</TooltipContent>
+                  </Tooltip>
+                )}
+
+                {isPaused && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="default" size="icon" onClick={onResume}>
+                        <Play className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("wypalarkaQueueResume")}</TooltipContent>
+                  </Tooltip>
+                )}
+
+                {/* Clear Queue */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={onClearQueue}
+                      disabled={!hasItems || isProcessing}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("wypalarkaQueueClear")}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Status Badge */}
+              {getStatusBadge()}
+            </div>
           </div>
-          {getStatusBadge()}
-        </div>
-        <CardDescription>{t("wypalarkaQueueProgressDesc")}</CardDescription>
-      </CardHeader>
+          <CardDescription>{t("wypalarkaQueueProgressDesc")}</CardDescription>
+        </CardHeader>
 
       <CardContent className="flex min-h-0 flex-1 flex-col gap-4">
         {/* Current/Last Item Info */}
@@ -267,6 +385,14 @@ export function WypalarkaQueueProgressPanel({
           </div>
         )}
       </CardContent>
-    </Card>
+      </Card>
+
+      {/* Add Files Dialog */}
+      <WypalarkaAddFilesDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onFilesAdded={handleFilesAdded}
+      />
+    </>
   );
 }

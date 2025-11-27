@@ -2,14 +2,22 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import SettingsModal from "./SettingsModal";
 import { ChangelogHistoryDialog } from "./ChangelogHistoryDialog";
 import { FileText, Flame } from "lucide-react";
 import { debugLog } from "@/helpers/debug-logger";
+import { useProcessing } from "@/contexts/ProcessingContext";
 
 export default function Navbar() {
   const { t } = useTranslation();
   const router = useRouterState();
+  const { isProcessing } = useProcessing();
   const currentPath = router.location.pathname;
 
   const isActive = (path: string) => currentPath === path;
@@ -32,24 +40,48 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <div className="flex items-center gap-1">
-            <Link to="/">
-              <Button
-                variant={isActive("/") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                {t("navSubtitleEditor")}
-              </Button>
-            </Link>
-            <Link to="/wypalarka">
-              <Button
-                variant={isActive("/wypalarka") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <Flame className="h-4 w-4" />
-                {t("navWypalarka")}
-              </Button>
-            </Link>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Link to="/" disabled={isProcessing}>
+                      <Button
+                        variant={isActive("/") ? "default" : "ghost"}
+                        className="gap-2"
+                        disabled={isProcessing && !isActive("/")}
+                      >
+                        <FileText className="h-4 w-4" />
+                        {t("navSubtitleEditor")}
+                      </Button>
+                    </Link>
+                  </span>
+                </TooltipTrigger>
+                {isProcessing && !isActive("/") && (
+                  <TooltipContent>{t("navDisabledWhileProcessing")}</TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Link to="/wypalarka" disabled={isProcessing}>
+                      <Button
+                        variant={isActive("/wypalarka") ? "default" : "ghost"}
+                        className="gap-2"
+                        disabled={isProcessing && !isActive("/wypalarka")}
+                      >
+                        <Flame className="h-4 w-4" />
+                        {t("navWypalarka")}
+                      </Button>
+                    </Link>
+                  </span>
+                </TooltipTrigger>
+                {isProcessing && !isActive("/wypalarka") && (
+                  <TooltipContent>{t("navDisabledWhileProcessing")}</TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 

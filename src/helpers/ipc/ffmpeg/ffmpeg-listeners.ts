@@ -704,6 +704,18 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
     },
   );
 
+  ipcMain.handle(
+    FFMPEG_CHANNELS.QUEUE_UPDATE_ITEM_OUTPUT,
+    async (_event, itemId: string, newOutputPath: string) => {
+      if (!queueProcessor) {
+        return { success: false, message: "Queue not initialized" };
+      }
+
+      const result = queueProcessor.updateItemOutput(itemId, newOutputPath);
+      return { success: result };
+    },
+  );
+
   ipcMain.handle(FFMPEG_CHANNELS.QUEUE_SELECT_FILES, async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ["openFile", "multiSelections"],

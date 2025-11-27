@@ -8,6 +8,11 @@ interface DiskSpaceInfo {
   driveLetter: string;
 }
 
+interface QueueItemForEstimate {
+  videoPath: string;
+  outputPath: string;
+}
+
 interface WypalarkaDiskSpaceBarProps {
   outputPath: string | null;
   videoPath: string | null;
@@ -16,6 +21,8 @@ interface WypalarkaDiskSpaceBarProps {
     qualityMode?: string;
     cqValue?: number;
   };
+  // Optional: queue items for calculating total size in queue mode
+  queueItems?: QueueItemForEstimate[];
 }
 
 function formatBytes(bytes: number): string {
@@ -33,14 +40,24 @@ export function WypalarkaDiskSpaceBar({
   outputPath,
   videoPath,
   encodingSettings,
+  queueItems,
 }: WypalarkaDiskSpaceBarProps) {
   const { t } = useTranslation();
   const [diskSpace, setDiskSpace] = useState<DiskSpaceInfo | null>(null);
   const [estimatedSize, setEstimatedSize] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fileCount, setFileCount] = useState<number>(1);
 
   // Extract primitive values for stable dependencies
   const { bitrate, qualityMode, cqValue } = encodingSettings;
+
+  // Check if we're in queue mode (multiple files)
+  const isQueueMode = queueItems && queueItems.length > 0;
+
+  // Create a stable key for queue items to prevent excessive re-renders
+  const queueItemsKey = queueItems
+    ? queueItems.map((i) => `${i.videoPath}|${i.outputPath}`).join(",")
+    : "";
 
   // Fetch disk space when output path changes
   useEffect(() => {
@@ -67,9 +84,43 @@ export function WypalarkaDiskSpaceBar({
 
   // Estimate output size when video path or settings change
   // Use primitive values as dependencies to prevent unnecessary re-runs
+  // In queue mode, calculate total for all pending items
   useEffect(() => {
+    // Queue mode: calculate total for all items
+    if (isQueueMode && queueItems.length > 0) {
+      const estimateTotalSize = async () => {
+        setIsLoading(true);
+        try {
+          let total = 0;
+          for (const item of queueItems) {
+            try {
+              const result = await window.ffmpegAPI.checkDiskSpace(
+                item.outputPath,
+                item.videoPath,
+                { bitrate, qualityMode, cqValue },
+              );
+              total += result.required;
+            } catch {
+              // Skip items that fail estimation
+            }
+          }
+          setEstimatedSize(total);
+          setFileCount(queueItems.length);
+        } catch {
+          setEstimatedSize(null);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      estimateTotalSize();
+      return;
+    }
+
+    // Single file mode
     if (!videoPath || !outputPath) {
       setEstimatedSize(null);
+      setFileCount(1);
       return;
     }
 
@@ -82,6 +133,7 @@ export function WypalarkaDiskSpaceBar({
           { bitrate, qualityMode, cqValue },
         );
         setEstimatedSize(result.required);
+        setFileCount(1);
       } catch {
         setEstimatedSize(null);
       } finally {
@@ -90,7 +142,8 @@ export function WypalarkaDiskSpaceBar({
     };
 
     estimateSize();
-  }, [videoPath, outputPath, bitrate, qualityMode, cqValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoPath, outputPath, bitrate, qualityMode, cqValue, isQueueMode, queueItemsKey]);
 
   // Determine if space is low (less than estimated + 1GB buffer)
   const isSpaceLow =
@@ -142,13 +195,14 @@ export function WypalarkaDiskSpaceBar({
           </span>
         </div>
 
-        {/* Estimated size (only when video selected) */}
-        {videoPath && (
+        {/* Estimated size (only when video selected or queue has items) */}
+        {(videoPath || isQueueMode) && (
           <>
             <div className="bg-border h-6 w-px" />
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">
-                {t("wypalarkaDiskSpaceEstimated")}:
+                {t("wypalarkaDiskSpaceEstimated")}
+                {isQueueMode && fileCount > 1 && ` (${fileCount})`}:
               </span>
               <span className="font-mono font-semibold">
                 {isLoading

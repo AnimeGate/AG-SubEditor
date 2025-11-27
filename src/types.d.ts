@@ -20,6 +20,8 @@ interface ElectronWindow {
 interface FileAPI {
   openFile: () => Promise<{ fileName: string; content: string } | null>;
   saveFile: (fileName: string, content: string) => Promise<boolean>;
+  /** Get the filesystem path from a dropped File object */
+  getPathForFile: (file: File) => string;
 }
 
 interface FFmpegProgress {
@@ -211,6 +213,10 @@ interface FFmpegAPI {
     success: boolean;
     files: Array<{ filePath: string; fileName: string }>;
   }>;
+  queueUpdateItemOutput: (
+    itemId: string,
+    newOutputPath: string,
+  ) => Promise<{ success: boolean }>;
   // Queue Event Listeners
   onQueueUpdate: (callback: (queue: QueueItem[]) => void) => () => void;
   onQueueItemUpdate: (callback: (item: QueueItem) => void) => () => void;

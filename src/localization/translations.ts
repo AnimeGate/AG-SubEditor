@@ -9,6 +9,7 @@ export const translations = {
       // Navbar
       navSubtitleEditor: "Edytor napisów",
       navWypalarka: "Wypalarka",
+      navDisabledWhileProcessing: "Niedostępne podczas przetwarzania",
       settings: "Ustawienia",
       // Settings Modal
       settingsTitle: "Ustawienia aplikacji",
@@ -43,6 +44,7 @@ export const translations = {
       wypalarkaQueueAddFilesDesc: "Dodaj pary video + napisy do kolejki",
       wypalarkaQueueAddFilesEmpty: "Kliknij poniżej, aby dodać parę plików",
       wypalarkaQueueAddPair: "Dodaj parę",
+      wypalarkaQueuePair: "Para {{number}}",
       wypalarkaQueueAddToQueue: "Dodaj do kolejki",
       wypalarkaQueueClearAll: "Wyczyść wszystko",
       wypalarkaQueueStartQueue: "Rozpocznij kolejkę",
@@ -69,6 +71,15 @@ export const translations = {
       wypalarkaSubtitleFile: "Plik napisów",
       wypalarkaSubtitleFileDesc: "Wybierz plik napisów ASS",
       wypalarkaSelectSubtitle: "Wybierz plik napisów",
+      wypalarkaDropHint: "Lub przeciągnij i upuść plik tutaj",
+      wypalarkaQueueDropFilesHere: "Upuść pliki tutaj",
+      wypalarkaQueueDropHint:
+        "Przeciągnij pliki wideo i napisy - zostaną automatycznie sparowane",
+      // Unpaired Videos Dialog
+      wypalarkaUnpairedTitle: "Brak pasujących napisów",
+      wypalarkaUnpairedDescription:
+        "Nie znaleziono napisów dla {{count}} plików wideo. Wybierz plik napisów do zastosowania dla wszystkich.",
+      wypalarkaUnpairedSelectSubtitle: "Wybierz napisy",
       wypalarkaOutputFile: "Plik wyjściowy",
       wypalarkaOutputFileDesc: "Wybierz lokalizację zapisu filmu z napisami",
       wypalarkaSelectOutput: "Wybierz lokalizację zapisu",
@@ -194,6 +205,13 @@ export const translations = {
         "{{count}} plików w kolejce może mieć niewystarczającą ilość miejsca na dysku docelowym.",
       wypalarkaQueueDiskSpaceWarning:
         "Kontynuowanie może spowodować niepowodzenie kodowania lub uszkodzenie plików wyjściowych.",
+      // Queue Output Conflict
+      wypalarkaQueueConflictTitle: "Wykryto konflikty plików wyjściowych",
+      wypalarkaQueueConflictDescription:
+        "{{count}} plików w kolejce zostanie nadpisanych, ponieważ pliki wyjściowe już istnieją.",
+      wypalarkaQueueConflictAutoRename:
+        "Zmień nazwy automatycznie (dodaj _1, _2, itp.)",
+      wypalarkaQueueConflictOverwrite: "Nadpisz wszystkie istniejące pliki",
       // FFmpeg Download
       wypalarkaFfmpegRequired: "FFmpeg jest wymagany",
       wypalarkaFfmpegNotInstalled:
@@ -333,6 +351,7 @@ export const translations = {
       // Navbar
       navSubtitleEditor: "Subtitle Editor",
       navWypalarka: "Burner",
+      navDisabledWhileProcessing: "Disabled while processing",
       settings: "Settings",
       // Settings Modal
       settingsTitle: "Application Settings",
@@ -367,6 +386,7 @@ export const translations = {
       wypalarkaQueueAddFilesDesc: "Add video + subtitle pairs to queue",
       wypalarkaQueueAddFilesEmpty: "Click below to add a file pair",
       wypalarkaQueueAddPair: "Add Pair",
+      wypalarkaQueuePair: "Pair {{number}}",
       wypalarkaQueueAddToQueue: "Add to Queue",
       wypalarkaQueueClearAll: "Clear All",
       wypalarkaQueueStartQueue: "Start Queue",
@@ -392,6 +412,15 @@ export const translations = {
       wypalarkaSubtitleFile: "Subtitle File",
       wypalarkaSubtitleFileDesc: "Select ASS subtitle file",
       wypalarkaSelectSubtitle: "Select subtitle file",
+      wypalarkaDropHint: "Or drag and drop file here",
+      wypalarkaQueueDropFilesHere: "Drop files here",
+      wypalarkaQueueDropHint:
+        "Drag video and subtitle files - they will be auto-paired",
+      // Unpaired Videos Dialog
+      wypalarkaUnpairedTitle: "No matching subtitles",
+      wypalarkaUnpairedDescription:
+        "No subtitles found for {{count}} video files. Select a subtitle file to apply to all.",
+      wypalarkaUnpairedSelectSubtitle: "Select subtitle",
       wypalarkaOutputFile: "Output File",
       wypalarkaOutputFileDesc: "Choose location to save video with subtitles",
       wypalarkaSelectOutput: "Choose save location",
@@ -517,6 +546,12 @@ export const translations = {
         "{{count}} files in the queue may not have sufficient disk space on the target drive.",
       wypalarkaQueueDiskSpaceWarning:
         "Proceeding may result in encoding failures or corrupted output files.",
+      // Queue Output Conflict
+      wypalarkaQueueConflictTitle: "Output file conflicts detected",
+      wypalarkaQueueConflictDescription:
+        "{{count}} files in the queue will overwrite existing output files.",
+      wypalarkaQueueConflictAutoRename: "Auto-rename all (add _1, _2, etc.)",
+      wypalarkaQueueConflictOverwrite: "Overwrite all existing files",
       // FFmpeg Download
       wypalarkaFfmpegRequired: "FFmpeg is required",
       wypalarkaFfmpegNotInstalled:

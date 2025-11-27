@@ -9,6 +9,7 @@ import { updateAppLanguage } from "./helpers/language_helpers";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./utils/routes";
 import { UpdateDialog } from "./components/UpdateDialog";
+import { ProcessingProvider } from "./contexts/ProcessingContext";
 import "./localization/i18n";
 
 // Apply theme immediately before React renders to avoid flash of wrong theme
@@ -24,10 +25,10 @@ export default function App() {
   }, [i18n]);
 
   return (
-    <>
+    <ProcessingProvider>
       <RouterProvider router={router} />
       <UpdateDialog />
-    </>
+    </ProcessingProvider>
   );
 }
 

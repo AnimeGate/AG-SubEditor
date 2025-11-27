@@ -33,6 +33,7 @@ export const FFMPEG_CHANNELS = {
   QUEUE_GET_STATS: "ffmpeg:queue:getStats",
   QUEUE_UPDATE_SETTINGS: "ffmpeg:queue:updateSettings",
   QUEUE_SELECT_FILES: "ffmpeg:queue:selectFiles",
+  QUEUE_UPDATE_ITEM_OUTPUT: "ffmpeg:queue:updateItemOutput",
   // Queue Events
   QUEUE_UPDATE: "ffmpeg:queue:update",
   QUEUE_ITEM_UPDATE: "ffmpeg:queue:itemUpdate",

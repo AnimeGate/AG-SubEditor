@@ -6,9 +6,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Terminal, Zap, CheckCircle, XCircle, Clock } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Terminal, Zap, CheckCircle, XCircle, Clock, Play, StopCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface LogEntry {
@@ -21,6 +28,10 @@ interface WypalarkaProgressPanelProps {
   progress: FFmpegProgress | null;
   status: "idle" | "processing" | "completed" | "error";
   errorMessage?: string;
+  // Control props
+  canStart?: boolean;
+  onStart?: () => void;
+  onCancel?: () => void;
 }
 
 export function WypalarkaProgressPanel({
@@ -28,6 +39,9 @@ export function WypalarkaProgressPanel({
   progress,
   status,
   errorMessage,
+  canStart,
+  onStart,
+  onCancel,
 }: WypalarkaProgressPanelProps) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -88,7 +102,37 @@ export function WypalarkaProgressPanel({
             <Terminal className="h-5 w-5" />
             <CardTitle>{t("wypalarkaProgressTitle")}</CardTitle>
           </div>
-          {getStatusBadge()}
+          <div className="flex items-center gap-2">
+            {/* Control Buttons */}
+            <TooltipProvider>
+              {/* Start Button - show when idle and can start */}
+              {status === "idle" && canStart && onStart && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="default" size="icon" onClick={onStart}>
+                      <Play className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("wypalarkaStartProcess")}</TooltipContent>
+                </Tooltip>
+              )}
+
+              {/* Cancel Button - show when processing */}
+              {status === "processing" && onCancel && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="destructive" size="icon" onClick={onCancel}>
+                      <StopCircle className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("wypalarkaCancel")}</TooltipContent>
+                </Tooltip>
+              )}
+            </TooltipProvider>
+
+            {/* Status Badge */}
+            {getStatusBadge()}
+          </div>
         </div>
         <CardDescription>{t("wypalarkaProgressDesc")}</CardDescription>
       </CardHeader>
