@@ -4,15 +4,22 @@ import { TimeAdjustmentPanel } from "./TimeAdjustmentPanel";
 import { SubtitleGrid } from "./SubtitleGrid";
 import { InfoBar } from "./InfoBar";
 import { TimingSyncDialog } from "./TimingSyncDialog";
-import { parseASSFile, exportASSFile, type SubtitleLine } from "@/lib/ass-parser";
+import {
+  parseASSFile,
+  exportASSFile,
+  type SubtitleLine,
+} from "@/lib/ass-parser";
 import { debugLog } from "@/helpers/debug-logger";
 
 export default function SubtitleEditor() {
   const [fileName, setFileName] = useState<string>("");
   const [subtitles, setSubtitles] = useState<SubtitleLine[]>([]);
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    new Set(),
+  );
   const [originalFileContent, setOriginalFileContent] = useState<string>("");
-  const [timingSyncDialogOpen, setTimingSyncDialogOpen] = useState<boolean>(false);
+  const [timingSyncDialogOpen, setTimingSyncDialogOpen] =
+    useState<boolean>(false);
 
   const handleFileUpload = async (file: File) => {
     debugLog.file(`Loading subtitle file: ${file.name} (${file.size} bytes)`);
@@ -28,7 +35,9 @@ export default function SubtitleEditor() {
   const handleExport = () => {
     if (!originalFileContent) return;
 
-    debugLog.file(`Exporting subtitle file: ${fileName} (${subtitles.length} lines)`);
+    debugLog.file(
+      `Exporting subtitle file: ${fileName} (${subtitles.length} lines)`,
+    );
     const exported = exportASSFile(originalFileContent, subtitles);
     const blob = new Blob([exported], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -44,7 +53,7 @@ export default function SubtitleEditor() {
     adjustment: number,
     unit: "milliseconds" | "seconds",
     applyTo: "start" | "end" | "both",
-    scope: "selected" | "all"
+    scope: "selected" | "all",
   ) => {
     const adjustmentMs = unit === "seconds" ? adjustment * 1000 : adjustment;
 
@@ -69,16 +78,16 @@ export default function SubtitleEditor() {
         }
 
         return newSub;
-      })
+      }),
     );
   };
 
   const handleSubtitleUpdate = (
     index: number,
-    updates: Partial<SubtitleLine>
+    updates: Partial<SubtitleLine>,
   ) => {
     setSubtitles((prev) =>
-      prev.map((sub, i) => (i === index ? { ...sub, ...updates } : sub))
+      prev.map((sub, i) => (i === index ? { ...sub, ...updates } : sub)),
     );
   };
 
@@ -92,12 +101,14 @@ export default function SubtitleEditor() {
   };
 
   const handleApplyTimingSync = (updatedSubtitles: SubtitleLine[]) => {
-    debugLog.file(`Applying timing sync to ${updatedSubtitles.length} subtitle lines`);
+    debugLog.file(
+      `Applying timing sync to ${updatedSubtitles.length} subtitle lines`,
+    );
     setSubtitles(updatedSubtitles);
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <FileUploadSection
         fileName={fileName}
         totalLines={subtitles.length}
@@ -107,14 +118,14 @@ export default function SubtitleEditor() {
         hasFile={subtitles.length > 0}
       />
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6 overflow-hidden min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden p-6 lg:flex-row">
         <TimeAdjustmentPanel
           onApply={handleTimeAdjustment}
           selectedCount={selectedIndices.size}
           totalCount={subtitles.length}
         />
 
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex min-h-0 flex-1 flex-col">
           <SubtitleGrid
             subtitles={subtitles}
             selectedIndices={selectedIndices}

@@ -11,7 +11,7 @@ export default function BaseLayout({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden">
       {/* Window drag region (title bar) */}
       <div className="flex-shrink-0">
         <DragWindowRegion title={t("appName")} />

@@ -39,12 +39,18 @@ export function TimingSyncDialog({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
-  const [referenceSubtitles, setReferenceSubtitles] = useState<SubtitleLine[]>([]);
+  const [referenceSubtitles, setReferenceSubtitles] = useState<SubtitleLine[]>(
+    [],
+  );
   const [matches, setMatches] = useState<TimingMatchResult[]>([]);
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    new Set(),
+  );
   const [error, setError] = useState<string>("");
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -117,13 +123,13 @@ export function TimingSyncDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+      <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col">
         <DialogHeader>
           <DialogTitle>{t("timingSyncTitle")}</DialogTitle>
           <DialogDescription>{t("timingSyncDescription")}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+        <div className="flex flex-1 flex-col gap-4 overflow-hidden">
           {/* File Upload Section */}
           <div className="flex flex-col gap-2">
             <Label htmlFor="reference-file">{t("referenceFile")}</Label>
@@ -133,7 +139,7 @@ export function TimingSyncDialog({
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="h-4 w-4" />
                 {referenceFile ? referenceFile.name : t("uploadReferenceFile")}
               </Button>
               <input
@@ -145,7 +151,7 @@ export function TimingSyncDialog({
                 className="hidden"
               />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("referenceFileDesc")}
             </p>
           </div>
@@ -155,7 +161,8 @@ export function TimingSyncDialog({
             <Alert>
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>
-                {stats.matched} / {stats.total} {t("linesMatched")} ({stats.percentage}
+                {stats.matched} / {stats.total} {t("linesMatched")} (
+                {stats.percentage}
                 %)
               </AlertDescription>
             </Alert>
@@ -196,9 +203,9 @@ export function TimingSyncDialog({
 
           {/* Empty State */}
           {matches.length === 0 && !error && (
-            <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg p-8">
-              <div className="text-center text-muted-foreground">
-                <Upload className="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed p-8">
+              <div className="text-muted-foreground text-center">
+                <Upload className="mx-auto mb-3 h-12 w-12 opacity-50" />
                 <p>{t("selectReferenceFirst")}</p>
               </div>
             </div>
@@ -209,10 +216,7 @@ export function TimingSyncDialog({
           <Button variant="outline" onClick={handleClose}>
             {t("closeDialog")}
           </Button>
-          <Button
-            onClick={handleApply}
-            disabled={selectedIndices.size === 0}
-          >
+          <Button onClick={handleApply} disabled={selectedIndices.size === 0}>
             {t("applyTimingSync")} ({selectedIndices.size})
           </Button>
         </DialogFooter>

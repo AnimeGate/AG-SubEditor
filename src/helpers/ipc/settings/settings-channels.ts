@@ -5,5 +5,3 @@ export const SETTINGS_CHANNELS = {
   SELECT_OUTPUT_FOLDER: "settings:selectOutputFolder",
   OUTPUT_UPDATED: "settings:outputUpdated",
 } as const;
-
-

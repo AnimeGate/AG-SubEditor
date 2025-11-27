@@ -13,12 +13,15 @@ export function addSettingsEventListeners(mainWindow: BrowserWindow) {
     return store.getOutput();
   });
 
-  ipcMain.handle(SETTINGS_CHANNELS.UPDATE_OUTPUT, async (_event, partial: any) => {
-    const updated = store.updateOutput(partial);
-    // broadcast to renderer(s)
-    mainWindow.webContents.send(SETTINGS_CHANNELS.OUTPUT_UPDATED, updated);
-    return updated;
-  });
+  ipcMain.handle(
+    SETTINGS_CHANNELS.UPDATE_OUTPUT,
+    async (_event, partial: any) => {
+      const updated = store.updateOutput(partial);
+      // broadcast to renderer(s)
+      mainWindow.webContents.send(SETTINGS_CHANNELS.OUTPUT_UPDATED, updated);
+      return updated;
+    },
+  );
 
   ipcMain.handle(SETTINGS_CHANNELS.SELECT_OUTPUT_FOLDER, async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -32,5 +35,3 @@ export function addSettingsEventListeners(mainWindow: BrowserWindow) {
     return result.filePaths[0];
   });
 }
-
-

@@ -36,7 +36,8 @@ i18n.use(initReactI18next).init({
         wypalarkaQueueMode: "Kolejka",
         wypalarkaQueueComingSoon: "Kolejka - Wkrótce",
         wypalarkaQueueDesc: "Zarządzaj kolejką przetwarzania plików",
-        wypalarkaQueueFeature: "Ta funkcja pozwoli przetwarzać wiele plików jednocześnie w kolejce",
+        wypalarkaQueueFeature:
+          "Ta funkcja pozwoli przetwarzać wiele plików jednocześnie w kolejce",
         // Queue Management
         wypalarkaQueueTitle: "Kolejka przetwarzania",
         wypalarkaQueueAddFiles: "Dodaj pliki",
@@ -60,7 +61,8 @@ i18n.use(initReactI18next).init({
         wypalarkaQueueItemCancelled: "Anulowano",
         wypalarkaQueueCurrentlyProcessing: "Obecnie przetwarzane",
         wypalarkaQueueOverallProgress: "Postęp kolejki",
-        wypalarkaQueueProgressDesc: "Logi procesu FFmpeg dla aktualnego elementu",
+        wypalarkaQueueProgressDesc:
+          "Logi procesu FFmpeg dla aktualnego elementu",
         // File Input
         wypalarkaVideoFile: "Plik wideo",
         wypalarkaVideoFileDesc: "Wybierz plik MKV, MP4 lub inny format wideo",
@@ -98,14 +100,20 @@ i18n.use(initReactI18next).init({
         wypalarkaProfile1080pCinema: "1080p Cinema (2.39:1)",
         wypalarkaProfile4k: "4K",
         wypalarkaProfile4kCinema: "4K Cinema (2.39:1)",
-        wypalarkaProfileDesc: "Wybierz gotowy profil aby uniknąć złożonych ustawień. Zawsze możesz przełączyć na Własny.",
+        wypalarkaProfileDesc:
+          "Wybierz gotowy profil aby uniknąć złożonych ustawień. Zawsze możesz przełączyć na Własny.",
         wypalarkaProfileHelpTitle: "Dostępne profile:",
-        wypalarkaProfileHelp1080p: "Dla materiałów źródłowych w 1080p (2400k bitrate)",
-        wypalarkaProfileHelp1080pDownscale: "Skaluje wideo z 4K do 1080p (2400k bitrate)",
-        wypalarkaProfileHelp1080pCinema: "Format kinowy 2.39:1 w 1080p dla filmów z czarnymi pasami",
+        wypalarkaProfileHelp1080p:
+          "Dla materiałów źródłowych w 1080p (2400k bitrate)",
+        wypalarkaProfileHelp1080pDownscale:
+          "Skaluje wideo z 4K do 1080p (2400k bitrate)",
+        wypalarkaProfileHelp1080pCinema:
+          "Format kinowy 2.39:1 w 1080p dla filmów z czarnymi pasami",
         wypalarkaProfileHelp4k: "Zachowuje rozdzielczość 4K (6M bitrate)",
-        wypalarkaProfileHelp4kCinema: "Format kinowy 2.39:1 w 4K dla filmów z czarnymi pasami",
-        wypalarkaQualityPresetLockedByProfile: "Bitrate jest zdefiniowany przez wybrany profil. Wybierz \"Własny\" profil, aby zmienić.",
+        wypalarkaProfileHelp4kCinema:
+          "Format kinowy 2.39:1 w 4K dla filmów z czarnymi pasami",
+        wypalarkaQualityPresetLockedByProfile:
+          'Bitrate jest zdefiniowany przez wybrany profil. Wybierz "Własny" profil, aby zmienić.',
         wypalarkaQualityPreset: "Preset jakości",
         wypalarkaQualityUltra: "Ultra (6000k) - Najlepsza jakość",
         wypalarkaQualityHigh: "High (4000k) - Świetna jakość",
@@ -116,7 +124,8 @@ i18n.use(initReactI18next).init({
         wypalarkaCustomBitrateDesc: "np. 3000k lub 5M",
         bitrateNotUsedCQVBRHQ: "Bitrate nie jest używany w trybach CQ/VBR HQ.",
         wypalarkaHardwareAccel: "Akceleracja sprzętowa",
-        wypalarkaHardwareAccelDesc: "Użyj GPU do szybszego kodowania (NVIDIA/Intel/AMD)",
+        wypalarkaHardwareAccelDesc:
+          "Użyj GPU do szybszego kodowania (NVIDIA/Intel/AMD)",
         wypalarkaGpuAvailable: "GPU dostępne",
         wypalarkaGpuNotAvailable: "GPU niedostępne",
         wypalarkaGpuDetecting: "Wykrywanie GPU...",
@@ -128,9 +137,11 @@ i18n.use(initReactI18next).init({
         wypalarkaGpuDownload: "Pobierz CUDA Toolkit",
         // Advanced Encoder Settings
         wypalarkaGpuDecode: "GPU Decode",
-        wypalarkaGpuDecodeDesc: "Napisy renderowane są na CPU (libass). Włącz GPU decode tylko gdy używasz filtrów GPU; w przeciwnym razie może zwiększyć transfery pamięci.",
+        wypalarkaGpuDecodeDesc:
+          "Napisy renderowane są na CPU (libass). Włącz GPU decode tylko gdy używasz filtrów GPU; w przeciwnym razie może zwiększyć transfery pamięci.",
         wypalarkaEncoderCodec: "Kodek",
-        wypalarkaEncoderCodecDesc: "H.264: najlepsza kompatybilność z wszystkimi urządzeniami i platformami (w tym Google Drive).",
+        wypalarkaEncoderCodecDesc:
+          "H.264: najlepsza kompatybilność z wszystkimi urządzeniami i platformami (w tym Google Drive).",
         wypalarkaEncoderPreset: "Preset",
         wypalarkaEncoderPresetP1: "p1 (najszybszy)",
         wypalarkaEncoderPresetP2: "p2",
@@ -139,24 +150,38 @@ i18n.use(initReactI18next).init({
         wypalarkaEncoderPresetP5: "p5",
         wypalarkaEncoderPresetP6: "p6",
         wypalarkaEncoderPresetP7: "p7 (najwyższa jakość)",
-        wypalarkaEncoderPresetDesc: "p1 = najszybszy, p7 = najwyższa jakość. p4 to dobry balans prędkości i jakości.",
+        wypalarkaEncoderPresetDesc:
+          "p1 = najszybszy, p7 = najwyższa jakość. p4 to dobry balans prędkości i jakości.",
         wypalarkaRateControl: "Kontrola bitrate",
         wypalarkaRateControlCQ: "CQ",
         wypalarkaRateControlVBR: "VBR",
         wypalarkaRateControlVBRHQ: "VBR HQ",
         wypalarkaRateControlCBR: "CBR",
-        wypalarkaRateControlDesc: "VBR HQ + CQ polecane dla najlepszej jakości/rozmiaru. CBR tylko gdy wymagany stały bitrate.",
+        wypalarkaRateControlDesc:
+          "VBR HQ + CQ polecane dla najlepszej jakości/rozmiaru. CBR tylko gdy wymagany stały bitrate.",
         wypalarkaCQ: "CQ",
-        wypalarkaCQDesc: "Niższe CQ = wyższa jakość (większy bitrate). Typowe wartości 15–25. Używane głównie z CQ/VBR HQ.",
+        wypalarkaCQDesc:
+          "Niższe CQ = wyższa jakość (większy bitrate). Typowe wartości 15–25. Używane głównie z CQ/VBR HQ.",
         wypalarkaSpatialAQ: "Spatial AQ",
-        wypalarkaSpatialAQDesc: "Poprawia jakość w obszarach z dużą ilością detali i tekstur.",
+        wypalarkaSpatialAQDesc:
+          "Poprawia jakość w obszarach z dużą ilością detali i tekstur.",
         wypalarkaTemporalAQ: "Temporal AQ",
-        wypalarkaTemporalAQDesc: "Poprawia jakość w ruchu; lepszy rozdział bitów między klatkami.",
+        wypalarkaTemporalAQDesc:
+          "Poprawia jakość w ruchu; lepszy rozdział bitów między klatkami.",
         wypalarkaRcLookahead: "RC Lookahead",
-        wypalarkaRcLookaheadDesc: "Ilość przyszłych klatek analizowanych przez RC. Więcej = lepsze decyzje kosztem opóźnienia. Typowo 0–32.",
+        wypalarkaRcLookaheadDesc:
+          "Ilość przyszłych klatek analizowanych przez RC. Więcej = lepsze decyzje kosztem opóźnienia. Typowo 0–32.",
+        // Output Conflict
+        wypalarkaConflictTitle: "Plik już istnieje",
+        wypalarkaConflictDescription:
+          'Plik wyjściowy "{{fileName}}" już istnieje. Co chcesz zrobić?',
+        wypalarkaConflictOverwrite: "Nadpisz istniejący plik",
+        wypalarkaConflictAutoRename: "Użyj nowej nazwy automatycznie",
+        wypalarkaConflictChooseNew: "Wybierz inną lokalizację",
         // FFmpeg Download
         wypalarkaFfmpegRequired: "FFmpeg jest wymagany",
-        wypalarkaFfmpegNotInstalled: "FFmpeg nie jest zainstalowany. Pobierz i zainstaluj aby korzystać z funkcji wypalania napisów.",
+        wypalarkaFfmpegNotInstalled:
+          "FFmpeg nie jest zainstalowany. Pobierz i zainstaluj aby korzystać z funkcji wypalania napisów.",
         wypalarkaFfmpegDownload: "Pobierz FFmpeg",
         wypalarkaFfmpegDownloading: "Pobieranie FFmpeg...",
         wypalarkaFfmpegExtracting: "Rozpakowywanie FFmpeg...",
@@ -165,9 +190,12 @@ i18n.use(initReactI18next).init({
         wypalarkaFfmpegDownloadProgress: "Postęp pobierania",
         wypalarkaFfmpegClose: "Zamknij",
         wypalarkaFfmpegRetry: "Spróbuj ponownie",
-        wypalarkaFfmpegDescription: "FFmpeg to potężna platforma multimedialna wymagana do wypalania napisów do filmów. Pobieranie zajmuje około ~200MB i zostanie zainstalowane automatycznie.",
-        wypalarkaFfmpegSuccessDesc: "FFmpeg został pomyślnie zainstalowany. Możesz teraz korzystać z funkcji wypalania napisów.",
-        wypalarkaFfmpegErrorUnknown: "Wystąpił nieznany błąd podczas pobierania.",
+        wypalarkaFfmpegDescription:
+          "FFmpeg to potężna platforma multimedialna wymagana do wypalania napisów do filmów. Pobieranie zajmuje około ~200MB i zostanie zainstalowane automatycznie.",
+        wypalarkaFfmpegSuccessDesc:
+          "FFmpeg został pomyślnie zainstalowany. Możesz teraz korzystać z funkcji wypalania napisów.",
+        wypalarkaFfmpegErrorUnknown:
+          "Wystąpił nieznany błąd podczas pobierania.",
         wypalarkaFfmpegDownloadingStatus: "Pobieranie",
         wypalarkaFfmpegStartingDownload: "Rozpoczynanie pobierania...",
         // Output defaults UI
@@ -201,7 +229,8 @@ i18n.use(initReactI18next).init({
         endTimeOnly: "Tylko czas zakończenia",
         endTimeDesc: "Przesuń tylko czas zakończenia napisów",
         bothTimes: "Oba czasy",
-        bothTimesDesc: "Przesuń czas rozpoczęcia i zakończenia (zachowuje czas trwania)",
+        bothTimesDesc:
+          "Przesuń czas rozpoczęcia i zakończenia (zachowuje czas trwania)",
         selectionScope: "Zakres wyboru",
         selectedLines: "Zaznaczone linie",
         selectedLinesDesc: "Zastosuj tylko do zaznaczonych wierszy",
@@ -241,7 +270,8 @@ i18n.use(initReactI18next).init({
         selectReferenceFirst: "Wybierz najpierw plik referencyjny",
         invalidReferenceFile: "Nieprawidłowy plik ASS",
         lineMismatch: "Liczba linii nie pasuje",
-        lineMismatchWarning: "Plik referencyjny ma {{refCount}} linii, a aktualny plik ma {{sourceCount}} linii",
+        lineMismatchWarning:
+          "Plik referencyjny ma {{refCount}} linii, a aktualny plik ma {{sourceCount}} linii",
         referenceFileLoaded: "Plik referencyjny wczytany",
         timingSyncApplied: "Timing zastosowany do {{count}} linii",
         closeDialog: "Zamknij",
@@ -279,7 +309,8 @@ i18n.use(initReactI18next).init({
         wypalarkaQueueMode: "Queue",
         wypalarkaQueueComingSoon: "Queue - Coming Soon",
         wypalarkaQueueDesc: "Manage batch file processing queue",
-        wypalarkaQueueFeature: "This feature will allow processing multiple files in a queue",
+        wypalarkaQueueFeature:
+          "This feature will allow processing multiple files in a queue",
         // Queue Management
         wypalarkaQueueTitle: "Processing Queue",
         wypalarkaQueueAddFiles: "Add Files",
@@ -341,14 +372,20 @@ i18n.use(initReactI18next).init({
         wypalarkaProfile1080pCinema: "1080p Cinema (2.39:1)",
         wypalarkaProfile4k: "4K",
         wypalarkaProfile4kCinema: "4K Cinema (2.39:1)",
-        wypalarkaProfileDesc: "Choose a ready profile to avoid advanced tuning. You can always switch to Custom.",
+        wypalarkaProfileDesc:
+          "Choose a ready profile to avoid advanced tuning. You can always switch to Custom.",
         wypalarkaProfileHelpTitle: "Available profiles:",
-        wypalarkaProfileHelp1080p: "For native 1080p source files (2400k bitrate)",
-        wypalarkaProfileHelp1080pDownscale: "Scales 4K video down to 1080p (2400k bitrate)",
-        wypalarkaProfileHelp1080pCinema: "Cinematic 2.39:1 aspect ratio in 1080p for letterboxed content",
+        wypalarkaProfileHelp1080p:
+          "For native 1080p source files (2400k bitrate)",
+        wypalarkaProfileHelp1080pDownscale:
+          "Scales 4K video down to 1080p (2400k bitrate)",
+        wypalarkaProfileHelp1080pCinema:
+          "Cinematic 2.39:1 aspect ratio in 1080p for letterboxed content",
         wypalarkaProfileHelp4k: "Keeps native 4K resolution (6M bitrate)",
-        wypalarkaProfileHelp4kCinema: "Cinematic 2.39:1 aspect ratio in 4K for letterboxed content",
-        wypalarkaQualityPresetLockedByProfile: "Bitrate is defined by selected profile. Choose \"Custom\" profile to change.",
+        wypalarkaProfileHelp4kCinema:
+          "Cinematic 2.39:1 aspect ratio in 4K for letterboxed content",
+        wypalarkaQualityPresetLockedByProfile:
+          'Bitrate is defined by selected profile. Choose "Custom" profile to change.',
         wypalarkaQualityPreset: "Quality Preset",
         wypalarkaQualityUltra: "Ultra (6000k) - Best quality",
         wypalarkaQualityHigh: "High (4000k) - Great quality",
@@ -359,7 +396,8 @@ i18n.use(initReactI18next).init({
         wypalarkaCustomBitrateDesc: "e.g. 3000k or 5M",
         bitrateNotUsedCQVBRHQ: "Bitrate is not used in CQ/VBR HQ modes.",
         wypalarkaHardwareAccel: "Hardware Acceleration",
-        wypalarkaHardwareAccelDesc: "Use GPU for faster encoding (NVIDIA/Intel/AMD)",
+        wypalarkaHardwareAccelDesc:
+          "Use GPU for faster encoding (NVIDIA/Intel/AMD)",
         wypalarkaGpuAvailable: "GPU available",
         wypalarkaGpuNotAvailable: "GPU not available",
         wypalarkaGpuDetecting: "Detecting GPU...",
@@ -371,9 +409,11 @@ i18n.use(initReactI18next).init({
         wypalarkaGpuDownload: "Download CUDA Toolkit",
         // Advanced Encoder Settings
         wypalarkaGpuDecode: "GPU Decode",
-        wypalarkaGpuDecodeDesc: "Subtitles are rendered on CPU (libass). Enable GPU decode only if you also use GPU filters; otherwise it may add memory transfers.",
+        wypalarkaGpuDecodeDesc:
+          "Subtitles are rendered on CPU (libass). Enable GPU decode only if you also use GPU filters; otherwise it may add memory transfers.",
         wypalarkaEncoderCodec: "Codec",
-        wypalarkaEncoderCodecDesc: "H.264: best compatibility with all devices and platforms (including Google Drive).",
+        wypalarkaEncoderCodecDesc:
+          "H.264: best compatibility with all devices and platforms (including Google Drive).",
         wypalarkaEncoderPreset: "Preset",
         wypalarkaEncoderPresetP1: "p1 (fastest)",
         wypalarkaEncoderPresetP2: "p2",
@@ -382,24 +422,38 @@ i18n.use(initReactI18next).init({
         wypalarkaEncoderPresetP5: "p5",
         wypalarkaEncoderPresetP6: "p6",
         wypalarkaEncoderPresetP7: "p7 (highest quality)",
-        wypalarkaEncoderPresetDesc: "p1 = fastest, p7 = highest quality. p4 is a good balance of speed and quality.",
+        wypalarkaEncoderPresetDesc:
+          "p1 = fastest, p7 = highest quality. p4 is a good balance of speed and quality.",
         wypalarkaRateControl: "Rate Control",
         wypalarkaRateControlCQ: "CQ",
         wypalarkaRateControlVBR: "VBR",
         wypalarkaRateControlVBRHQ: "VBR HQ",
         wypalarkaRateControlCBR: "CBR",
-        wypalarkaRateControlDesc: "VBR HQ + CQ recommended for best quality/size. Use CBR only when a strict bitrate is required.",
+        wypalarkaRateControlDesc:
+          "VBR HQ + CQ recommended for best quality/size. Use CBR only when a strict bitrate is required.",
         wypalarkaCQ: "CQ",
-        wypalarkaCQDesc: "Lower CQ = higher quality (higher bitrate). Typical range 15–25. Mainly used with CQ/VBR HQ.",
+        wypalarkaCQDesc:
+          "Lower CQ = higher quality (higher bitrate). Typical range 15–25. Mainly used with CQ/VBR HQ.",
         wypalarkaSpatialAQ: "Spatial AQ",
-        wypalarkaSpatialAQDesc: "Improves detail allocation in highly textured areas.",
+        wypalarkaSpatialAQDesc:
+          "Improves detail allocation in highly textured areas.",
         wypalarkaTemporalAQ: "Temporal AQ",
-        wypalarkaTemporalAQDesc: "Improves quality in motion by distributing bits across frames.",
+        wypalarkaTemporalAQDesc:
+          "Improves quality in motion by distributing bits across frames.",
         wypalarkaRcLookahead: "RC Lookahead",
-        wypalarkaRcLookaheadDesc: "Number of future frames RC analyzes. Higher = better decisions at the cost of latency. Typical 0–32.",
+        wypalarkaRcLookaheadDesc:
+          "Number of future frames RC analyzes. Higher = better decisions at the cost of latency. Typical 0–32.",
+        // Output Conflict
+        wypalarkaConflictTitle: "File already exists",
+        wypalarkaConflictDescription:
+          'Output file "{{fileName}}" already exists. What do you want to do?',
+        wypalarkaConflictOverwrite: "Overwrite existing file",
+        wypalarkaConflictAutoRename: "Use auto-generated name",
+        wypalarkaConflictChooseNew: "Choose different location",
         // FFmpeg Download
         wypalarkaFfmpegRequired: "FFmpeg is required",
-        wypalarkaFfmpegNotInstalled: "FFmpeg is not installed. Download and install it to use the subtitle burning feature.",
+        wypalarkaFfmpegNotInstalled:
+          "FFmpeg is not installed. Download and install it to use the subtitle burning feature.",
         wypalarkaFfmpegDownload: "Download FFmpeg",
         wypalarkaFfmpegDownloading: "Downloading FFmpeg...",
         wypalarkaFfmpegExtracting: "Extracting FFmpeg...",
@@ -408,9 +462,12 @@ i18n.use(initReactI18next).init({
         wypalarkaFfmpegDownloadProgress: "Download progress",
         wypalarkaFfmpegClose: "Close",
         wypalarkaFfmpegRetry: "Retry",
-        wypalarkaFfmpegDescription: "FFmpeg is a powerful multimedia framework required for burning subtitles into videos. The download is approximately ~200MB and will be installed automatically.",
-        wypalarkaFfmpegSuccessDesc: "FFmpeg has been successfully installed. You can now use the subtitle burning feature.",
-        wypalarkaFfmpegErrorUnknown: "An unknown error occurred during download.",
+        wypalarkaFfmpegDescription:
+          "FFmpeg is a powerful multimedia framework required for burning subtitles into videos. The download is approximately ~200MB and will be installed automatically.",
+        wypalarkaFfmpegSuccessDesc:
+          "FFmpeg has been successfully installed. You can now use the subtitle burning feature.",
+        wypalarkaFfmpegErrorUnknown:
+          "An unknown error occurred during download.",
         wypalarkaFfmpegDownloadingStatus: "Downloading",
         wypalarkaFfmpegStartingDownload: "Starting download...",
         // Output defaults UI
@@ -484,7 +541,8 @@ i18n.use(initReactI18next).init({
         selectReferenceFirst: "Select a reference file first",
         invalidReferenceFile: "Invalid ASS file",
         lineMismatch: "Line count mismatch",
-        lineMismatchWarning: "Reference file has {{refCount}} lines, current file has {{sourceCount}} lines",
+        lineMismatchWarning:
+          "Reference file has {{refCount}} lines, current file has {{sourceCount}} lines",
         referenceFileLoaded: "Reference file loaded",
         timingSyncApplied: "Timing applied to {{count}} lines",
         closeDialog: "Close",

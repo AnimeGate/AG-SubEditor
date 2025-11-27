@@ -15,7 +15,9 @@ export function InfoBar({
 }: InfoBarProps) {
   const { t } = useTranslation();
   const totalDuration =
-    subtitles.length > 0 ? Math.max(...subtitles.map((s) => s.endMs)) / 1000 : 0;
+    subtitles.length > 0
+      ? Math.max(...subtitles.map((s) => s.endMs)) / 1000
+      : 0;
 
   const earliestStart =
     subtitles.length > 0 ? Math.min(...subtitles.map((s) => s.startMs)) : 0;
@@ -24,37 +26,39 @@ export function InfoBar({
     subtitles.length > 0 ? Math.max(...subtitles.map((s) => s.endMs)) : 0;
 
   return (
-    <div className="border-t bg-card px-6 py-4 flex-shrink-0 shadow-lg">
+    <div className="bg-card flex-shrink-0 border-t px-6 py-4 shadow-lg">
       <div className="flex flex-wrap items-center gap-6 text-sm">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-lg text-primary">{selectedCount}</span>
+          <span className="text-primary text-lg font-bold">
+            {selectedCount}
+          </span>
           <span className="text-muted-foreground">{t("linesSelected")}</span>
         </div>
 
         {totalCount > 0 && (
           <>
-            <div className="h-6 w-px bg-border" />
+            <div className="bg-border h-6 w-px" />
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">{t("total")}:</span>
-              <span className="font-semibold text-base">
+              <span className="text-base font-semibold">
                 {totalCount} {t("lines")}
               </span>
             </div>
 
-            <div className="h-6 w-px bg-border" />
+            <div className="bg-border h-6 w-px" />
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">
                 {t("totalDuration")}:
               </span>
-              <span className="font-mono font-semibold text-base">
+              <span className="font-mono text-base font-semibold">
                 {totalDuration.toFixed(2)}s
               </span>
             </div>
 
-            <div className="h-6 w-px bg-border" />
+            <div className="bg-border h-6 w-px" />
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">{t("range")}:</span>
-              <span className="font-mono font-semibold text-base">
+              <span className="font-mono text-base font-semibold">
                 {formatTime(earliestStart)} → {formatTime(latestEnd)}
               </span>
             </div>

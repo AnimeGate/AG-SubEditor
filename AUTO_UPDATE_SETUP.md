@@ -38,6 +38,7 @@ You need a GitHub token to publish releases to your private repository:
 **IMPORTANT**: Set this token as `GH_TOKEN` (not `GITHUB_TOKEN`) for Electron Forge to publish releases.
 
 **Windows (PowerShell):**
+
 ```powershell
 # Temporary (current session only)
 $env:GH_TOKEN = "your_token_here"
@@ -47,6 +48,7 @@ $env:GH_TOKEN = "your_token_here"
 ```
 
 **Windows (Command Prompt):**
+
 ```cmd
 # Temporary (current session only)
 set GH_TOKEN=your_token_here
@@ -56,6 +58,7 @@ setx GH_TOKEN "your_token_here"
 ```
 
 **Verify it's set:**
+
 ```powershell
 echo $env:GH_TOKEN
 ```
@@ -67,9 +70,10 @@ echo $env:GH_TOKEN
 ### Step 1: Update Version Number
 
 Edit `package.json` and bump the version:
+
 ```json
 {
-  "version": "1.0.1"  // Increment from 1.0.0
+  "version": "1.0.1" // Increment from 1.0.0
 }
 ```
 
@@ -87,6 +91,7 @@ npm run publish
 ```
 
 **What happens:**
+
 - Your private repository code remains private
 - A draft release is created with the compiled binaries
 - When you publish the release, it becomes public
@@ -104,15 +109,19 @@ npm run publish
 ## How Users Receive Updates
 
 ### First Time Installation
+
 1. Share the installer with your friend: `AG-SubEditor-X.X.X Setup.exe`
 2. Friend installs the app normally
 
 ### Automatic Updates
+
 Once installed, the app will:
+
 - Check for updates **3 seconds** after launch
 - Check for updates **every hour** while running
 - Download updates automatically in the background
 - Show a notification when an update is ready:
+
   ```
   Nowa wersja została pobrana
   Wersja X.X.X jest gotowa do zainstalowania.
@@ -122,12 +131,14 @@ Once installed, the app will:
   ```
 
 ### Update Notification
+
 - **Zainstaluj teraz**: Quits and installs immediately
 - **Później**: User can continue working, install later
 
 ## Files Generated
 
 After `npm run publish`, you'll find in `out/make/squirrel.windows/x64/`:
+
 - `ag_subeditor-X.X.X Setup.exe` - **Share this with users**
 - `RELEASES` - Update manifest file
 - `.nupkg` files - Update packages
@@ -135,6 +146,7 @@ After `npm run publish`, you'll find in `out/make/squirrel.windows/x64/`:
 ## Testing Updates
 
 ### Test Locally
+
 1. **Set GH_TOKEN**: Ensure it's set in your environment
 2. **Build version 1.0.2** (or any version): `npm run make`
 3. **Install** the built app on your machine from `out/make/squirrel.windows/x64/`
@@ -146,10 +158,13 @@ After `npm run publish`, you'll find in `out/make/squirrel.windows/x64/`:
 **Important**: When publishing the release on GitHub, make sure to keep it public (do not check the "Set as a pre-release" or any private options).
 
 ### Verify Update Check
+
 Check the logs at:
+
 - Windows: `%APPDATA%\ag-subeditor\logs\main.log`
 
 You should see:
+
 ```
 [info] Initializing electron-updater for private repository
 [info] Checking for updates...
@@ -163,12 +178,14 @@ If you see 404 errors, make sure your release is published as **public** on GitH
 ## Important Notes
 
 ### ✅ Best Practices
+
 - **Always increment version** before publishing
 - **Test the installer** before sharing
 - **Write clear release notes** for users
 - **Keep your GitHub token secure** (never commit it!)
 
 ### ⚠️ Limitations
+
 - Only works on **Windows** currently (Squirrel.Windows)
 - Requires **GitHub token** with `repo` scope to publish
 - Updates only work in **production builds** (not development)
@@ -178,18 +195,21 @@ If you see 404 errors, make sure your release is published as **public** on GitH
 ### 🔒 Private Repository with Public Releases
 
 **How it works:**
+
 - Your **source code** stays private in the repository
 - Only **compiled binaries** (the .exe installer) are made public in releases
 - Users can download updates without authentication
 - Your code remains protected since they only get the compiled app
 
 **What's Private:**
+
 - ✅ Source code
 - ✅ Commit history
 - ✅ Issues and pull requests
 - ✅ Repository settings
 
 **What's Public:**
+
 - ⚠️ Release binaries (.exe installers)
 - ⚠️ Release notes and version numbers
 - ⚠️ Asset files you upload to releases
@@ -199,12 +219,14 @@ This is a standard approach for commercial/private software distribution.
 ### 🔧 Troubleshooting
 
 **"GH_TOKEN not set" error:**
+
 - Make sure you set the `GH_TOKEN` environment variable (not `GITHUB_TOKEN`)
 - Restart your terminal after setting it permanently
 - Use `echo $env:GH_TOKEN` to verify
 - If still failing, try setting it temporarily in the same terminal session before running `npm run publish`
 
 **Updates not appearing:**
+
 - Check version numbers (new > old)
 - Verify release is **published** (not draft) on GitHub
 - **Important**: Make sure the release is **public**, not private
@@ -212,11 +234,13 @@ This is a standard approach for commercial/private software distribution.
 - Ensure repository URL matches in package.json and forge.config.mts
 
 **404 errors when checking for updates:**
+
 - The release must be **public** for auto-update to work
 - Go to your GitHub release and ensure it's not set to private
 - Check that owner and repo name are correct in the code
 
 **Auto-update not triggering:**
+
 - Only works in packaged apps (not `npm run start`)
 - Windows only (macOS/Linux need different setup)
 - Check that you published the release on GitHub
@@ -225,6 +249,7 @@ This is a standard approach for commercial/private software distribution.
 ## Version Numbering
 
 Follow semantic versioning:
+
 - **1.0.0** → **1.0.1**: Bug fixes
 - **1.0.0** → **1.1.0**: New features
 - **1.0.0** → **2.0.0**: Breaking changes
@@ -242,6 +267,7 @@ Follow semantic versioning:
 ## Optional: Add App Icon
 
 To customize the installer:
+
 1. Create `assets/icon.ico` (256x256px Windows icon)
 2. Create `assets/loading.gif` (optional loading animation)
 3. These are already referenced in `forge.config.mts`

@@ -65,7 +65,7 @@ export function parseASSFile(content: string): SubtitleLine[] {
 
 export function exportASSFile(
   originalContent: string,
-  subtitles: SubtitleLine[]
+  subtitles: SubtitleLine[],
 ): string {
   const lines = originalContent.split("\n");
   const result: string[] = [];

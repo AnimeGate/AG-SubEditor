@@ -32,9 +32,9 @@ export function FileUploadSection({
   };
 
   return (
-    <div className="border-b bg-card">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4">
-        <div className="flex items-center gap-4 flex-wrap">
+    <div className="bg-card border-b">
+      <div className="flex flex-col items-start justify-between gap-4 p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap items-center gap-4">
           <input
             ref={fileInputRef}
             type="file"
@@ -53,7 +53,7 @@ export function FileUploadSection({
 
           {fileName && (
             <div className="flex items-center gap-2 text-sm">
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <FileText className="text-muted-foreground h-4 w-4" />
               <span className="font-medium">{fileName}</span>
               <span className="text-muted-foreground">
                 ({totalLines} {t("lines")})

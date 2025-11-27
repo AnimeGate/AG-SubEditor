@@ -1,302 +1,316 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>AG-SubEditor - Debug Console</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>AG-SubEditor - Debug Console</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      background: #0d1117;
-      color: #c9d1d9;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+      body {
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        background: #0d1117;
+        color: #c9d1d9;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
 
-    #header {
-      background: #161b22;
-      padding: 8px 16px;
-      border-bottom: 1px solid #30363d;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+      #header {
+        background: #161b22;
+        padding: 8px 16px;
+        border-bottom: 1px solid #30363d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-    #header h1 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #58a6ff;
-    }
+      #header h1 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #58a6ff;
+      }
 
-    #controls {
-      display: flex;
-      gap: 8px;
-    }
+      #controls {
+        display: flex;
+        gap: 8px;
+      }
 
-    #controls button {
-      background: #21262d;
-      border: 1px solid #30363d;
-      color: #c9d1d9;
-      padding: 4px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      font-family: inherit;
-    }
+      #controls button {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+        padding: 4px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-family: inherit;
+      }
 
-    #controls button:hover {
-      background: #30363d;
-      border-color: #58a6ff;
-    }
+      #controls button:hover {
+        background: #30363d;
+        border-color: #58a6ff;
+      }
 
-    #console {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px;
-      font-size: 12px;
-      line-height: 1.6;
-    }
+      #console {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
 
-    .log-entry {
-      padding: 2px 8px;
-      border-left: 3px solid transparent;
-      margin-bottom: 1px;
-    }
+      .log-entry {
+        padding: 2px 8px;
+        border-left: 3px solid transparent;
+        margin-bottom: 1px;
+      }
 
-    .log-entry.info {
-      border-left-color: #58a6ff;
-    }
+      .log-entry.info {
+        border-left-color: #58a6ff;
+      }
 
-    .log-entry.success {
-      border-left-color: #3fb950;
-      color: #3fb950;
-    }
+      .log-entry.success {
+        border-left-color: #3fb950;
+        color: #3fb950;
+      }
 
-    .log-entry.warn {
-      border-left-color: #d29922;
-      color: #d29922;
-    }
+      .log-entry.warn {
+        border-left-color: #d29922;
+        color: #d29922;
+      }
 
-    .log-entry.error {
-      border-left-color: #f85149;
-      color: #f85149;
-    }
+      .log-entry.error {
+        border-left-color: #f85149;
+        color: #f85149;
+      }
 
-    .log-entry.debug {
-      border-left-color: #8b949e;
-      color: #8b949e;
-    }
+      .log-entry.debug {
+        border-left-color: #8b949e;
+        color: #8b949e;
+      }
 
-    .log-entry.route {
-      border-left-color: #a371f7;
-      color: #a371f7;
-    }
+      .log-entry.route {
+        border-left-color: #a371f7;
+        color: #a371f7;
+      }
 
-    .log-entry.file {
-      border-left-color: #79c0ff;
-      color: #79c0ff;
-    }
+      .log-entry.file {
+        border-left-color: #79c0ff;
+        color: #79c0ff;
+      }
 
-    .log-entry.ffmpeg {
-      border-left-color: #ff7b72;
-      color: #ff7b72;
-    }
+      .log-entry.ffmpeg {
+        border-left-color: #ff7b72;
+        color: #ff7b72;
+      }
 
-    .log-entry.queue {
-      border-left-color: #ffa657;
-      color: #ffa657;
-    }
+      .log-entry.queue {
+        border-left-color: #ffa657;
+        color: #ffa657;
+      }
 
-    .log-entry.ipc {
-      border-left-color: #56d364;
-      color: #56d364;
-    }
+      .log-entry.ipc {
+        border-left-color: #56d364;
+        color: #56d364;
+      }
 
-    .timestamp {
-      color: #6e7681;
-      margin-right: 8px;
-    }
+      .timestamp {
+        color: #6e7681;
+        margin-right: 8px;
+      }
 
-    .level {
-      font-weight: 600;
-      margin-right: 8px;
-      display: inline-block;
-      min-width: 80px;
-    }
+      .level {
+        font-weight: 600;
+        margin-right: 8px;
+        display: inline-block;
+        min-width: 80px;
+      }
 
-    #console::-webkit-scrollbar {
-      width: 12px;
-    }
+      #console::-webkit-scrollbar {
+        width: 12px;
+      }
 
-    #console::-webkit-scrollbar-track {
-      background: #0d1117;
-    }
+      #console::-webkit-scrollbar-track {
+        background: #0d1117;
+      }
 
-    #console::-webkit-scrollbar-thumb {
-      background: #30363d;
-      border-radius: 6px;
-    }
+      #console::-webkit-scrollbar-thumb {
+        background: #30363d;
+        border-radius: 6px;
+      }
 
-    #console::-webkit-scrollbar-thumb:hover {
-      background: #484f58;
-    }
+      #console::-webkit-scrollbar-thumb:hover {
+        background: #484f58;
+      }
 
-    #stats {
-      background: #161b22;
-      border-top: 1px solid #30363d;
-      padding: 6px 16px;
-      font-size: 11px;
-      color: #8b949e;
-      display: flex;
-      gap: 20px;
-    }
+      #stats {
+        background: #161b22;
+        border-top: 1px solid #30363d;
+        padding: 6px 16px;
+        font-size: 11px;
+        color: #8b949e;
+        display: flex;
+        gap: 20px;
+      }
 
-    #stats span {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
+      #stats span {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
 
-    #stats .count {
-      font-weight: 600;
-      color: #c9d1d9;
-    }
-  </style>
-</head>
-<body>
-  <div id="header">
-    <h1>🐛 AG-SubEditor Debug Console</h1>
-    <div id="controls">
-      <button id="clearBtn">Clear</button>
-      <button id="exportBtn">Export Logs</button>
+      #stats .count {
+        font-weight: 600;
+        color: #c9d1d9;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>🐛 AG-SubEditor Debug Console</h1>
+      <div id="controls">
+        <button id="clearBtn">Clear</button>
+        <button id="exportBtn">Export Logs</button>
+      </div>
     </div>
-  </div>
 
-  <div id="console"></div>
+    <div id="console"></div>
 
-  <div id="stats">
-    <span>Total: <span class="count" id="totalCount">0</span></span>
-    <span>Errors: <span class="count" id="errorCount">0</span></span>
-    <span>Warnings: <span class="count" id="warnCount">0</span></span>
-  </div>
+    <div id="stats">
+      <span>Total: <span class="count" id="totalCount">0</span></span>
+      <span>Errors: <span class="count" id="errorCount">0</span></span>
+      <span>Warnings: <span class="count" id="warnCount">0</span></span>
+    </div>
 
-  <script>
-    const consoleEl = document.getElementById('console');
-    const clearBtn = document.getElementById('clearBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const totalCountEl = document.getElementById('totalCount');
-    const errorCountEl = document.getElementById('errorCount');
-    const warnCountEl = document.getElementById('warnCount');
+    <script>
+      const consoleEl = document.getElementById("console");
+      const clearBtn = document.getElementById("clearBtn");
+      const exportBtn = document.getElementById("exportBtn");
+      const totalCountEl = document.getElementById("totalCount");
+      const errorCountEl = document.getElementById("errorCount");
+      const warnCountEl = document.getElementById("warnCount");
 
-    let logs = [];
-    let totalCount = 0;
-    let errorCount = 0;
-    let warnCount = 0;
-    let autoScroll = true;
+      let logs = [];
+      let totalCount = 0;
+      let errorCount = 0;
+      let warnCount = 0;
+      let autoScroll = true;
 
-    // Check if we're at the bottom before adding new logs
-    consoleEl.addEventListener('scroll', () => {
-      const isAtBottom = consoleEl.scrollHeight - consoleEl.scrollTop <= consoleEl.clientHeight + 50;
-      autoScroll = isAtBottom;
-    });
+      // Check if we're at the bottom before adding new logs
+      consoleEl.addEventListener("scroll", () => {
+        const isAtBottom =
+          consoleEl.scrollHeight - consoleEl.scrollTop <=
+          consoleEl.clientHeight + 50;
+        autoScroll = isAtBottom;
+      });
 
-    function addLog(level, message, args) {
-      const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      function addLog(level, message, args) {
+        const timestamp = new Date().toLocaleTimeString("en-US", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
 
-      const entry = document.createElement('div');
-      entry.className = `log-entry ${level}`;
+        const entry = document.createElement("div");
+        entry.className = `log-entry ${level}`;
 
-      const timestampSpan = document.createElement('span');
-      timestampSpan.className = 'timestamp';
-      timestampSpan.textContent = timestamp;
+        const timestampSpan = document.createElement("span");
+        timestampSpan.className = "timestamp";
+        timestampSpan.textContent = timestamp;
 
-      const levelSpan = document.createElement('span');
-      levelSpan.className = 'level';
-      levelSpan.textContent = getLevelDisplay(level);
+        const levelSpan = document.createElement("span");
+        levelSpan.className = "level";
+        levelSpan.textContent = getLevelDisplay(level);
 
-      const messageSpan = document.createElement('span');
-      messageSpan.textContent = message;
-      if (args && args.length > 0) {
-        messageSpan.textContent += ' ' + args.map(arg =>
-          typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-        ).join(' ');
+        const messageSpan = document.createElement("span");
+        messageSpan.textContent = message;
+        if (args && args.length > 0) {
+          messageSpan.textContent +=
+            " " +
+            args
+              .map((arg) =>
+                typeof arg === "object" ? JSON.stringify(arg) : String(arg),
+              )
+              .join(" ");
+        }
+
+        entry.appendChild(timestampSpan);
+        entry.appendChild(levelSpan);
+        entry.appendChild(messageSpan);
+
+        consoleEl.appendChild(entry);
+        logs.push({ timestamp, level, message, args });
+
+        // Update stats
+        totalCount++;
+        if (level === "error") errorCount++;
+        if (level === "warn") warnCount++;
+
+        totalCountEl.textContent = totalCount;
+        errorCountEl.textContent = errorCount;
+        warnCountEl.textContent = warnCount;
+
+        // Auto-scroll if enabled
+        if (autoScroll) {
+          consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
       }
 
-      entry.appendChild(timestampSpan);
-      entry.appendChild(levelSpan);
-      entry.appendChild(messageSpan);
-
-      consoleEl.appendChild(entry);
-      logs.push({ timestamp, level, message, args });
-
-      // Update stats
-      totalCount++;
-      if (level === 'error') errorCount++;
-      if (level === 'warn') warnCount++;
-
-      totalCountEl.textContent = totalCount;
-      errorCountEl.textContent = errorCount;
-      warnCountEl.textContent = warnCount;
-
-      // Auto-scroll if enabled
-      if (autoScroll) {
-        consoleEl.scrollTop = consoleEl.scrollHeight;
+      function getLevelDisplay(level) {
+        const displays = {
+          info: "ℹ️  INFO",
+          success: "✅ SUCCESS",
+          warn: "⚠️  WARNING",
+          error: "❌ ERROR",
+          debug: "🔍 DEBUG",
+          route: "🧭 ROUTE",
+          file: "📁 FILE",
+          ffmpeg: "🔥 FFMPEG",
+          queue: "📋 QUEUE",
+          ipc: "📡 IPC",
+        };
+        return displays[level] || level.toUpperCase();
       }
-    }
 
-    function getLevelDisplay(level) {
-      const displays = {
-        info: 'ℹ️  INFO',
-        success: '✅ SUCCESS',
-        warn: '⚠️  WARNING',
-        error: '❌ ERROR',
-        debug: '🔍 DEBUG',
-        route: '🧭 ROUTE',
-        file: '📁 FILE',
-        ffmpeg: '🔥 FFMPEG',
-        queue: '📋 QUEUE',
-        ipc: '📡 IPC'
-      };
-      return displays[level] || level.toUpperCase();
-    }
+      clearBtn.addEventListener("click", () => {
+        consoleEl.innerHTML = "";
+        logs = [];
+        totalCount = 0;
+        errorCount = 0;
+        warnCount = 0;
+        totalCountEl.textContent = "0";
+        errorCountEl.textContent = "0";
+        warnCountEl.textContent = "0";
+      });
 
-    clearBtn.addEventListener('click', () => {
-      consoleEl.innerHTML = '';
-      logs = [];
-      totalCount = 0;
-      errorCount = 0;
-      warnCount = 0;
-      totalCountEl.textContent = '0';
-      errorCountEl.textContent = '0';
-      warnCountEl.textContent = '0';
-    });
+      exportBtn.addEventListener("click", () => {
+        const logText = logs
+          .map(
+            (log) =>
+              `[${log.timestamp}] [${log.level.toUpperCase()}] ${log.message}${log.args && log.args.length > 0 ? " " + log.args.join(" ") : ""}`,
+          )
+          .join("\n");
 
-    exportBtn.addEventListener('click', () => {
-      const logText = logs.map(log =>
-        `[${log.timestamp}] [${log.level.toUpperCase()}] ${log.message}${log.args && log.args.length > 0 ? ' ' + log.args.join(' ') : ''}`
-      ).join('\n');
+        const blob = new Blob([logText], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `debug-log-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
 
-      const blob = new Blob([logText], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `debug-log-${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // Listen for log messages from main process
-    window.addEventListener('log', (event) => {
-      const { level, message, args } = event.detail;
-      addLog(level, message, args);
-    });
-  </script>
-</body>
+      // Listen for log messages from main process
+      window.addEventListener("log", (event) => {
+        const { level, message, args } = event.detail;
+        addLog(level, message, args);
+      });
+    </script>
+  </body>
 </html>

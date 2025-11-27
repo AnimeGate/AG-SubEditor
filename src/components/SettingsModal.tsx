@@ -58,7 +58,7 @@ export default function SettingsModal() {
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-semibold">{t("languageSection")}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t("languageDescription")}
               </p>
             </div>
@@ -70,7 +70,7 @@ export default function SettingsModal() {
               {langs.map((lang) => (
                 <div
                   key={lang.key}
-                  className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-accent/50 transition-colors"
+                  className="hover:bg-accent/50 flex items-center space-y-0 space-x-3 rounded-lg border p-4 transition-colors"
                 >
                   <RadioGroupItem value={lang.key} id={`lang-${lang.key}`} />
                   <Label
@@ -79,7 +79,7 @@ export default function SettingsModal() {
                   >
                     <div className="flex items-center justify-between">
                       <span>{lang.nativeName}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-muted-foreground text-xs">
                         {lang.prefix}
                       </span>
                     </div>
@@ -95,7 +95,7 @@ export default function SettingsModal() {
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-semibold">{t("themeSection")}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t("themeDescription")}
               </p>
             </div>
@@ -104,7 +104,7 @@ export default function SettingsModal() {
               onValueChange={handleThemeChange}
               className="space-y-2"
             >
-              <div className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+              <div className="hover:bg-accent/50 flex items-center space-y-0 space-x-3 rounded-lg border p-4 transition-colors">
                 <RadioGroupItem value="light" id="theme-light" />
                 <Label
                   htmlFor="theme-light"
@@ -113,7 +113,7 @@ export default function SettingsModal() {
                   {t("themeLight")}
                 </Label>
               </div>
-              <div className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+              <div className="hover:bg-accent/50 flex items-center space-y-0 space-x-3 rounded-lg border p-4 transition-colors">
                 <RadioGroupItem value="dark" id="theme-dark" />
                 <Label
                   htmlFor="theme-dark"
@@ -122,7 +122,7 @@ export default function SettingsModal() {
                   {t("themeDark")}
                 </Label>
               </div>
-              <div className="flex items-center space-x-3 space-y-0 rounded-lg border p-4 hover:bg-accent/50 transition-colors">
+              <div className="hover:bg-accent/50 flex items-center space-y-0 space-x-3 rounded-lg border p-4 transition-colors">
                 <RadioGroupItem value="system" id="theme-system" />
                 <Label
                   htmlFor="theme-system"
@@ -140,13 +140,13 @@ export default function SettingsModal() {
           <div className="space-y-2">
             <div>
               <h3 className="text-lg font-semibold">{t("versionSection")}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t("versionDescription")}
               </p>
             </div>
-            <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+            <div className="bg-muted/30 flex items-center justify-between rounded-lg border p-4">
               <span className="text-sm font-medium">{t("currentVersion")}</span>
-              <span className="text-sm font-mono text-muted-foreground">
+              <span className="text-muted-foreground font-mono text-sm">
                 v{packageJson.version}
               </span>
             </div>

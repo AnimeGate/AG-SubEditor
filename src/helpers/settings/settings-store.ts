@@ -58,7 +58,11 @@ export class SettingsStore {
     try {
       const dir = path.dirname(this.settingsPath);
       fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(this.settingsPath, JSON.stringify(settings, null, 2), "utf-8");
+      fs.writeFileSync(
+        this.settingsPath,
+        JSON.stringify(settings, null, 2),
+        "utf-8",
+      );
     } catch {
       // ignore write errors; best-effort persistence
     }
@@ -86,5 +90,3 @@ export class SettingsStore {
     return updated.output;
   }
 }
-
-

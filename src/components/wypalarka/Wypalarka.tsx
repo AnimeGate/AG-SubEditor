@@ -28,7 +28,9 @@ export default function Wypalarka() {
   const [progress, setProgress] = useState<FFmpegProgress | null>(null);
   const [status, setStatus] = useState<ProcessStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  const [completedOutputPath, setCompletedOutputPath] = useState<string | null>(null);
+  const [completedOutputPath, setCompletedOutputPath] = useState<string | null>(
+    null,
+  );
   const [encodingSettings, setEncodingSettings] = useState<EncodingSettings>({
     profile: "1080p",
     qualityPreset: "medium",
@@ -43,7 +45,9 @@ export default function Wypalarka() {
     temporalAQ: true,
     rcLookahead: 20,
   });
-  const [gpuAvailable, setGpuAvailable] = useState<boolean | undefined>(undefined);
+  const [gpuAvailable, setGpuAvailable] = useState<boolean | undefined>(
+    undefined,
+  );
   const [gpuInfo, setGpuInfo] = useState<string>("");
   const [ffmpegInstalled, setFfmpegInstalled] = useState<boolean | null>(null);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
@@ -159,9 +163,10 @@ export default function Wypalarka() {
   // Sync encoding settings changes with queue processor
   useEffect(() => {
     const syncSettings = async () => {
-      const bitrate = encodingSettings.qualityPreset === "custom"
-        ? encodingSettings.customBitrate
-        : encodingSettings.customBitrate;
+      const bitrate =
+        encodingSettings.qualityPreset === "custom"
+          ? encodingSettings.customBitrate
+          : encodingSettings.customBitrate;
 
       try {
         await window.ffmpegAPI.queueUpdateSettings({
@@ -188,7 +193,11 @@ export default function Wypalarka() {
     syncSettings();
   }, [encodingSettings]);
 
-  const handleStartProcess = async (videoPath: string, subtitlePath: string, outputPath: string) => {
+  const handleStartProcess = async (
+    videoPath: string,
+    subtitlePath: string,
+    outputPath: string,
+  ) => {
     try {
       setStatus("processing");
       setLogs([]);
@@ -196,9 +205,10 @@ export default function Wypalarka() {
       setErrorMessage(undefined);
 
       // Get bitrate from settings
-      const bitrate = encodingSettings.qualityPreset === "custom"
-        ? encodingSettings.customBitrate
-        : encodingSettings.customBitrate;
+      const bitrate =
+        encodingSettings.qualityPreset === "custom"
+          ? encodingSettings.customBitrate
+          : encodingSettings.customBitrate;
 
       await window.ffmpegAPI.startProcess({
         videoPath,
@@ -224,7 +234,10 @@ export default function Wypalarka() {
       setStatus("error");
       const errorMsg = error instanceof Error ? error.message : String(error);
       setErrorMessage(errorMsg);
-      setLogs((prev) => [...prev, { log: `✗ Failed to start process: ${errorMsg}`, type: "error" }]);
+      setLogs((prev) => [
+        ...prev,
+        { log: `✗ Failed to start process: ${errorMsg}`, type: "error" },
+      ]);
     }
   };
 
@@ -232,7 +245,10 @@ export default function Wypalarka() {
     try {
       await window.ffmpegAPI.cancelProcess();
       setStatus("idle");
-      setLogs((prev) => [...prev, { log: "Process cancelled by user", type: "warning" }]);
+      setLogs((prev) => [
+        ...prev,
+        { log: "Process cancelled by user", type: "warning" },
+      ]);
     } catch (error) {
       console.error("Failed to cancel process:", error);
     }
@@ -268,7 +284,9 @@ export default function Wypalarka() {
   };
 
   // Queue handlers
-  const handleAddFilesToQueue = async (files: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>) => {
+  const handleAddFilesToQueue = async (
+    files: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>,
+  ) => {
     try {
       debugLog.queue(`Adding ${files.length} items to queue`);
       // Settings are automatically synced via useEffect, just add items
@@ -339,8 +357,8 @@ export default function Wypalarka() {
   };
 
   return (
-    <div className="flex flex-col h-full p-6 gap-6">
-        <div className="flex items-center justify-between">
+    <div className="flex h-full flex-col gap-6 p-6">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Flame className="h-8 w-8 text-orange-500" />
           <div>
@@ -361,7 +379,11 @@ export default function Wypalarka() {
           />
 
           {status === "processing" && (
-            <Button variant="destructive" onClick={handleCancelProcess} className="gap-2">
+            <Button
+              variant="destructive"
+              onClick={handleCancelProcess}
+              className="gap-2"
+            >
               <StopCircle className="h-4 w-4" />
               {t("wypalarkaCancel")}
             </Button>
@@ -369,7 +391,11 @@ export default function Wypalarka() {
 
           {status === "completed" && (
             <>
-              <Button variant="default" onClick={handleOpenOutputFolder} className="gap-2">
+              <Button
+                variant="default"
+                onClick={handleOpenOutputFolder}
+                className="gap-2"
+              >
                 <FolderOpen className="h-4 w-4" />
                 {t("wypalarkaShowInFolder")}
               </Button>
@@ -385,9 +411,9 @@ export default function Wypalarka() {
             </Button>
           )}
         </div>
-        </div>
+      </div>
 
-        {/* FFmpeg Not Installed Alert */}
+      {/* FFmpeg Not Installed Alert */}
       {ffmpegInstalled === false && (
         <Alert variant="destructive">
           <Download className="h-4 w-4" />
@@ -400,22 +426,20 @@ export default function Wypalarka() {
               onClick={() => setShowDownloadDialog(true)}
               className="ml-4"
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="mr-2 h-4 w-4" />
               {t("wypalarkaFfmpegDownload")}
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
-      <Tabs defaultValue="single" className="flex-1 flex flex-col min-h-0">
+      <Tabs defaultValue="single" className="flex min-h-0 flex-1 flex-col">
         <TabsList className="w-fit">
           <TabsTrigger value="single">{t("wypalarkaSingleMode")}</TabsTrigger>
-          <TabsTrigger value="queue">
-            {t("wypalarkaQueueMode")}
-          </TabsTrigger>
+          <TabsTrigger value="queue">{t("wypalarkaQueueMode")}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="single" className="flex-1 flex gap-6 min-h-0 mt-4">
+        <TabsContent value="single" className="mt-4 flex min-h-0 flex-1 gap-6">
           {/* Left Panel - File Input */}
           <div className="w-96 flex-shrink-0 overflow-y-auto">
             <WypalarkaFileInput
@@ -425,7 +449,7 @@ export default function Wypalarka() {
           </div>
 
           {/* Right Panel - Progress */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <WypalarkaProgressPanel
               logs={logs}
               progress={progress}
@@ -435,7 +459,7 @@ export default function Wypalarka() {
           </div>
         </TabsContent>
 
-        <TabsContent value="queue" className="flex-1 flex gap-6 min-h-0 mt-4">
+        <TabsContent value="queue" className="mt-4 flex min-h-0 flex-1 gap-6">
           {/* Left Panel - Queue List */}
           <div className="w-96 flex-shrink-0 overflow-y-auto">
             <WypalarkaQueuePanel
@@ -453,9 +477,11 @@ export default function Wypalarka() {
           </div>
 
           {/* Right Panel - Progress */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <WypalarkaQueueProgressPanel
-              currentItem={queue.find((item) => item.status === "processing") || null}
+              currentItem={
+                queue.find((item) => item.status === "processing") || null
+              }
               stats={queueStats}
               queue={queue}
             />

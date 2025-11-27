@@ -36,7 +36,9 @@ export function CommandDialog({
       .map((g) => ({
         title: g.title,
         items: g.items.filter(
-          (i) => i.label.toLowerCase().includes(q) || i.value.toLowerCase().includes(q),
+          (i) =>
+            i.label.toLowerCase().includes(q) ||
+            i.value.toLowerCase().includes(q),
         ),
       }))
       .filter((g) => g.items.length > 0);
@@ -44,27 +46,27 @@ export function CommandDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 gap-0 max-w-[720px] w-[92vw]">
-        <div className="p-3 border-b">
+      <DialogContent className="w-[92vw] max-w-[720px] gap-0 p-0">
+        <div className="border-b p-3">
           <input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
-            className="w-full h-10 px-3 rounded-md bg-input/30 border border-input outline-none focus:ring-2 focus:ring-ring"
+            className="bg-input/30 border-input focus:ring-ring h-10 w-full rounded-md border px-3 outline-none focus:ring-2"
           />
         </div>
         <div className="max-h-[65vh] overflow-y-auto">
           {filtered.map((group) => (
             <div key={group.title} className="py-2">
-              <div className="px-3 pb-1 text-xs font-semibold text-muted-foreground">
+              <div className="text-muted-foreground px-3 pb-1 text-xs font-semibold">
                 {group.title}
               </div>
               <ul>
                 {group.items.map((item) => (
                   <li key={item.value}>
                     <button
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                      className="hover:bg-accent hover:text-accent-foreground w-full px-3 py-2 text-left text-sm"
                       onClick={() => {
                         onSelect(item.value);
                         onOpenChange(false);
@@ -78,12 +80,10 @@ export function CommandDialog({
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="p-6 text-sm text-muted-foreground">No results</div>
+            <div className="text-muted-foreground p-6 text-sm">No results</div>
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
-

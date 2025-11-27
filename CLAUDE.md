@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 AG-SubEditor is a professional ASS (Advanced SubStation Alpha) subtitle editor built with Electron, React 19, TypeScript, and shadcn-ui. The application allows users to import .ass subtitle files, adjust timing for all or selected lines, and export the modified subtitles while preserving the original file format and styling.
 
 **Key Features:**
+
 - Import and parse ASS subtitle files
 - Time adjustment (shift start/end times by seconds or milliseconds)
 - Apply timing changes to all lines or selected lines only
@@ -18,6 +19,7 @@ AG-SubEditor is a professional ASS (Advanced SubStation Alpha) subtitle editor b
 ## Commands
 
 ### Development
+
 - `npm start` - Start the app in development mode with Vite hot reload
 - `npm run start:debug` - Start the app with debug mode enabled (opens debug console window)
 - `npm run start:debug:win` - Windows-specific debug mode command
@@ -26,6 +28,7 @@ AG-SubEditor is a professional ASS (Advanced SubStation Alpha) subtitle editor b
 - `npm run format:write` - Format all code with Prettier
 
 ### Testing
+
 - `npm test` - Run Vitest unit tests once
 - `npm run test:watch` - Run Vitest in watch mode
 - `npm run test:unit` - Alias for test:watch
@@ -35,6 +38,7 @@ AG-SubEditor is a professional ASS (Advanced SubStation Alpha) subtitle editor b
 **IMPORTANT**: E2E tests require the app to be packaged first. Run `npm run dist:dir` before E2E tests.
 
 ### Building and Distribution
+
 - `npm run build` - Build the app for production (no packaging)
 - `npm run dist:dir` - Build and package without creating installer (fast, for testing)
 - `npm run dist` - Build and create NSIS installer
@@ -67,6 +71,7 @@ The app follows Electron's standard three-process architecture:
 ### Application Structure
 
 **Main Components:**
+
 - `SubtitleEditor.tsx` - Root component managing state and file operations
 - `FileUploadSection.tsx` - File import/export UI with version badge
 - `TimeAdjustmentPanel.tsx` - Time shift controls (scrollable for small windows)
@@ -74,6 +79,7 @@ The app follows Electron's standard three-process architecture:
 - `InfoBar.tsx` - Status bar showing selection and timing info
 
 **Core Logic:**
+
 - `src/lib/ass-parser.ts` - Parse and export ASS subtitle files
   - `parseASSFile()` - Converts ASS text to `SubtitleLine[]` objects
   - `exportASSFile()` - Reconstructs ASS file preserving original formatting
@@ -92,6 +98,7 @@ IPC (Inter-Process Communication) is centralized in `src/helpers/ipc/`:
   - `*-listeners.ts`: Registers ipcMain handlers in main process
 
 **Pattern for adding new IPC features:**
+
 1. Create a new folder under `src/helpers/ipc/` (e.g., `feature/`)
 2. Add `feature-channels.ts` with channel constants
 3. Add `feature-context.ts` with contextBridge exposure
@@ -101,6 +108,7 @@ IPC (Inter-Process Communication) is centralized in `src/helpers/ipc/`:
 ### Custom Title Bar
 
 The app uses a hidden native title bar (`titleBarStyle: "hidden"`) with custom window controls:
+
 - Platform-specific handling (macOS uses `hiddenInset` with traffic light positioning)
 - Custom controls implemented via IPC in `src/helpers/ipc/window/`
 - Window operations: minimize, maximize, close
@@ -109,6 +117,7 @@ The app uses a hidden native title bar (`titleBarStyle: "hidden"`) with custom w
 ### Theme System
 
 Theme management with oklch color space (Tailwind CSS 4):
+
 - Light/dark/system modes
 - Local storage persistence via IPC
 - Color definitions in `src/styles/global.css`
@@ -118,6 +127,7 @@ Theme management with oklch color space (Tailwind CSS 4):
 ### Internationalization
 
 i18next configured in `src/localization/`:
+
 - Primary language: Polish (`pl`)
 - Fallback language: English (`en`)
 - `i18n.ts`: Initialization with inline resources
@@ -127,6 +137,7 @@ i18next configured in `src/localization/`:
 ### Routing
 
 TanStack Router with memory-based history (suitable for Electron):
+
 - Routes defined in `src/routes/` using file-based routing
 - Route tree auto-generated in `src/routeTree.gen.ts` (gitignored)
 - Base layout: `src/layouts/BaseLayout.tsx`
@@ -135,6 +146,7 @@ TanStack Router with memory-based history (suitable for Electron):
 ### Auto-Update System
 
 **Critical**: Uses electron-updater + NSIS installer (NOT Squirrel or MSI)
+
 - Configuration: `src/helpers/updater/auto-updater.ts`
 - Checks for updates 3 seconds after app start, then hourly
 - Downloads updates in background
@@ -143,6 +155,7 @@ TanStack Router with memory-based history (suitable for Electron):
 - Logs to: `%APPDATA%\ag-subeditor\logs\main.log`
 
 **Publishing Process:**
+
 1. Bump version in `package.json`
 2. Run `npm run publish`
 3. Publish the draft GitHub release
@@ -159,9 +172,10 @@ TanStack Router with memory-based history (suitable for Electron):
 ### Path Aliases
 
 TypeScript and Vite configured with `@/` alias pointing to `src/`:
+
 ```typescript
-import { SubtitleLine } from "@/lib/ass-parser"
-import { Button } from "@/components/ui/button"
+import { SubtitleLine } from "@/lib/ass-parser";
+import { Button } from "@/components/ui/button";
 ```
 
 ## Development Notes
@@ -171,6 +185,7 @@ import { Button } from "@/components/ui/button"
 **NOT using Electron Forge** - migrated to electron-builder for better NSIS support.
 
 **Vite Configuration:**
+
 - Single config: `vite.config.mts`
 - Uses `vite-plugin-electron/simple` for main/preload builds
 - Main entry: `src/main.ts` → `dist-electron/main.js`
@@ -178,6 +193,7 @@ import { Button } from "@/components/ui/button"
 - Renderer: standard Vite build → `dist/`
 
 **Path Handling in src/main.ts:**
+
 - Dev mode: `process.env.VITE_DEV_SERVER_URL`
 - Production: `path.join(__dirname, "../dist/index.html")`
 
@@ -197,11 +213,15 @@ import { Button } from "@/components/ui/button"
 ### electron-devtools-installer Handling
 
 **Important**: In `src/main.ts`, devtools installer uses dynamic import:
+
 ```typescript
 if (inDevelopment) {
-  const { default: installExtension, REACT_DEVELOPER_TOOLS } = await import("electron-devtools-installer");
+  const { default: installExtension, REACT_DEVELOPER_TOOLS } = await import(
+    "electron-devtools-installer"
+  );
 }
 ```
+
 This prevents production builds from failing (devtools-installer is devDependency only).
 
 ### Test Organization
@@ -214,12 +234,14 @@ This prevents production builds from failing (devtools-installer is devDependenc
 ### Working with ASS Files
 
 **Format Details:**
+
 - ASS files have sections: `[Script Info]`, `[V4+ Styles]`, `[Events]`
 - Dialogue lines: `Dialogue: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text`
 - Time format: `H:MM:SS.CS` (centiseconds)
 - Parser preserves all original formatting and metadata
 
 **Key Functions:**
+
 - `parseASSFile(content: string): SubtitleLine[]` - Extract dialogue lines
 - `exportASSFile(originalContent: string, subtitles: SubtitleLine[]): string` - Replace dialogue lines while preserving everything else
 - Times stored in milliseconds internally, converted to/from ASS format
@@ -227,6 +249,7 @@ This prevents production builds from failing (devtools-installer is devDependenc
 ## Adding shadcn-ui Components
 
 Use the standard shadcn-ui CLI:
+
 ```bash
 npx shadcn@latest add [component-name]
 ```
@@ -236,18 +259,22 @@ Components added to `src/components/ui/` with configuration from `components.jso
 ## Common Issues
 
 ### File Locking During Builds
+
 If `npm run dist` fails with "process cannot access the file":
+
 1. Close all instances of AG-SubEditor.exe
 2. Run: `taskkill /F /IM AG-SubEditor.exe /T`
 3. Wait 2 seconds, then rebuild
 
 ### Auto-Update Not Working
+
 - Verify NSIS installer is being used (not MSI or Squirrel)
 - Check logs at `%APPDATA%\ag-subeditor\logs\main.log`
 - Ensure latest.yml is in GitHub release assets
 - Confirm release is published (not draft)
 
 ### Dark Theme Not Applying
+
 - Colors use oklch color space in `src/styles/global.css`
 - Theme stored in localStorage via IPC
 - Check `syncThemeWithLocal()` is called on app start
@@ -287,16 +314,19 @@ Debug mode consists of three components:
 ### Enabling Debug Mode
 
 **Development:**
+
 ```bash
 npm run start:debug
 ```
 
 **Production:**
+
 ```bash
 AG-SubEditor.exe --debug
 ```
 
 **What happens when enabled:**
+
 - ✅ Separate debug console window opens
 - ✅ DevTools auto-opens in main window
 - ✅ All logs sent to three places: console window, terminal, and log file
@@ -320,6 +350,7 @@ The debug system uses categorized logging:
 ### Adding Debug Logs
 
 **In Main Process:**
+
 ```typescript
 import { debugLog } from "./helpers/debug-mode";
 
@@ -333,6 +364,7 @@ debugLog.queue("Processing item: video.mkv (ID: 12345)");
 ```
 
 **In Renderer Process:**
+
 ```typescript
 import { debugLog } from "@/helpers/debug-logger";
 
@@ -346,6 +378,7 @@ debugLog.route("Navigated to: /wypalarka");
 To add a new log category (e.g., "database"):
 
 1. **Update Main Process Logger** (`src/helpers/debug-mode.ts`):
+
 ```typescript
 export const debugLog = {
   // ... existing categories ...
@@ -360,6 +393,7 @@ export const debugLog = {
 ```
 
 2. **Update Renderer Logger** (`src/helpers/debug-logger.ts`):
+
 ```typescript
 export const debugLog = {
   // ... existing categories ...
@@ -373,10 +407,22 @@ export const debugLog = {
 ```
 
 3. **Update TypeScript Types** (`src/types.d.ts`):
+
 ```typescript
 interface DebugAPI {
   log: (
-    level: "info" | "success" | "warn" | "error" | "debug" | "route" | "file" | "ffmpeg" | "queue" | "ipc" | "database",
+    level:
+      | "info"
+      | "success"
+      | "warn"
+      | "error"
+      | "debug"
+      | "route"
+      | "file"
+      | "ffmpeg"
+      | "queue"
+      | "ipc"
+      | "database",
     message: string,
     ...args: unknown[]
   ) => void;
@@ -386,6 +432,7 @@ interface DebugAPI {
 ```
 
 4. **Update IPC Listener** (`src/helpers/ipc/debug/debug-listeners.ts`):
+
 ```typescript
 switch (level) {
   // ... existing cases ...
@@ -396,6 +443,7 @@ switch (level) {
 ```
 
 5. **Update Context** (`src/helpers/ipc/debug/debug-context.ts`):
+
 ```typescript
 contextBridge.exposeInMainWorld("debugAPI", {
   // ... existing methods ...
@@ -406,11 +454,12 @@ contextBridge.exposeInMainWorld("debugAPI", {
 ```
 
 6. **Update Debug Console Styling** (`src/debug-console.html`):
+
 ```javascript
 function getLevelDisplay(level) {
   const displays = {
     // ... existing categories ...
-    database: '💾 DATABASE'
+    database: "💾 DATABASE",
   };
   return displays[level] || level.toUpperCase();
 }
@@ -442,11 +491,13 @@ function getLevelDisplay(level) {
 ### Implementation Details
 
 **Vite Configuration:**
+
 - `debug-console-preload.ts` added to preload builds
 - `debug-console.html` copied to `dist-electron/` via custom Vite plugin
 - Multi-entry preload configuration with `inlineDynamicImports: false`
 
 **Path Handling:**
+
 - Development: Loads from `src/debug-console.html`
 - Production: Loads from `dist-electron/debug-console.html`
 

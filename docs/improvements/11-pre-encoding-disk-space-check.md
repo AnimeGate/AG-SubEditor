@@ -9,6 +9,7 @@ Add a pre-flight check to verify sufficient disk space before starting encoding.
 **Problem:** No disk space validation before encoding starts.
 
 **Failure Scenario:**
+
 1. User starts encoding large video
 2. FFmpeg writes output progressively
 3. Disk fills up mid-encoding
@@ -55,9 +56,9 @@ import { execSync } from "child_process";
 import path from "path";
 
 interface DiskSpaceInfo {
-  available: number;  // bytes
-  total: number;      // bytes
-  free: number;       // bytes (same as available on most systems)
+  available: number; // bytes
+  total: number; // bytes
+  free: number; // bytes (same as available on most systems)
 }
 
 /**
@@ -82,7 +83,7 @@ function getWindowsDiskSpace(targetPath: string): DiskSpaceInfo {
     // Use WMIC to get disk info
     const output = execSync(
       `wmic logicaldisk where "DeviceID='${driveLetter}'" get FreeSpace,Size /format:csv`,
-      { encoding: "utf-8", timeout: 5000 }
+      { encoding: "utf-8", timeout: 5000 },
     );
 
     const lines = output.trim().split("\n");
@@ -112,7 +113,10 @@ function getWindowsDiskSpacePowerShell(driveLetter: string): DiskSpaceInfo {
       timeout: 5000,
     });
 
-    const [free, used] = output.trim().split("\n").map(n => parseInt(n, 10));
+    const [free, used] = output
+      .trim()
+      .split("\n")
+      .map((n) => parseInt(n, 10));
     const total = free + used;
 
     return { available: free, total, free };
@@ -147,10 +151,10 @@ function getUnixDiskSpace(targetPath: string): DiskSpaceInfo {
 export function estimateOutputSize(
   durationMs: number,
   settings: {
-    bitrate?: string;  // e.g., "6000k" or "6M"
+    bitrate?: string; // e.g., "6000k" or "6M"
     rateControl?: string;
     cqValue?: number;
-  }
+  },
 ): number {
   const durationSeconds = durationMs / 1000;
 
@@ -159,7 +163,10 @@ export function estimateOutputSize(
 
   if (settings.bitrate) {
     bitrateBps = parseBitrate(settings.bitrate);
-  } else if (settings.rateControl === "cq" || settings.rateControl === "vbr_hq") {
+  } else if (
+    settings.rateControl === "cq" ||
+    settings.rateControl === "vbr_hq"
+  ) {
     // Estimate based on CQ value (rough approximation)
     // CQ 18 ≈ 10-15 Mbps for 1080p, CQ 23 ≈ 5-8 Mbps, CQ 28 ≈ 2-4 Mbps
     const cq = settings.cqValue || 23;
@@ -201,12 +208,12 @@ function parseBitrate(bitrateStr: string): number {
 function estimateBitrateFromCQ(cq: number): number {
   // Very rough estimation based on typical 1080p content
   // CQ is logarithmic; lower = higher quality/bitrate
-  if (cq <= 18) return 15_000_000;      // ~15 Mbps
-  if (cq <= 20) return 10_000_000;      // ~10 Mbps
-  if (cq <= 23) return 6_000_000;       // ~6 Mbps
-  if (cq <= 26) return 4_000_000;       // ~4 Mbps
-  if (cq <= 28) return 3_000_000;       // ~3 Mbps
-  return 2_000_000;                     // ~2 Mbps for higher CQ
+  if (cq <= 18) return 15_000_000; // ~15 Mbps
+  if (cq <= 20) return 10_000_000; // ~10 Mbps
+  if (cq <= 23) return 6_000_000; // ~6 Mbps
+  if (cq <= 26) return 4_000_000; // ~4 Mbps
+  if (cq <= 28) return 3_000_000; // ~3 Mbps
+  return 2_000_000; // ~2 Mbps for higher CQ
 }
 
 /**
@@ -237,7 +244,11 @@ GET_VIDEO_DURATION: "ffmpeg:get-video-duration",
 **File:** `src/helpers/ipc/ffmpeg/ffmpeg-listeners.ts`
 
 ```typescript
-import { getDiskSpace, estimateOutputSize, formatBytes } from "@/lib/disk-space";
+import {
+  getDiskSpace,
+  estimateOutputSize,
+  formatBytes,
+} from "@/lib/disk-space";
 import { getVideoDuration } from "@/lib/ffmpeg-processor";
 
 ipcMain.handle(
@@ -246,7 +257,7 @@ ipcMain.handle(
     _,
     outputPath: string,
     videoPath: string,
-    settings: EncodingSettings
+    settings: EncodingSettings,
   ): Promise<{
     sufficient: boolean;
     available: number;
@@ -289,7 +300,7 @@ ipcMain.handle(
         requiredFormatted: "Unknown",
       };
     }
-  }
+  },
 );
 ```
 
@@ -306,9 +317,12 @@ export async function getVideoDuration(videoPath: string): Promise<number> {
     const ffprobePath = getFFprobePath(); // Same directory as FFmpeg
 
     const process = spawn(ffprobePath, [
-      "-v", "error",
-      "-show_entries", "format=duration",
-      "-of", "default=noprint_wrappers=1:nokey=1",
+      "-v",
+      "error",
+      "-show_entries",
+      "format=duration",
+      "-of",
+      "default=noprint_wrappers=1:nokey=1",
       videoPath,
     ]);
 
@@ -339,7 +353,10 @@ export async function getVideoDuration(videoPath: string): Promise<number> {
 
 function getFFprobePath(): string {
   const ffmpegDir = path.dirname(getFFmpegPath());
-  return path.join(ffmpegDir, process.platform === "win32" ? "ffprobe.exe" : "ffprobe");
+  return path.join(
+    ffmpegDir,
+    process.platform === "win32" ? "ffprobe.exe" : "ffprobe",
+  );
 }
 ```
 

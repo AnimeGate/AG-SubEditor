@@ -1,4 +1,8 @@
-import { FFmpegProcessor, FFmpegProgress, EncodingSettings } from "./ffmpeg-processor";
+import {
+  FFmpegProcessor,
+  FFmpegProgress,
+  EncodingSettings,
+} from "./ffmpeg-processor";
 import { debugLog } from "../helpers/debug-mode";
 
 export interface QueueItem {
@@ -11,14 +15,21 @@ export interface QueueItem {
   status: "pending" | "processing" | "completed" | "error" | "cancelled";
   progress: FFmpegProgress | null;
   error?: string;
-  logs: Array<{ log: string; type: "info" | "success" | "warning" | "error" | "debug" | "metadata" }>;
+  logs: Array<{
+    log: string;
+    type: "info" | "success" | "warning" | "error" | "debug" | "metadata";
+  }>;
 }
 
 export interface QueueCallbacks {
   onQueueUpdate: (queue: QueueItem[]) => void;
   onItemUpdate: (item: QueueItem) => void;
   onItemProgress: (itemId: string, progress: FFmpegProgress) => void;
-  onItemLog: (itemId: string, log: string, type: "info" | "success" | "warning" | "error" | "debug" | "metadata") => void;
+  onItemLog: (
+    itemId: string,
+    log: string,
+    type: "info" | "success" | "warning" | "error" | "debug" | "metadata",
+  ) => void;
   onItemComplete: (itemId: string, outputPath: string) => void;
   onItemError: (itemId: string, error: string) => void;
   onQueueComplete: () => void;
@@ -33,7 +44,10 @@ export class QueueProcessor {
   private callbacks: QueueCallbacks;
   private settings: EncodingSettings;
 
-  constructor(callbacks: QueueCallbacks, settings: EncodingSettings = { bitrate: "2400k" }) {
+  constructor(
+    callbacks: QueueCallbacks,
+    settings: EncodingSettings = { bitrate: "2400k" },
+  ) {
     this.callbacks = callbacks;
     this.settings = settings;
   }
@@ -42,7 +56,9 @@ export class QueueProcessor {
     this.settings = settings;
   }
 
-  addItem(item: Omit<QueueItem, "id" | "status" | "progress" | "logs">): string {
+  addItem(
+    item: Omit<QueueItem, "id" | "status" | "progress" | "logs">,
+  ): string {
     const id = this.generateId();
     const queueItem: QueueItem = {
       ...item,
@@ -58,9 +74,11 @@ export class QueueProcessor {
     return id;
   }
 
-  addItems(items: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>): string[] {
+  addItems(
+    items: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>,
+  ): string[] {
     const ids: string[] = [];
-    items.forEach(item => {
+    items.forEach((item) => {
       const id = this.addItem(item);
       ids.push(id);
     });
@@ -73,7 +91,7 @@ export class QueueProcessor {
       this.cancelCurrent();
     }
 
-    this.queue = this.queue.filter(item => item.id !== id);
+    this.queue = this.queue.filter((item) => item.id !== id);
     this.callbacks.onQueueUpdate([...this.queue]);
   }
 
@@ -88,7 +106,12 @@ export class QueueProcessor {
   }
 
   reorderItem(fromIndex: number, toIndex: number): void {
-    if (fromIndex < 0 || fromIndex >= this.queue.length || toIndex < 0 || toIndex >= this.queue.length) {
+    if (
+      fromIndex < 0 ||
+      fromIndex >= this.queue.length ||
+      toIndex < 0 ||
+      toIndex >= this.queue.length
+    ) {
       return;
     }
 
@@ -102,7 +125,7 @@ export class QueueProcessor {
   }
 
   getItem(id: string): QueueItem | undefined {
-    return this.queue.find(item => item.id === id);
+    return this.queue.find((item) => item.id === id);
   }
 
   async start(): Promise<void> {
@@ -110,7 +133,9 @@ export class QueueProcessor {
       return;
     }
 
-    debugLog.queue(`Starting queue processing (${this.queue.filter(i => i.status === "pending").length} pending items)`);
+    debugLog.queue(
+      `Starting queue processing (${this.queue.filter((i) => i.status === "pending").length} pending items)`,
+    );
     this.isProcessing = true;
     this.isPaused = false;
     await this.processNext();
@@ -127,7 +152,7 @@ export class QueueProcessor {
       this.currentProcessor = null;
 
       if (this.currentItemId) {
-        const item = this.queue.find(i => i.id === this.currentItemId);
+        const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
           item.status = "pending";
           item.progress = null;
@@ -157,7 +182,7 @@ export class QueueProcessor {
       this.currentProcessor = null;
 
       if (this.currentItemId) {
-        const item = this.queue.find(i => i.id === this.currentItemId);
+        const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
           item.status = "cancelled";
           item.logs.push({ log: "Process cancelled by user", type: "warning" });
@@ -174,7 +199,7 @@ export class QueueProcessor {
     }
 
     // Find next pending item
-    const nextItem = this.queue.find(item => item.status === "pending");
+    const nextItem = this.queue.find((item) => item.status === "pending");
 
     if (!nextItem) {
       // Queue completed
@@ -189,18 +214,26 @@ export class QueueProcessor {
     nextItem.logs = [];
     nextItem.progress = null;
     this.currentItemId = nextItem.id;
-    debugLog.queue(`Processing item: ${nextItem.videoName} (ID: ${nextItem.id})`);
+    debugLog.queue(
+      `Processing item: ${nextItem.videoName} (ID: ${nextItem.id})`,
+    );
     debugLog.queue(`Video: ${nextItem.videoPath}`);
     debugLog.queue(`Subtitle: ${nextItem.subtitlePath}`);
     debugLog.queue(`Output: ${nextItem.outputPath}`);
     debugLog.queue(
       `Settings: bitrate=${this.settings.bitrate}` +
-      (this.settings.gpuEncode !== undefined ? `, gpuEncode=${this.settings.gpuEncode}` : this.settings.useHardwareAccel !== undefined ? `, hwAccel=${this.settings.useHardwareAccel}` : "") +
-      (this.settings.gpuDecode !== undefined ? `, gpuDecode=${this.settings.gpuDecode}` : "") +
-      (this.settings.codec ? `, codec=${this.settings.codec}` : "") +
-      (this.settings.preset ? `, preset=${this.settings.preset}` : "") +
-      (this.settings.qualityMode ? `, rc=${this.settings.qualityMode}` : "") +
-      (this.settings.cq !== undefined ? `, cq=${this.settings.cq}` : "")
+        (this.settings.gpuEncode !== undefined
+          ? `, gpuEncode=${this.settings.gpuEncode}`
+          : this.settings.useHardwareAccel !== undefined
+            ? `, hwAccel=${this.settings.useHardwareAccel}`
+            : "") +
+        (this.settings.gpuDecode !== undefined
+          ? `, gpuDecode=${this.settings.gpuDecode}`
+          : "") +
+        (this.settings.codec ? `, codec=${this.settings.codec}` : "") +
+        (this.settings.preset ? `, preset=${this.settings.preset}` : "") +
+        (this.settings.qualityMode ? `, rc=${this.settings.qualityMode}` : "") +
+        (this.settings.cq !== undefined ? `, cq=${this.settings.cq}` : ""),
     );
     this.callbacks.onItemUpdate({ ...nextItem });
 
@@ -208,7 +241,7 @@ export class QueueProcessor {
     this.currentProcessor = new FFmpegProcessor({
       onProgress: (progress) => {
         if (!this.currentItemId) return;
-        const item = this.queue.find(i => i.id === this.currentItemId);
+        const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
           item.progress = progress;
           this.callbacks.onItemProgress(this.currentItemId, progress);
@@ -217,7 +250,7 @@ export class QueueProcessor {
       },
       onLog: (log, type) => {
         if (!this.currentItemId) return;
-        const item = this.queue.find(i => i.id === this.currentItemId);
+        const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
           item.logs.push({ log, type });
           this.callbacks.onItemLog(this.currentItemId, log, type);
@@ -228,14 +261,19 @@ export class QueueProcessor {
       },
       onComplete: (outputPath) => {
         if (!this.currentItemId) return;
-        const item = this.queue.find(i => i.id === this.currentItemId);
+        const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
           item.status = "completed";
-          item.logs.push({ log: `✓ Process completed successfully!`, type: "success" });
+          item.logs.push({
+            log: `✓ Process completed successfully!`,
+            type: "success",
+          });
           item.logs.push({ log: `Output: ${outputPath}`, type: "info" });
           this.callbacks.onItemComplete(this.currentItemId, outputPath);
           this.callbacks.onItemUpdate({ ...item });
-          debugLog.queue(`Item completed successfully: ${item.videoName} (ID: ${item.id})`);
+          debugLog.queue(
+            `Item completed successfully: ${item.videoName} (ID: ${item.id})`,
+          );
           debugLog.queue(`Output saved to: ${outputPath}`);
         }
 
@@ -247,14 +285,16 @@ export class QueueProcessor {
       },
       onError: (error) => {
         if (!this.currentItemId) return;
-        const item = this.queue.find(i => i.id === this.currentItemId);
+        const item = this.queue.find((i) => i.id === this.currentItemId);
         if (item) {
           item.status = "error";
           item.error = error;
           item.logs.push({ log: `✗ Error: ${error}`, type: "error" });
           this.callbacks.onItemError(this.currentItemId, error);
           this.callbacks.onItemUpdate({ ...item });
-          debugLog.error(`Item processing failed: ${item.videoName} (ID: ${item.id})`);
+          debugLog.error(
+            `Item processing failed: ${item.videoName} (ID: ${item.id})`,
+          );
           debugLog.error(`Error: ${error}`);
         }
 
@@ -271,7 +311,7 @@ export class QueueProcessor {
         nextItem.videoPath,
         nextItem.subtitlePath,
         nextItem.outputPath,
-        this.settings
+        this.settings,
       );
     } catch (error) {
       // Error already handled in onError callback
@@ -301,11 +341,11 @@ export class QueueProcessor {
   } {
     return {
       total: this.queue.length,
-      pending: this.queue.filter(i => i.status === "pending").length,
-      processing: this.queue.filter(i => i.status === "processing").length,
-      completed: this.queue.filter(i => i.status === "completed").length,
-      error: this.queue.filter(i => i.status === "error").length,
-      cancelled: this.queue.filter(i => i.status === "cancelled").length,
+      pending: this.queue.filter((i) => i.status === "pending").length,
+      processing: this.queue.filter((i) => i.status === "processing").length,
+      completed: this.queue.filter((i) => i.status === "completed").length,
+      error: this.queue.filter((i) => i.status === "error").length,
+      cancelled: this.queue.filter((i) => i.status === "cancelled").length,
     };
   }
 }

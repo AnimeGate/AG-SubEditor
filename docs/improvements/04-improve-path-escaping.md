@@ -10,12 +10,13 @@ The current path escaping logic for FFmpeg's subtitles filter is fragile and may
 
 ```typescript
 const escapedSubtitlePath = subtitlePath
-  .replace(/\\/g, "\\\\\\\\")  // 4 backslashes - unclear why
+  .replace(/\\/g, "\\\\\\\\") // 4 backslashes - unclear why
   .replace(/:/g, "\\:")
   .replace(/'/g, "\\'");
 ```
 
 **Problems:**
+
 1. Excessive backslash escaping (4x) with no documentation
 2. Missing escaping for: `[`, `]`, `;`, `,`, `=`, newlines
 3. No handling of Unicode characters
@@ -34,16 +35,16 @@ FFmpeg has multiple escaping layers:
 
 The `subtitles` filter uses libass which has its own path parsing. Characters that need escaping:
 
-| Character | Escape Sequence | Reason |
-|-----------|-----------------|--------|
-| `\` | `\\\\` | Path separator (Windows) |
-| `:` | `\\:` | Drive letter separator (Windows) |
-| `'` | `\\'` | String delimiter |
-| `[` | `\\[` | Filter graph syntax |
-| `]` | `\\]` | Filter graph syntax |
-| `;` | `\\;` | Filter separator |
-| `,` | `\\,` | Option separator |
-| `=` | `\\=` | Key-value separator |
+| Character | Escape Sequence | Reason                           |
+| --------- | --------------- | -------------------------------- |
+| `\`       | `\\\\`          | Path separator (Windows)         |
+| `:`       | `\\:`           | Drive letter separator (Windows) |
+| `'`       | `\\'`           | String delimiter                 |
+| `[`       | `\\[`           | Filter graph syntax              |
+| `]`       | `\\]`           | Filter graph syntax              |
+| `;`       | `\\;`           | Filter separator                 |
+| `,`       | `\\,`           | Option separator                 |
+| `=`       | `\\=`           | Key-value separator              |
 
 ## Proposed Solution
 
@@ -72,20 +73,22 @@ The `subtitles` filter uses libass which has its own path parsing. Characters th
  * @returns Escaped path safe for use in subtitles filter
  */
 function escapeSubtitlePath(filePath: string): string {
-  return filePath
-    // Step 1: Escape backslashes first (must be done before other escapes)
-    // Windows paths need 4 backslashes due to double unescaping
-    .replace(/\\/g, "\\\\\\\\")
-    // Step 2: Escape colons (Windows drive letters like C:)
-    .replace(/:/g, "\\:")
-    // Step 3: Escape single quotes (string delimiters)
-    .replace(/'/g, "\\'")
-    // Step 4: Escape filter graph special characters
-    .replace(/\[/g, "\\[")
-    .replace(/\]/g, "\\]")
-    .replace(/;/g, "\\;")
-    .replace(/,/g, "\\,")
-    .replace(/=/g, "\\=");
+  return (
+    filePath
+      // Step 1: Escape backslashes first (must be done before other escapes)
+      // Windows paths need 4 backslashes due to double unescaping
+      .replace(/\\/g, "\\\\\\\\")
+      // Step 2: Escape colons (Windows drive letters like C:)
+      .replace(/:/g, "\\:")
+      // Step 3: Escape single quotes (string delimiters)
+      .replace(/'/g, "\\'")
+      // Step 4: Escape filter graph special characters
+      .replace(/\[/g, "\\[")
+      .replace(/\]/g, "\\]")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/=/g, "\\=")
+  );
 }
 
 /**
@@ -94,7 +97,10 @@ function escapeSubtitlePath(filePath: string): string {
  * @param filePath - Path to validate
  * @returns Object with isValid flag and optional error message
  */
-function validatePathForFFmpeg(filePath: string): { isValid: boolean; error?: string } {
+function validatePathForFFmpeg(filePath: string): {
+  isValid: boolean;
+  error?: string;
+} {
   // Check for newlines (could break command)
   if (filePath.includes("\n") || filePath.includes("\r")) {
     return { isValid: false, error: "Path contains newline characters" };
@@ -112,9 +118,14 @@ function validatePathForFFmpeg(filePath: string): { isValid: boolean; error?: st
 
   // Check for problematic Unicode characters
   // Some Unicode characters look like ASCII but are different (homoglyphs)
-  const hasProblematicUnicode = /[\u200B-\u200F\u2028-\u202F\uFEFF]/.test(filePath);
+  const hasProblematicUnicode = /[\u200B-\u200F\u2028-\u202F\uFEFF]/.test(
+    filePath,
+  );
   if (hasProblematicUnicode) {
-    return { isValid: false, error: "Path contains invisible Unicode characters" };
+    return {
+      isValid: false,
+      error: "Path contains invisible Unicode characters",
+    };
   }
 
   return { isValid: true };
@@ -161,7 +172,10 @@ private buildFFmpegArgs(): string[] {
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import { escapeSubtitlePath, validatePathForFFmpeg } from "@/lib/ffmpeg-processor";
+import {
+  escapeSubtitlePath,
+  validatePathForFFmpeg,
+} from "@/lib/ffmpeg-processor";
 
 describe("escapeSubtitlePath", () => {
   it("escapes Windows paths correctly", () => {
@@ -258,13 +272,20 @@ When path validation fails, provide clear error messages to the user:
 ```typescript
 const handleStartProcess = async () => {
   try {
-    await window.ffmpegAPI.startProcess(videoPath, subtitlePath, outputPath, settings);
+    await window.ffmpegAPI.startProcess(
+      videoPath,
+      subtitlePath,
+      outputPath,
+      settings,
+    );
   } catch (error) {
     if (error.message.includes("Invalid subtitle path")) {
       // Show user-friendly error
-      setError(t("wypalarka.errors.invalidSubtitlePath", {
-        reason: error.message.split(": ")[1]
-      }));
+      setError(
+        t("wypalarka.errors.invalidSubtitlePath", {
+          reason: error.message.split(": ")[1],
+        }),
+      );
     } else if (error.message.includes("Invalid video path")) {
       setError(t("wypalarka.errors.invalidVideoPath"));
     } else {

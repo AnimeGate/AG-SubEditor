@@ -12,10 +12,20 @@ export function registerDebugListeners(_mainWindow: BrowserWindow): void {
     (
       _event,
       data: {
-        level: "info" | "success" | "warn" | "error" | "debug" | "route" | "file" | "ffmpeg" | "queue" | "ipc";
+        level:
+          | "info"
+          | "success"
+          | "warn"
+          | "error"
+          | "debug"
+          | "route"
+          | "file"
+          | "ffmpeg"
+          | "queue"
+          | "ipc";
         message: string;
         args: unknown[];
-      }
+      },
     ) => {
       const { level, message, args } = data;
 
@@ -52,6 +62,6 @@ export function registerDebugListeners(_mainWindow: BrowserWindow): void {
           debugLog.ipc(message, ...args);
           break;
       }
-    }
+    },
   );
 }

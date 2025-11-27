@@ -11,6 +11,9 @@ export const FFMPEG_CHANNELS = {
   GET_DEFAULT_OUTPUT_PATH: "ffmpeg:getDefaultOutputPath",
   CHECK_GPU: "ffmpeg:checkGpu",
   OPEN_OUTPUT_FOLDER: "ffmpeg:openOutputFolder",
+  // Output conflict detection
+  CHECK_OUTPUT_EXISTS: "ffmpeg:checkOutputExists",
+  RESOLVE_OUTPUT_CONFLICT: "ffmpeg:resolveOutputConflict",
   // FFmpeg Download
   CHECK_INSTALLED: "ffmpeg:checkInstalled",
   START_DOWNLOAD: "ffmpeg:startDownload",

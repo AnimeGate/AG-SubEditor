@@ -1,30 +1,51 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Film, FileText, FolderOutput } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { debugLog } from "@/helpers/debug-logger";
+import { WypalarkaOutputConflictDialog } from "./WypalarkaOutputConflictDialog";
 
 interface WypalarkaFileInputProps {
   onFilesSelected: (video: string, subtitle: string, output: string) => void;
   disabled?: boolean;
 }
 
-export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileInputProps) {
+export function WypalarkaFileInput({
+  onFilesSelected,
+  disabled,
+}: WypalarkaFileInputProps) {
   const { t } = useTranslation();
-  const [videoFile, setVideoFile] = useState<{ path: string; name: string } | null>(null);
-  const [subtitleFile, setSubtitleFile] = useState<{ path: string; name: string } | null>(null);
+  const [videoFile, setVideoFile] = useState<{
+    path: string;
+    name: string;
+  } | null>(null);
+  const [subtitleFile, setSubtitleFile] = useState<{
+    path: string;
+    name: string;
+  } | null>(null);
   const [outputPath, setOutputPath] = useState<string | null>(null);
+  const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   // Recompute output when output defaults change while a video is already selected
   useEffect(() => {
-    const unsubscribe = (window as any).settingsAPI?.onOutputUpdated?.(async () => {
-      if (videoFile) {
-        try {
-          const resolved = await window.ffmpegAPI.getDefaultOutputPath(videoFile.path);
-          setOutputPath(resolved || null);
-        } catch {}
-      }
-    });
+    const unsubscribe = (window as any).settingsAPI?.onOutputUpdated?.(
+      async () => {
+        if (videoFile) {
+          try {
+            const resolved = await window.ffmpegAPI.getDefaultOutputPath(
+              videoFile.path,
+            );
+            setOutputPath(resolved || null);
+          } catch {}
+        }
+      },
+    );
     return () => {
       if (typeof unsubscribe === "function") unsubscribe();
     };
@@ -38,7 +59,9 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
       setVideoFile({ path: result.filePath, name: result.fileName });
       // Resolve absolute default output path via main process (settings-aware)
       try {
-        const resolved = await window.ffmpegAPI.getDefaultOutputPath(result.filePath);
+        const resolved = await window.ffmpegAPI.getDefaultOutputPath(
+          result.filePath,
+        );
         setOutputPath(resolved || null);
       } catch {
         const baseName = result.fileName.replace(/\.[^.]+$/, "");
@@ -65,7 +88,26 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
     }
   };
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
+    if (videoFile && subtitleFile && outputPath) {
+      // Check if output file already exists
+      try {
+        const exists = await window.ffmpegAPI.checkOutputExists(outputPath);
+        if (exists) {
+          debugLog.file(`Output file already exists: ${outputPath}`);
+          setConflictDialogOpen(true);
+          return;
+        }
+      } catch (error) {
+        debugLog.error(`Failed to check output file existence: ${error}`);
+        // Continue with processing if check fails
+      }
+
+      startProcessing();
+    }
+  };
+
+  const startProcessing = () => {
     if (videoFile && subtitleFile && outputPath) {
       debugLog.ffmpeg(`Starting single file burn: ${videoFile.name}`);
       debugLog.ffmpeg(`Video: ${videoFile.path}`);
@@ -73,6 +115,48 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
       debugLog.ffmpeg(`Output: ${outputPath}`);
       onFilesSelected(videoFile.path, subtitleFile.path, outputPath);
     }
+  };
+
+  const handleConflictOverwrite = () => {
+    setConflictDialogOpen(false);
+    debugLog.file(`User chose to overwrite existing file: ${outputPath}`);
+    startProcessing();
+  };
+
+  const handleConflictAutoRename = async () => {
+    if (!outputPath) return;
+    try {
+      const newPath = await window.ffmpegAPI.resolveOutputConflict(outputPath);
+      debugLog.file(`Auto-renamed output to: ${newPath}`);
+      setOutputPath(newPath);
+      setConflictDialogOpen(false);
+      // Start processing with new path
+      if (videoFile && subtitleFile) {
+        debugLog.ffmpeg(`Starting single file burn: ${videoFile.name}`);
+        debugLog.ffmpeg(`Video: ${videoFile.path}`);
+        debugLog.ffmpeg(`Subtitle: ${subtitleFile.path}`);
+        debugLog.ffmpeg(`Output: ${newPath}`);
+        onFilesSelected(videoFile.path, subtitleFile.path, newPath);
+      }
+    } catch (error) {
+      debugLog.error(`Failed to auto-rename output: ${error}`);
+    }
+  };
+
+  const handleConflictChooseNew = async () => {
+    setConflictDialogOpen(false);
+    if (!outputPath) return;
+    const result = await window.ffmpegAPI.selectOutputPath(outputPath);
+    if (result) {
+      debugLog.file(`User chose new output path: ${result}`);
+      setOutputPath(result);
+      // Don't start automatically, let user click the button again
+    }
+  };
+
+  const handleConflictCancel = () => {
+    setConflictDialogOpen(false);
+    debugLog.file(`User cancelled conflict resolution`);
   };
 
   const isReadyToProcess = videoFile && subtitleFile && outputPath;
@@ -94,13 +178,16 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
             variant="outline"
             className="w-full justify-start overflow-hidden"
           >
-            <Film className="h-4 w-4 mr-2 flex-shrink-0" />
+            <Film className="mr-2 h-4 w-4 flex-shrink-0" />
             <span className="truncate" title={videoFile?.path}>
               {videoFile ? videoFile.name : t("wypalarkaSelectVideo")}
             </span>
           </Button>
           {videoFile && (
-            <p className="text-xs text-muted-foreground truncate" title={videoFile.path}>
+            <p
+              className="text-muted-foreground truncate text-xs"
+              title={videoFile.path}
+            >
               {videoFile.path}
             </p>
           )}
@@ -122,13 +209,16 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
             variant="outline"
             className="w-full justify-start overflow-hidden"
           >
-            <FileText className="h-4 w-4 mr-2 flex-shrink-0" />
+            <FileText className="mr-2 h-4 w-4 flex-shrink-0" />
             <span className="truncate" title={subtitleFile?.path}>
               {subtitleFile ? subtitleFile.name : t("wypalarkaSelectSubtitle")}
             </span>
           </Button>
           {subtitleFile && (
-            <p className="text-xs text-muted-foreground truncate" title={subtitleFile.path}>
+            <p
+              className="text-muted-foreground truncate text-xs"
+              title={subtitleFile.path}
+            >
               {subtitleFile.path}
             </p>
           )}
@@ -150,13 +240,18 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
             variant="outline"
             className="w-full justify-start overflow-hidden"
           >
-            <FolderOutput className="h-4 w-4 mr-2 flex-shrink-0" />
+            <FolderOutput className="mr-2 h-4 w-4 flex-shrink-0" />
             <span className="truncate" title={outputPath || undefined}>
-              {outputPath ? outputPath.split(/[\\/]/).pop() || outputPath : t("wypalarkaSelectOutput")}
+              {outputPath
+                ? outputPath.split(/[\\/]/).pop() || outputPath
+                : t("wypalarkaSelectOutput")}
             </span>
           </Button>
           {outputPath && (
-            <p className="text-xs text-muted-foreground truncate" title={outputPath}>
+            <p
+              className="text-muted-foreground truncate text-xs"
+              title={outputPath}
+            >
               {outputPath}
             </p>
           )}
@@ -171,6 +266,16 @@ export function WypalarkaFileInput({ onFilesSelected, disabled }: WypalarkaFileI
       >
         {t("wypalarkaStartProcess")}
       </Button>
+
+      {/* Output Conflict Dialog */}
+      <WypalarkaOutputConflictDialog
+        open={conflictDialogOpen}
+        outputPath={outputPath || ""}
+        onOverwrite={handleConflictOverwrite}
+        onAutoRename={handleConflictAutoRename}
+        onChooseNew={handleConflictChooseNew}
+        onCancel={handleConflictCancel}
+      />
     </div>
   );
 }

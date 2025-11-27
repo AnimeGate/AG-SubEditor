@@ -11,7 +11,9 @@ import {
 
 export function addThemeEventListeners() {
   ipcMain.handle(THEME_MODE_CURRENT_CHANNEL, () => {
-    debugLog.ipc(`IPC: THEME_CURRENT called - Current theme: ${nativeTheme.themeSource}`);
+    debugLog.ipc(
+      `IPC: THEME_CURRENT called - Current theme: ${nativeTheme.themeSource}`,
+    );
     return nativeTheme.themeSource;
   });
 
@@ -23,7 +25,9 @@ export function addThemeEventListeners() {
       nativeTheme.themeSource = "dark";
     }
     const newTheme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
-    debugLog.ipc(`IPC: THEME_TOGGLE called - Changed from ${oldTheme} to ${newTheme}`);
+    debugLog.ipc(
+      `IPC: THEME_TOGGLE called - Changed from ${oldTheme} to ${newTheme}`,
+    );
     return nativeTheme.shouldUseDarkColors;
   });
 
@@ -41,7 +45,9 @@ export function addThemeEventListeners() {
     debugLog.ipc("IPC: THEME_SYSTEM called - Switching to system theme");
     nativeTheme.themeSource = "system";
     const isDark = nativeTheme.shouldUseDarkColors;
-    debugLog.ipc(`IPC: THEME_SYSTEM - System is using ${isDark ? "dark" : "light"} mode`);
+    debugLog.ipc(
+      `IPC: THEME_SYSTEM - System is using ${isDark ? "dark" : "light"} mode`,
+    );
     return isDark;
   });
 }

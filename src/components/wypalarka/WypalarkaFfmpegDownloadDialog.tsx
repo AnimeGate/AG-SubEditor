@@ -49,7 +49,10 @@ export function WypalarkaFfmpegDownloadDialog({
     // Set up listeners when dialog opens
     const unsubProgress = window.ffmpegAPI.onDownloadProgress((progress) => {
       setProgress(progress);
-      if (progress.status === "downloading" || progress.status === "extracting") {
+      if (
+        progress.status === "downloading" ||
+        progress.status === "extracting"
+      ) {
         setStatus("downloading");
       }
     });
@@ -105,10 +108,13 @@ export function WypalarkaFfmpegDownloadDialog({
           </DialogTitle>
           <DialogDescription>
             {status === "prompt" && t("wypalarkaFfmpegNotInstalled")}
-            {status === "downloading" && progress && progress.totalBytes > 0 && (
-              `${t("wypalarkaFfmpegDownloadingStatus")}: ${formatBytes(progress.downloadedBytes)} / ${formatBytes(progress.totalBytes)}`
-            )}
-            {status === "downloading" && (!progress || progress.totalBytes === 0) && t("wypalarkaFfmpegStartingDownload")}
+            {status === "downloading" &&
+              progress &&
+              progress.totalBytes > 0 &&
+              `${t("wypalarkaFfmpegDownloadingStatus")}: ${formatBytes(progress.downloadedBytes)} / ${formatBytes(progress.totalBytes)}`}
+            {status === "downloading" &&
+              (!progress || progress.totalBytes === 0) &&
+              t("wypalarkaFfmpegStartingDownload")}
             {status === "success" && t("wypalarkaFfmpegInstalled")}
             {status === "error" && t("wypalarkaFfmpegError")}
           </DialogDescription>
@@ -143,8 +149,10 @@ export function WypalarkaFfmpegDownloadDialog({
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>
-                    {progress.status === "downloading" && t("wypalarkaFfmpegDownloading")}
-                    {progress.status === "extracting" && t("wypalarkaFfmpegExtracting")}
+                    {progress.status === "downloading" &&
+                      t("wypalarkaFfmpegDownloading")}
+                    {progress.status === "extracting" &&
+                      t("wypalarkaFfmpegExtracting")}
                   </span>
                   <span className="text-muted-foreground">
                     {Math.round(progress.percentage)}%

@@ -10,7 +10,7 @@ export function exposeFileContext() {
       return await ipcRenderer.invoke(
         FILE_CHANNELS.SAVE_FILE,
         fileName,
-        content
+        content,
       );
     },
   });

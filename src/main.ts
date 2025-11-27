@@ -1,7 +1,11 @@
 import { app, BrowserWindow } from "electron";
 import registerListeners from "./helpers/ipc/listeners-register";
 import { initializeAutoUpdater } from "./helpers/updater/auto-updater";
-import { initializeDebugMode, debugLog, createDebugConsole } from "./helpers/debug-mode";
+import {
+  initializeDebugMode,
+  debugLog,
+  createDebugConsole,
+} from "./helpers/debug-mode";
 import path from "path";
 
 const inDevelopment = process.env.NODE_ENV === "development";
@@ -42,7 +46,9 @@ function createWindow() {
   // In development: load from vite dev server
   // In production: load from dist folder
   if (process.env.VITE_DEV_SERVER_URL) {
-    debugLog.info(`Loading from dev server: ${process.env.VITE_DEV_SERVER_URL}`);
+    debugLog.info(
+      `Loading from dev server: ${process.env.VITE_DEV_SERVER_URL}`,
+    );
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
     const indexPath = path.join(__dirname, "../dist/index.html");
