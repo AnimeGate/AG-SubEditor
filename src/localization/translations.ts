@@ -228,6 +228,14 @@ export const translations = {
       updateLater: "Później",
       updateHide: "Ukryj",
       updateClose: "Zamknij",
+      // Changelog history
+      changelogHistory: "Historia zmian",
+      changelogHistoryTitle: "Historia wersji",
+      changelogHistoryDesc: "Wszystkie wydania AG-SubEditor z GitHub",
+      changelogLatest: "Najnowsza",
+      changelogNoReleases: "Brak wydań do wyświetlenia",
+      changelogNoNotes: "Brak notatek dla tego wydania",
+      changelogRetry: "Spróbuj ponownie",
       // Output defaults UI
       outputDefaults: "Domyślne wyjście",
       saveLocation: "Miejsce zapisu",
@@ -546,6 +554,14 @@ export const translations = {
       updateLater: "Later",
       updateHide: "Hide",
       updateClose: "Close",
+      // Changelog history
+      changelogHistory: "Changelog",
+      changelogHistoryTitle: "Version History",
+      changelogHistoryDesc: "All AG-SubEditor releases from GitHub",
+      changelogLatest: "Latest",
+      changelogNoReleases: "No releases to display",
+      changelogNoNotes: "No release notes available",
+      changelogRetry: "Retry",
       // Output defaults UI
       outputDefaults: "Output defaults",
       saveLocation: "Save location",

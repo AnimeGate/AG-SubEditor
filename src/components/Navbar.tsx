@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import SettingsModal from "./SettingsModal";
+import { ChangelogHistoryDialog } from "./ChangelogHistoryDialog";
 import { FileText, Flame } from "lucide-react";
 import { debugLog } from "@/helpers/debug-logger";
 
@@ -52,8 +53,9 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Right: Settings */}
-        <div className="flex items-center">
+        {/* Right: Changelog & Settings */}
+        <div className="flex items-center gap-1">
+          <ChangelogHistoryDialog />
           <SettingsModal />
         </div>
       </div>
