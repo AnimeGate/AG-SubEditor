@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useImperativeHandle, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,19 +14,31 @@ import { debugLog } from "@/helpers/debug-logger";
 import { getDroppedFilePaths, getFileName } from "@/lib/drop-helpers";
 import { WypalarkaOutputConflictDialog } from "./WypalarkaOutputConflictDialog";
 
+export interface WypalarkaFileInputHandle {
+  startProcess: () => void;
+}
+
 interface WypalarkaFileInputProps {
   onFilesSelected: (video: string, subtitle: string, output: string) => void;
   disabled?: boolean;
   onVideoPathChange?: (path: string | null) => void;
   onOutputPathChange?: (path: string | null) => void;
+  onReadyChange?: (ready: boolean) => void;
 }
 
-export function WypalarkaFileInput({
-  onFilesSelected,
-  disabled,
-  onVideoPathChange,
-  onOutputPathChange,
-}: WypalarkaFileInputProps) {
+export const WypalarkaFileInput = forwardRef<
+  WypalarkaFileInputHandle,
+  WypalarkaFileInputProps
+>(function WypalarkaFileInput(
+  {
+    onFilesSelected,
+    disabled,
+    onVideoPathChange,
+    onOutputPathChange,
+    onReadyChange,
+  },
+  ref,
+) {
   const { t } = useTranslation();
   const [videoFile, setVideoFile] = useState<{
     path: string;
@@ -209,6 +221,16 @@ export function WypalarkaFileInput({
 
   const isReadyToProcess = videoFile && subtitleFile && outputPath;
 
+  // Expose start method via ref
+  useImperativeHandle(ref, () => ({
+    startProcess: handleProcess,
+  }));
+
+  // Notify parent when ready state changes
+  useEffect(() => {
+    onReadyChange?.(!!isReadyToProcess);
+  }, [isReadyToProcess, onReadyChange]);
+
   return (
     <div className="space-y-4">
       <DropZone
@@ -332,15 +354,6 @@ export function WypalarkaFileInput({
         </CardContent>
       </Card>
 
-      <Button
-        onClick={handleProcess}
-        disabled={!isReadyToProcess || disabled}
-        className="w-full"
-        size="lg"
-      >
-        {t("wypalarkaStartProcess")}
-      </Button>
-
       {/* Output Conflict Dialog */}
       <WypalarkaOutputConflictDialog
         open={conflictDialogOpen}
@@ -352,4 +365,4 @@ export function WypalarkaFileInput({
       />
     </div>
   );
-}
+});

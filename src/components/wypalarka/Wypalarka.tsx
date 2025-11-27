@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { WypalarkaFileInput } from "./WypalarkaFileInput";
+import {
+  WypalarkaFileInput,
+  type WypalarkaFileInputHandle,
+} from "./WypalarkaFileInput";
 import { WypalarkaProgressPanel } from "./WypalarkaProgressPanel";
 import { WypalarkaQueuePanel } from "./WypalarkaQueuePanel";
 import { WypalarkaQueueProgressPanel } from "./WypalarkaQueueProgressPanel";
@@ -16,7 +19,7 @@ import {
 } from "./WypalarkaQueueConflictDialog";
 import type { EncodingSettings } from "./WypalarkaSettings";
 import { useTranslation } from "react-i18next";
-import { Flame, StopCircle, FolderOpen, Download } from "lucide-react";
+import { Flame, FolderOpen, Download } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { debugLog } from "@/helpers/debug-logger";
 
@@ -35,6 +38,8 @@ export default function Wypalarka() {
   const [progress, setProgress] = useState<FFmpegProgress | null>(null);
   const [status, setStatus] = useState<ProcessStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [singleFileReady, setSingleFileReady] = useState(false);
+  const fileInputRef = useRef<WypalarkaFileInputHandle>(null);
   const [completedOutputPath, setCompletedOutputPath] = useState<string | null>(
     null,
   );
@@ -355,6 +360,11 @@ export default function Wypalarka() {
     } catch (error) {
       console.error("Failed to cancel process:", error);
     }
+  };
+
+  // Handler for single file start button (triggers the file input's conflict check and start)
+  const handleSingleFileStart = () => {
+    fileInputRef.current?.startProcess();
   };
 
   const handleReset = () => {
@@ -732,17 +742,6 @@ export default function Wypalarka() {
             onOpenChange={setSettingsDialogOpen}
           />
 
-          {status === "processing" && (
-            <Button
-              variant="destructive"
-              onClick={handleCancelProcess}
-              className="gap-2"
-            >
-              <StopCircle className="h-4 w-4" />
-              {t("wypalarkaCancel")}
-            </Button>
-          )}
-
           {status === "completed" && (
             <>
               <Button
@@ -797,10 +796,12 @@ export default function Wypalarka() {
           {/* Left Panel - File Input */}
           <div className="w-96 flex-shrink-0 overflow-y-auto">
             <WypalarkaFileInput
+              ref={fileInputRef}
               onFilesSelected={handleStartProcess}
               disabled={status === "processing" || !ffmpegInstalled}
               onVideoPathChange={setCurrentVideoPath}
               onOutputPathChange={setCurrentOutputPath}
+              onReadyChange={setSingleFileReady}
             />
           </div>
 
@@ -811,6 +812,9 @@ export default function Wypalarka() {
               progress={progress}
               status={status}
               errorMessage={errorMessage}
+              canStart={singleFileReady && !!ffmpegInstalled}
+              onStart={handleSingleFileStart}
+              onCancel={handleCancelProcess}
             />
           </div>
         </TabsContent>
