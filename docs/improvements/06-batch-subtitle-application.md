@@ -9,6 +9,7 @@ Allow users to apply a single subtitle file to multiple video files in one opera
 **Location:** `src/components/wypalarka/WypalarkaAddFilesDialog.tsx`
 
 Users must:
+
 1. Click "Add" button
 2. Select one video file
 3. Select one subtitle file
@@ -117,7 +118,10 @@ ipcMain.handle(FFMPEG_CHANNELS.SELECT_VIDEO_FILES_MULTI, async () => {
     title: t("dialogs.selectVideoFiles"),
     properties: ["openFile", "multiSelections"],
     filters: [
-      { name: "Video Files", extensions: ["mp4", "mkv", "avi", "mov", "webm", "m4v"] },
+      {
+        name: "Video Files",
+        extensions: ["mp4", "mkv", "avi", "mov", "webm", "m4v"],
+      },
       { name: "All Files", extensions: ["*"] },
     ],
   });
@@ -143,11 +147,11 @@ selectVideoFilesMulti: (): Promise<string[] | null> =>
 
 ```typescript
 export interface PatternVariables {
-  name: string;      // Video filename without extension
-  ext: string;       // Original extension
-  subtitle: string;  // Subtitle filename without extension
-  index: number;     // 1-based index in batch
-  date: string;      // YYYY-MM-DD
+  name: string; // Video filename without extension
+  ext: string; // Original extension
+  subtitle: string; // Subtitle filename without extension
+  index: number; // 1-based index in batch
+  date: string; // YYYY-MM-DD
 }
 
 export const OUTPUT_PATTERNS = {
@@ -161,7 +165,7 @@ export function applyOutputPattern(
   pattern: string,
   videoPath: string,
   subtitlePath: string,
-  index: number
+  index: number,
 ): string {
   const videoName = path.basename(videoPath, path.extname(videoPath));
   const subtitleName = path.basename(subtitlePath, path.extname(subtitlePath));
@@ -183,10 +187,15 @@ export function generateBatchOutputPaths(
   videoPaths: string[],
   subtitlePath: string,
   pattern: string,
-  outputDir: string
+  outputDir: string,
 ): { videoPath: string; outputPath: string }[] {
   return videoPaths.map((videoPath, index) => {
-    const outputName = applyOutputPattern(pattern, videoPath, subtitlePath, index + 1);
+    const outputName = applyOutputPattern(
+      pattern,
+      videoPath,
+      subtitlePath,
+      index + 1,
+    );
     const outputPath = path.join(outputDir, outputName);
 
     return { videoPath, outputPath };
@@ -510,6 +519,7 @@ type BatchDirection = "one-sub-many-videos" | "many-subs-one-video";
 ```
 
 This would be useful for:
+
 - Creating multiple language versions
 - Testing different subtitle timings
 - Comparing subtitle sources

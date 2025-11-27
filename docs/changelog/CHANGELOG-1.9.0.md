@@ -7,6 +7,7 @@ W tej wersji zająłem się na tym, żeby wypalarka była bardziej "foolproof" i
 ### Co nowego?
 
 **Sprawdzanie miejsca na dysku:**
+
 - Przed rozpoczęciem enkodowania apka sprawdza czy masz wystarczająco miejsca na dysku
 - Szacuje rozmiar pliku na podstawie bitrate i długości wideo
 - Jak brakuje miejsca, dostaniesz ostrzeżenie z opcjami:
@@ -15,6 +16,7 @@ W tej wersji zająłem się na tym, żeby wypalarka była bardziej "foolproof" i
   - Kontynuuj na własne ryzyko (jak jesteś pewny że się zmieści)
 
 **Wykrywanie konfliktu pliku wyjściowego:**
+
 - Jak plik o takiej nazwie już istnieje, apka zapyta co zrobić
 - Dostępne opcje:
   - **Nadpisz** – zastąp istniejący plik

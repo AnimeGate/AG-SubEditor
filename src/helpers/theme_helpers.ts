@@ -64,7 +64,9 @@ export function applyThemeImmediately(): void {
     document.documentElement.classList.remove("dark");
   } else {
     // System theme - check system preference
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
     if (prefersDark) {
       document.documentElement.classList.add("dark");
     } else {

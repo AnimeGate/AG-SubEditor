@@ -1,7 +1,19 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Settings2, Zap } from "lucide-react";
@@ -39,14 +51,38 @@ interface WypalarkaSettingsProps {
 }
 
 const QUALITY_PRESETS = {
-  ultra: { bitrate: "6000k", label: "Ultra (6000k)", description: "Best quality, large file" },
-  high: { bitrate: "4000k", label: "High (4000k)", description: "Great quality" },
-  medium: { bitrate: "2400k", label: "Medium (2400k)", description: "Balanced" },
-  low: { bitrate: "1200k", label: "Low (1200k)", description: "Small file, web" },
-  custom: { bitrate: "custom", label: "Custom", description: "Set your own bitrate" },
+  ultra: {
+    bitrate: "6000k",
+    label: "Ultra (6000k)",
+    description: "Best quality, large file",
+  },
+  high: {
+    bitrate: "4000k",
+    label: "High (4000k)",
+    description: "Great quality",
+  },
+  medium: {
+    bitrate: "2400k",
+    label: "Medium (2400k)",
+    description: "Balanced",
+  },
+  low: {
+    bitrate: "1200k",
+    label: "Low (1200k)",
+    description: "Small file, web",
+  },
+  custom: {
+    bitrate: "custom",
+    label: "Custom",
+    description: "Set your own bitrate",
+  },
 };
 
-export function WypalarkaSettings({ settings, onSettingsChange, disabled }: WypalarkaSettingsProps) {
+export function WypalarkaSettings({
+  settings,
+  onSettingsChange,
+  disabled,
+}: WypalarkaSettingsProps) {
   const { t } = useTranslation();
   const [localBitrate, setLocalBitrate] = useState(settings.customBitrate);
 
@@ -58,7 +94,8 @@ export function WypalarkaSettings({ settings, onSettingsChange, disabled }: Wypa
 
     // If not custom, update the custom bitrate field to match preset
     if (preset !== "custom") {
-      newSettings.customBitrate = QUALITY_PRESETS[preset as keyof typeof QUALITY_PRESETS].bitrate;
+      newSettings.customBitrate =
+        QUALITY_PRESETS[preset as keyof typeof QUALITY_PRESETS].bitrate;
       setLocalBitrate(newSettings.customBitrate);
     }
 
@@ -106,32 +143,47 @@ export function WypalarkaSettings({ settings, onSettingsChange, disabled }: Wypa
             <SelectContent>
               <SelectItem value="ultra">
                 <div className="flex items-center gap-2">
-                  🔥 <span className="font-medium">{t("wypalarkaQualityUltra")}</span>
+                  🔥{" "}
+                  <span className="font-medium">
+                    {t("wypalarkaQualityUltra")}
+                  </span>
                 </div>
               </SelectItem>
               <SelectItem value="high">
                 <div className="flex items-center gap-2">
-                  ⚡ <span className="font-medium">{t("wypalarkaQualityHigh")}</span>
+                  ⚡{" "}
+                  <span className="font-medium">
+                    {t("wypalarkaQualityHigh")}
+                  </span>
                 </div>
               </SelectItem>
               <SelectItem value="medium">
                 <div className="flex items-center gap-2">
-                  📺 <span className="font-medium">{t("wypalarkaQualityMedium")}</span>
+                  📺{" "}
+                  <span className="font-medium">
+                    {t("wypalarkaQualityMedium")}
+                  </span>
                 </div>
               </SelectItem>
               <SelectItem value="low">
                 <div className="flex items-center gap-2">
-                  💾 <span className="font-medium">{t("wypalarkaQualityLow")}</span>
+                  💾{" "}
+                  <span className="font-medium">
+                    {t("wypalarkaQualityLow")}
+                  </span>
                 </div>
               </SelectItem>
               <SelectItem value="custom">
                 <div className="flex items-center gap-2">
-                  🎯 <span className="font-medium">{t("wypalarkaQualityCustom")}</span>
+                  🎯{" "}
+                  <span className="font-medium">
+                    {t("wypalarkaQualityCustom")}
+                  </span>
                 </div>
               </SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {currentPreset.description}
           </p>
         </div>
@@ -139,7 +191,9 @@ export function WypalarkaSettings({ settings, onSettingsChange, disabled }: Wypa
         {/* Custom Bitrate Input */}
         {settings.qualityPreset === "custom" && (
           <div className="space-y-2">
-            <Label htmlFor="custom-bitrate">{t("wypalarkaCustomBitrate")}</Label>
+            <Label htmlFor="custom-bitrate">
+              {t("wypalarkaCustomBitrate")}
+            </Label>
             <Input
               id="custom-bitrate"
               type="text"
@@ -148,7 +202,7 @@ export function WypalarkaSettings({ settings, onSettingsChange, disabled }: Wypa
               onChange={(e) => handleBitrateChange(e.target.value)}
               disabled={disabled}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {t("wypalarkaCustomBitrateDesc")}
             </p>
           </div>
@@ -165,12 +219,12 @@ export function WypalarkaSettings({ settings, onSettingsChange, disabled }: Wypa
           <div className="space-y-1 leading-none">
             <Label
               htmlFor="hardware-accel"
-              className="flex items-center gap-2 cursor-pointer font-medium"
+              className="flex cursor-pointer items-center gap-2 font-medium"
             >
               <Zap className="h-4 w-4 text-yellow-500" />
               {t("wypalarkaHardwareAccel")}
             </Label>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {t("wypalarkaHardwareAccelDesc")}
             </p>
           </div>

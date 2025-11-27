@@ -21,7 +21,12 @@ export function parseTimeToMs(timeStr: string): number | null {
     const seconds = Number.parseInt(secondsParts[0]);
     const centiseconds = Number.parseInt(secondsParts[1] || "0");
 
-    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds) || isNaN(centiseconds)) {
+    if (
+      isNaN(hours) ||
+      isNaN(minutes) ||
+      isNaN(seconds) ||
+      isNaN(centiseconds)
+    ) {
       return null;
     }
 

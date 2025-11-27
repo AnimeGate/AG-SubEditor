@@ -23,14 +23,18 @@ export function addFileEventListeners(mainWindow: BrowserWindow) {
     const content = fs.readFileSync(filePath, "utf-8");
     const fileName = filePath.split(/[\\/]/).pop() || "subtitles.ass";
 
-    debugLog.ipc(`IPC: OPEN_FILE - Loaded: ${fileName} (${content.length} bytes)`);
+    debugLog.ipc(
+      `IPC: OPEN_FILE - Loaded: ${fileName} (${content.length} bytes)`,
+    );
     return { fileName, content };
   });
 
   ipcMain.handle(
     FILE_CHANNELS.SAVE_FILE,
     async (_event, fileName: string, content: string) => {
-      debugLog.ipc(`IPC: SAVE_FILE called: ${fileName} (${content.length} bytes)`);
+      debugLog.ipc(
+        `IPC: SAVE_FILE called: ${fileName} (${content.length} bytes)`,
+      );
       const result = await dialog.showSaveDialog(mainWindow, {
         defaultPath: fileName,
         filters: [
@@ -47,6 +51,6 @@ export function addFileEventListeners(mainWindow: BrowserWindow) {
       fs.writeFileSync(result.filePath, content, "utf-8");
       debugLog.ipc(`IPC: SAVE_FILE - Saved to: ${result.filePath}`);
       return true;
-    }
+    },
   );
 }

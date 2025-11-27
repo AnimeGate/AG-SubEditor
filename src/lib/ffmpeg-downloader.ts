@@ -125,7 +125,9 @@ export class FFmpegDownloader {
             if (redirectUrl) {
               file.close();
               fs.unlinkSync(destination);
-              this.downloadFile(redirectUrl, destination).then(resolve).catch(reject);
+              this.downloadFile(redirectUrl, destination)
+                .then(resolve)
+                .catch(reject);
               return;
             }
           }
@@ -139,7 +141,8 @@ export class FFmpegDownloader {
 
           response.on("data", (chunk) => {
             downloadedBytes += chunk.length;
-            const percentage = totalBytes > 0 ? (downloadedBytes / totalBytes) * 50 : 0; // 50% for download
+            const percentage =
+              totalBytes > 0 ? (downloadedBytes / totalBytes) * 50 : 0; // 50% for download
 
             this.emitProgress({
               downloadedBytes,

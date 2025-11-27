@@ -11,7 +11,8 @@ let debugConsoleWindow: BrowserWindow | null = null;
  */
 export function initializeDebugMode(): boolean {
   // Check for DEBUG environment variable or --debug flag
-  const hasDebugFlag = process.env.DEBUG === "1" || process.argv.includes("--debug");
+  const hasDebugFlag =
+    process.env.DEBUG === "1" || process.argv.includes("--debug");
 
   if (hasDebugFlag) {
     isDebugMode = true;
@@ -24,7 +25,8 @@ export function initializeDebugMode(): boolean {
     log.transports.console.useStyles = true;
 
     // Custom format with colors
-    log.transports.console.format = "[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}";
+    log.transports.console.format =
+      "[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}";
 
     // Log to both file and console
     log.transports.file.resolvePathFn = () => {
@@ -73,7 +75,8 @@ export function createDebugConsole(): void {
     show: false, // Don't show until loaded
   });
 
-  const isDev = process.env.NODE_ENV === "development" || process.env.VITE_DEV_SERVER_URL;
+  const isDev =
+    process.env.NODE_ENV === "development" || process.env.VITE_DEV_SERVER_URL;
 
   if (isDev) {
     // In development, __dirname is dist-electron, so go up ONE level to project root, then into src
@@ -86,10 +89,15 @@ export function createDebugConsole(): void {
     debugConsoleWindow.loadFile(consolePath);
   }
 
-  debugConsoleWindow.webContents.on("did-fail-load", (_event, errorCode, errorDescription, validatedURL) => {
-    debugLog.error(`Debug console failed to load: ${errorDescription} (${errorCode})`);
-    debugLog.error(`Attempted URL: ${validatedURL}`);
-  });
+  debugConsoleWindow.webContents.on(
+    "did-fail-load",
+    (_event, errorCode, errorDescription, validatedURL) => {
+      debugLog.error(
+        `Debug console failed to load: ${errorDescription} (${errorCode})`,
+      );
+      debugLog.error(`Attempted URL: ${validatedURL}`);
+    },
+  );
 
   debugConsoleWindow.once("ready-to-show", () => {
     debugConsoleWindow?.show();
@@ -107,7 +115,7 @@ export function createDebugConsole(): void {
 export function sendToDebugConsole(
   level: string,
   message: string,
-  args: unknown[] = []
+  args: unknown[] = [],
 ): void {
   if (debugConsoleWindow && !debugConsoleWindow.isDestroyed()) {
     debugConsoleWindow.webContents.send("debug:log", { level, message, args });

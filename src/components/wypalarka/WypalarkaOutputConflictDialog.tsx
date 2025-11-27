@@ -46,7 +46,10 @@ export function WypalarkaOutputConflictDialog({
         </DialogHeader>
 
         <div className="py-2">
-          <p className="text-sm text-muted-foreground break-all" title={outputPath}>
+          <p
+            className="text-muted-foreground text-sm break-all"
+            title={outputPath}
+          >
             {outputPath}
           </p>
         </div>
@@ -57,7 +60,7 @@ export function WypalarkaOutputConflictDialog({
             onClick={onOverwrite}
             className="justify-start"
           >
-            <AlertTriangle className="h-4 w-4 mr-2" />
+            <AlertTriangle className="mr-2 h-4 w-4" />
             {t("wypalarkaConflictOverwrite")}
           </Button>
 
@@ -66,7 +69,7 @@ export function WypalarkaOutputConflictDialog({
             onClick={onAutoRename}
             className="justify-start"
           >
-            <FileEdit className="h-4 w-4 mr-2" />
+            <FileEdit className="mr-2 h-4 w-4" />
             {t("wypalarkaConflictAutoRename")}
           </Button>
 
@@ -75,7 +78,7 @@ export function WypalarkaOutputConflictDialog({
             onClick={onChooseNew}
             className="justify-start"
           >
-            <FolderOpen className="h-4 w-4 mr-2" />
+            <FolderOpen className="mr-2 h-4 w-4" />
             {t("wypalarkaConflictChooseNew")}
           </Button>
         </div>

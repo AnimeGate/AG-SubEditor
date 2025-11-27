@@ -1,7 +1,17 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Film, FileText, Trash2, CheckCircle, XCircle, Loader2, Clock, AlertCircle, FolderOpen } from "lucide-react";
+import {
+  Film,
+  FileText,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Clock,
+  AlertCircle,
+  FolderOpen,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface WypalarkaQueueItemProps {
@@ -10,7 +20,11 @@ interface WypalarkaQueueItemProps {
   onOpenFolder?: (outputPath: string) => void;
 }
 
-export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQueueItemProps) {
+export function WypalarkaQueueItem({
+  item,
+  onRemove,
+  onOpenFolder,
+}: WypalarkaQueueItemProps) {
   const { t } = useTranslation();
 
   const handleOpenFolder = () => {
@@ -30,14 +44,17 @@ export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQu
         );
       case "processing":
         return (
-          <Badge variant="default" className="gap-1 animate-pulse">
+          <Badge variant="default" className="animate-pulse gap-1">
             <Loader2 className="h-3 w-3 animate-spin" />
             {t("wypalarkaQueueItemProcessing")}
           </Badge>
         );
       case "completed":
         return (
-          <Badge variant="default" className="gap-1 bg-green-600 hover:bg-green-700">
+          <Badge
+            variant="default"
+            className="gap-1 bg-green-600 hover:bg-green-700"
+          >
             <CheckCircle className="h-3 w-3" />
             {t("wypalarkaQueueItemCompleted")}
           </Badge>
@@ -93,7 +110,7 @@ export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQu
 
           {/* Video file */}
           <div className="flex items-center gap-2 text-sm">
-            <Film className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Film className="text-muted-foreground h-4 w-4 flex-shrink-0" />
             <span className="truncate font-medium" title={item.videoPath}>
               {item.videoName}
             </span>
@@ -101,8 +118,11 @@ export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQu
 
           {/* Subtitle file */}
           <div className="flex items-center gap-2 text-sm">
-            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span className="truncate text-muted-foreground" title={item.subtitlePath}>
+            <FileText className="text-muted-foreground h-4 w-4 flex-shrink-0" />
+            <span
+              className="text-muted-foreground truncate"
+              title={item.subtitlePath}
+            >
               {item.subtitleName}
             </span>
           </div>
@@ -110,17 +130,19 @@ export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQu
           {/* Progress bar (only for processing) */}
           {item.status === "processing" && item.progress && (
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex items-center justify-between text-xs">
                 <span>{item.progress.percentage.toFixed(1)}%</span>
                 {item.progress.eta && <span>{item.progress.eta}</span>}
               </div>
-              <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+              <div className="bg-secondary h-1.5 w-full overflow-hidden rounded-full">
                 <div
                   className="bg-primary h-full transition-all duration-300 ease-out"
-                  style={{ width: `${Math.min(100, item.progress.percentage)}%` }}
+                  style={{
+                    width: `${Math.min(100, item.progress.percentage)}%`,
+                  }}
                 />
               </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex items-center justify-between text-xs">
                 <span>{item.progress.fps} FPS</span>
                 <span>{item.progress.speed}</span>
               </div>
@@ -131,16 +153,16 @@ export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQu
           {item.status === "error" && (
             <div className="space-y-2">
               {item.error && (
-                <div className="text-xs text-destructive bg-destructive/10 p-2 rounded-md font-medium">
+                <div className="text-destructive bg-destructive/10 rounded-md p-2 text-xs font-medium">
                   {item.error}
                 </div>
               )}
               {item.logs.length > 0 && (
                 <details className="text-xs">
-                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground mb-1">
+                  <summary className="text-muted-foreground hover:text-foreground mb-1 cursor-pointer">
                     Show logs ({item.logs.length} lines)
                   </summary>
-                  <div className="max-h-32 overflow-y-auto bg-muted/30 p-2 rounded-md font-mono space-y-0.5">
+                  <div className="bg-muted/30 max-h-32 space-y-0.5 overflow-y-auto rounded-md p-2 font-mono">
                     {item.logs.slice(-10).map((log, idx) => (
                       <div
                         key={idx}
@@ -148,8 +170,8 @@ export function WypalarkaQueueItem({ item, onRemove, onOpenFolder }: WypalarkaQu
                           log.type === "error"
                             ? "text-red-500"
                             : log.type === "warning"
-                            ? "text-yellow-500"
-                            : "text-muted-foreground"
+                              ? "text-yellow-500"
+                              : "text-muted-foreground"
                         }
                       >
                         {log.log}

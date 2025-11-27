@@ -7,6 +7,7 @@ Add drag-and-drop functionality for file selection in the Wypalarka feature. Cur
 ## Current Behavior
 
 **Locations:**
+
 - `src/components/wypalarka/WypalarkaFileInput.tsx` - Single file mode inputs
 - `src/components/wypalarka/WypalarkaAddFilesDialog.tsx` - Queue add dialog
 
@@ -146,7 +147,9 @@ Since dropped files are `File` objects with `path` property (Electron), we need 
  * In Electron, File objects have a `path` property with the full filesystem path.
  */
 export function getDroppedFilePaths(files: File[]): string[] {
-  return files.map(file => (file as File & { path: string }).path).filter(Boolean);
+  return files
+    .map((file) => (file as File & { path: string }).path)
+    .filter(Boolean);
 }
 
 /**
@@ -157,7 +160,16 @@ export function categorizeDroppedFiles(files: File[]): {
   subtitles: string[];
   other: string[];
 } {
-  const videoExtensions = [".mp4", ".mkv", ".avi", ".mov", ".webm", ".m4v", ".wmv", ".flv"];
+  const videoExtensions = [
+    ".mp4",
+    ".mkv",
+    ".avi",
+    ".mov",
+    ".webm",
+    ".m4v",
+    ".wmv",
+    ".flv",
+  ];
   const subtitleExtensions = [".ass", ".srt", ".sub", ".ssa", ".vtt"];
 
   const result = {
@@ -194,7 +206,7 @@ export function categorizeDroppedFiles(files: File[]): {
  */
 export function autoPairFiles(
   videos: string[],
-  subtitles: string[]
+  subtitles: string[],
 ): { paired: { video: string; subtitle: string }[]; unpaired: string[] } {
   const paired: { video: string; subtitle: string }[] = [];
   const usedSubtitles = new Set<string>();
@@ -522,7 +534,8 @@ export function UnpairedVideosDialog({
 }
 
 @keyframes drop-pulse {
-  0%, 100% {
+  0%,
+  100% {
     border-color: hsl(var(--primary) / 0.5);
     background-color: hsl(var(--primary) / 0.02);
   }

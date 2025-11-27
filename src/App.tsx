@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { syncThemeWithLocal, applyThemeImmediately } from "./helpers/theme_helpers";
+import {
+  syncThemeWithLocal,
+  applyThemeImmediately,
+} from "./helpers/theme_helpers";
 import { useTranslation } from "react-i18next";
 import { updateAppLanguage } from "./helpers/language_helpers";
 import { RouterProvider } from "@tanstack/react-router";

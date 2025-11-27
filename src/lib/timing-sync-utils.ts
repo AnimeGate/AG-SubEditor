@@ -23,7 +23,9 @@ export function matchSubtitleLinesByIndex(
   return source.map((sourceLine, index) => {
     const referenceLine = reference[index] || null;
     const hasMatch = index < reference.length;
-    const timeDiffMs = hasMatch ? referenceLine!.startMs - sourceLine.startMs : 0;
+    const timeDiffMs = hasMatch
+      ? referenceLine!.startMs - sourceLine.startMs
+      : 0;
 
     return {
       sourceIndex: index,

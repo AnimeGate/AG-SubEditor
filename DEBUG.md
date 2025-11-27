@@ -11,6 +11,7 @@ npm run start:debug
 ```
 
 Or on Windows specifically:
+
 ```bash
 npm run start:debug:win
 ```
@@ -20,11 +21,13 @@ npm run start:debug:win
 Launch the installed application from command line with `--debug` flag:
 
 **Windows:**
+
 ```cmd
 "C:\Program Files\AG-SubEditor\AG-SubEditor.exe" --debug
 ```
 
 **Or navigate to installation folder:**
+
 ```cmd
 cd "C:\Program Files\AG-SubEditor"
 AG-SubEditor.exe --debug
@@ -33,6 +36,7 @@ AG-SubEditor.exe --debug
 ## What Debug Mode Shows
 
 When debug mode is enabled:
+
 - ✅ **Separate Debug Console Window** - A dedicated window with color-coded logs
 - ✅ DevTools automatically opens in main application window
 - ✅ Colored console logs in terminal/CMD window
@@ -41,6 +45,7 @@ When debug mode is enabled:
 ### Debug Console Window Features
 
 The debug console window provides:
+
 - **Real-time log streaming** - See all logs as they happen
 - **Color-coded categories** - Easy identification of log types
 - **Statistics** - Track total logs, errors, and warnings
@@ -55,9 +60,9 @@ The debug console window provides:
 - 📋 **[QUEUE]** - Queue management (add, start, pause, resume)
 - 🔥 **[FFMPEG]** - Complete, unfiltered FFmpeg output (every line of stderr/stdout)
 - 📡 **[IPC]** - Inter-process communication events
-- ℹ️  **Info** - General information
+- ℹ️ **Info** - General information
 - ✅ **Success** - Successful operations
-- ⚠️  **Warning** - Warnings
+- ⚠️ **Warning** - Warnings
 - ❌ **Error** - Errors
 
 ## Example Output
@@ -99,6 +104,7 @@ The debug console window provides:
 ### DevTools Not Opening?
 
 Debug mode automatically opens DevTools. If it doesn't:
+
 - Press **Ctrl+Shift+I** (Windows/Linux) or **Cmd+Option+I** (Mac) to manually open
 - Or right-click and select "Inspect Element"
 

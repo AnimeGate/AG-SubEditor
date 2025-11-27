@@ -47,11 +47,12 @@ export function TimingComparisonTable({
   };
 
   const matchedCount = matches.filter((m) => m.hasMatch).length;
-  const allMatchedSelected = matchedCount > 0 && selectedIndices.size === matchedCount;
+  const allMatchedSelected =
+    matchedCount > 0 && selectedIndices.size === matchedCount;
 
   return (
-    <div className="flex flex-col h-[400px] border rounded-lg bg-card">
-      <div className="flex gap-2 p-3 border-b">
+    <div className="bg-card flex h-[400px] flex-col rounded-lg border">
+      <div className="flex gap-2 border-b p-3">
         <Button variant="outline" size="sm" onClick={toggleSelectAll}>
           {allMatchedSelected ? t("deselectAll") : t("selectAll")}
         </Button>
@@ -67,20 +68,22 @@ export function TimingComparisonTable({
 
       <ScrollArea className="flex-1">
         <table className="w-full">
-          <thead className="sticky top-0 bg-muted z-10">
+          <thead className="bg-muted sticky top-0 z-10">
             <tr className="border-b">
-              <th className="p-3 text-left w-12">
+              <th className="w-12 p-3 text-left">
                 <Checkbox
                   checked={allMatchedSelected}
                   onCheckedChange={toggleSelectAll}
                 />
               </th>
-              <th className="p-3 text-left w-16 font-semibold">#</th>
-              <th className="p-3 text-left w-28 font-semibold">
+              <th className="w-16 p-3 text-left font-semibold">#</th>
+              <th className="w-28 p-3 text-left font-semibold">
                 {t("currentTime")}
               </th>
-              <th className="p-3 text-left w-28 font-semibold">{t("newTime")}</th>
-              <th className="p-3 text-left w-24 font-semibold">
+              <th className="w-28 p-3 text-left font-semibold">
+                {t("newTime")}
+              </th>
+              <th className="w-24 p-3 text-left font-semibold">
                 {t("difference")}
               </th>
               <th className="p-3 text-left font-semibold">{t("text")}</th>
@@ -95,8 +98,12 @@ export function TimingComparisonTable({
               return (
                 <tr
                   key={index}
-                  className={`border-b hover:bg-muted/50 transition-colors ${
-                    isSelected ? "bg-blue-500/20" : index % 2 === 0 ? "bg-muted/30" : ""
+                  className={`hover:bg-muted/50 border-b transition-colors ${
+                    isSelected
+                      ? "bg-blue-500/20"
+                      : index % 2 === 0
+                        ? "bg-muted/30"
+                        : ""
                   } ${!hasMatch ? "opacity-50" : ""}`}
                 >
                   <td className="p-3">
@@ -106,7 +113,7 @@ export function TimingComparisonTable({
                       disabled={!hasMatch}
                     />
                   </td>
-                  <td className="p-3 text-muted-foreground">{index + 1}</td>
+                  <td className="text-muted-foreground p-3">{index + 1}</td>
                   <td className="p-3 font-mono text-sm">
                     {formatTime(sourceLine.startMs)}
                   </td>
@@ -128,7 +135,7 @@ export function TimingComparisonTable({
                   >
                     {hasMatch ? formatTimeDifference(match.timeDiffMs) : "-"}
                   </td>
-                  <td className="p-3 text-sm truncate max-w-xs">
+                  <td className="max-w-xs truncate p-3 text-sm">
                     {sourceLine.text}
                   </td>
                 </tr>

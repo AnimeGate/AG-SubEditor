@@ -89,7 +89,17 @@ interface QueueStats {
 
 interface DebugAPI {
   log: (
-    level: "info" | "success" | "warn" | "error" | "debug" | "route" | "file" | "ffmpeg" | "queue" | "ipc",
+    level:
+      | "info"
+      | "success"
+      | "warn"
+      | "error"
+      | "debug"
+      | "route"
+      | "file"
+      | "ffmpeg"
+      | "queue"
+      | "ipc",
     message: string,
     ...args: unknown[]
   ) => void;
@@ -107,32 +117,53 @@ interface DebugAPI {
 
 interface FFmpegAPI {
   selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
-  selectSubtitleFile: () => Promise<{ filePath: string; fileName: string } | null>;
+  selectSubtitleFile: () => Promise<{
+    filePath: string;
+    fileName: string;
+  } | null>;
   selectOutputPath: (defaultName: string) => Promise<string | null>;
-  getDefaultOutputPath: (videoPath: string, override?: { prefix?: string; directory?: string | null }) => Promise<string>;
+  getDefaultOutputPath: (
+    videoPath: string,
+    override?: { prefix?: string; directory?: string | null },
+  ) => Promise<string>;
   startProcess: (params: FFmpegStartParams) => Promise<{ success: boolean }>;
   cancelProcess: () => Promise<{ success: boolean; message?: string }>;
   checkGpu: () => Promise<{ available: boolean; info: string }>;
-  openOutputFolder: (filePath: string) => Promise<{ success: boolean; error?: string }>;
+  openOutputFolder: (
+    filePath: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   // Output conflict detection
   checkOutputExists: (outputPath: string) => Promise<boolean>;
   resolveOutputConflict: (outputPath: string) => Promise<string>;
   onProgress: (callback: (progress: FFmpegProgress) => void) => () => void;
-  onLog: (callback: (data: { log: string; type: LogType }) => void) => () => void;
+  onLog: (
+    callback: (data: { log: string; type: LogType }) => void,
+  ) => () => void;
   onComplete: (callback: (outputPath: string) => void) => () => void;
   onError: (callback: (error: string) => void) => () => void;
   // FFmpeg Download
   checkInstalled: () => Promise<{ installed: boolean }>;
   startDownload: () => Promise<{ success: boolean }>;
-  onDownloadProgress: (callback: (progress: FFmpegDownloadProgress) => void) => () => void;
+  onDownloadProgress: (
+    callback: (progress: FFmpegDownloadProgress) => void,
+  ) => () => void;
   onDownloadComplete: (callback: () => void) => () => void;
   onDownloadError: (callback: (error: string) => void) => () => void;
   // Queue Management
-  queueAddItem: (item: Omit<QueueItem, "id" | "status" | "progress" | "logs">) => Promise<{ success: boolean; id: string }>;
-  queueAddItems: (items: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>) => Promise<{ success: boolean; ids: string[] }>;
-  queueRemoveItem: (id: string) => Promise<{ success: boolean; message?: string }>;
+  queueAddItem: (
+    item: Omit<QueueItem, "id" | "status" | "progress" | "logs">,
+  ) => Promise<{ success: boolean; id: string }>;
+  queueAddItems: (
+    items: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>,
+  ) => Promise<{ success: boolean; ids: string[] }>;
+  queueRemoveItem: (
+    id: string,
+  ) => Promise<{ success: boolean; message?: string }>;
   queueClear: () => Promise<{ success: boolean; message?: string }>;
-  queueReorder: (fromIndex: number, toIndex: number) => Promise<{ success: boolean; message?: string }>;
+  queueReorder: (
+    fromIndex: number,
+    toIndex: number,
+  ) => Promise<{ success: boolean; message?: string }>;
   queueStart: () => Promise<{ success: boolean; message?: string }>;
   queuePause: () => Promise<{ success: boolean; message?: string }>;
   queueResume: () => Promise<{ success: boolean; message?: string }>;
@@ -155,14 +186,25 @@ interface FFmpegAPI {
     scaleWidth?: number;
     scaleHeight?: number;
   }) => Promise<{ success: boolean }>;
-  queueSelectFiles: () => Promise<{ success: boolean; files: Array<{ filePath: string; fileName: string }> }>;
+  queueSelectFiles: () => Promise<{
+    success: boolean;
+    files: Array<{ filePath: string; fileName: string }>;
+  }>;
   // Queue Event Listeners
   onQueueUpdate: (callback: (queue: QueueItem[]) => void) => () => void;
   onQueueItemUpdate: (callback: (item: QueueItem) => void) => () => void;
-  onQueueItemProgress: (callback: (data: { itemId: string; progress: FFmpegProgress }) => void) => () => void;
-  onQueueItemLog: (callback: (data: { itemId: string; log: string; type: LogType }) => void) => () => void;
-  onQueueItemComplete: (callback: (data: { itemId: string; outputPath: string }) => void) => () => void;
-  onQueueItemError: (callback: (data: { itemId: string; error: string }) => void) => () => void;
+  onQueueItemProgress: (
+    callback: (data: { itemId: string; progress: FFmpegProgress }) => void,
+  ) => () => void;
+  onQueueItemLog: (
+    callback: (data: { itemId: string; log: string; type: LogType }) => void,
+  ) => () => void;
+  onQueueItemComplete: (
+    callback: (data: { itemId: string; outputPath: string }) => void,
+  ) => () => void;
+  onQueueItemError: (
+    callback: (data: { itemId: string; error: string }) => void,
+  ) => () => void;
   onQueueComplete: (callback: () => void) => () => void;
 }
 
@@ -174,9 +216,29 @@ declare interface Window {
   debugAPI: DebugAPI;
   settingsAPI: {
     getAll: () => Promise<any>;
-    getOutput: () => Promise<{ locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }>;
-    updateOutput: (partial: Partial<{ locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }>) => Promise<{ locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }>;
+    getOutput: () => Promise<{
+      locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
+      customFolder: string | null;
+      filenamePrefix: string;
+    }>;
+    updateOutput: (
+      partial: Partial<{
+        locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
+        customFolder: string | null;
+        filenamePrefix: string;
+      }>,
+    ) => Promise<{
+      locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
+      customFolder: string | null;
+      filenamePrefix: string;
+    }>;
     selectOutputFolder: () => Promise<string | null>;
-    onOutputUpdated: (callback: (output: { locationMode: "same_as_input" | "custom_folder" | "input_subfolder"; customFolder: string | null; filenamePrefix: string }) => void) => () => void;
+    onOutputUpdated: (
+      callback: (output: {
+        locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
+        customFolder: string | null;
+        filenamePrefix: string;
+      }) => void,
+    ) => () => void;
   };
 }

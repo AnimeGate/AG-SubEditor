@@ -32,7 +32,10 @@ export interface EncodingSettings {
 
 export interface FFmpegCallbacks {
   onProgress: (progress: FFmpegProgress) => void;
-  onLog: (log: string, type: "info" | "success" | "warning" | "error" | "debug" | "metadata") => void;
+  onLog: (
+    log: string,
+    type: "info" | "success" | "warning" | "error" | "debug" | "metadata",
+  ) => void;
   onComplete: (outputPath: string) => void;
   onError: (error: string) => void;
 }
@@ -116,7 +119,10 @@ export class FFmpegProcessor {
     }
   }
 
-  static async checkGpuAvailability(): Promise<{ available: boolean; info: string }> {
+  static async checkGpuAvailability(): Promise<{
+    available: boolean;
+    info: string;
+  }> {
     return new Promise((resolve) => {
       // Use same logic as getFfmpegPath()
       let ffmpegPath: string;
@@ -188,7 +194,10 @@ export class FFmpegProcessor {
 
     if (parts.length === 3) {
       // HH:MM:SS.mmm
-      seconds = parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+      seconds =
+        parseFloat(parts[0]) * 3600 +
+        parseFloat(parts[1]) * 60 +
+        parseFloat(parts[2]);
     } else if (parts.length === 2) {
       // MM:SS.mmm
       seconds = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
@@ -204,7 +213,10 @@ export class FFmpegProcessor {
     const durationMatch = data.match(/Duration: (\d{2}:\d{2}:\d{2}\.\d{2})/);
     if (durationMatch) {
       this.videoDuration = this.parseTime(durationMatch[1]);
-      this.callbacks.onLog(`Video duration detected: ${durationMatch[1]} (${this.videoDuration}s)`, "metadata");
+      this.callbacks.onLog(
+        `Video duration detected: ${durationMatch[1]} (${this.videoDuration}s)`,
+        "metadata",
+      );
     }
   }
 
@@ -224,28 +236,47 @@ export class FFmpegProcessor {
     }
   }
 
-  private categorizeLog(log: string): "info" | "success" | "warning" | "error" | "debug" | "metadata" {
+  private categorizeLog(
+    log: string,
+  ): "info" | "success" | "warning" | "error" | "debug" | "metadata" {
     const lower = log.toLowerCase();
 
     // Errors
-    if (lower.includes("error") || lower.includes("failed") || lower.includes("invalid")) {
+    if (
+      lower.includes("error") ||
+      lower.includes("failed") ||
+      lower.includes("invalid")
+    ) {
       return "error";
     }
 
     // Warnings
-    if (lower.includes("warning") || lower.includes("deprecated") ||
-        lower.includes("not found") && !lower.includes("glyph")) {
+    if (
+      lower.includes("warning") ||
+      lower.includes("deprecated") ||
+      (lower.includes("not found") && !lower.includes("glyph"))
+    ) {
       return "warning";
     }
 
     // Success
-    if (lower.includes("completed") || lower.includes("success") || lower.includes("done")) {
+    if (
+      lower.includes("completed") ||
+      lower.includes("success") ||
+      lower.includes("done")
+    ) {
       return "success";
     }
 
     // Metadata (codec info, stream info, etc.)
-    if (lower.includes("stream") || lower.includes("duration") || lower.includes("encoder") ||
-        lower.includes("bitrate") || lower.includes("video:") || lower.includes("audio:")) {
+    if (
+      lower.includes("stream") ||
+      lower.includes("duration") ||
+      lower.includes("encoder") ||
+      lower.includes("bitrate") ||
+      lower.includes("video:") ||
+      lower.includes("audio:")
+    ) {
       return "metadata";
     }
 
@@ -272,9 +303,10 @@ export class FFmpegProcessor {
 
     if (timeMatch) {
       const currentTime = this.parseTime(timeMatch[1]);
-      const percentage = this.videoDuration > 0
-        ? Math.min(100, (currentTime / this.videoDuration) * 100)
-        : 0;
+      const percentage =
+        this.videoDuration > 0
+          ? Math.min(100, (currentTime / this.videoDuration) * 100)
+          : 0;
 
       // Calculate ETA based on encoding speed
       let eta: string | null = null;
@@ -304,7 +336,7 @@ export class FFmpegProcessor {
     videoPath: string,
     subtitlePath: string,
     outputPath: string,
-    settings: EncodingSettings = { bitrate: "2400k" }
+    settings: EncodingSettings = { bitrate: "2400k" },
   ): Promise<void> {
     if (this.process) {
       throw new Error("A process is already running");
@@ -327,10 +359,16 @@ export class FFmpegProcessor {
       }
       const outDir = path.dirname(resolvedOutputPath);
       fs.mkdirSync(outDir, { recursive: true });
-      this.callbacks.onLog(`Resolved output path: ${resolvedOutputPath}`, "info");
+      this.callbacks.onLog(
+        `Resolved output path: ${resolvedOutputPath}`,
+        "info",
+      );
     } catch (e) {
       // Fallback to original outputPath if something went wrong
-      this.callbacks.onLog(`Failed to ensure output directory: ${String(e)}`, "warning");
+      this.callbacks.onLog(
+        `Failed to ensure output directory: ${String(e)}`,
+        "warning",
+      );
     }
 
     this.outputPath = resolvedOutputPath;
@@ -352,17 +390,17 @@ export class FFmpegProcessor {
     const normalized = this.normalizeSettings(settings);
     this.callbacks.onLog(
       `Quality: ${normalized.qualityMode ?? "vbr_hq"}${normalized.cq !== undefined ? ", CQ=" + normalized.cq : ""} | ` +
-      `Encoder: ${normalized.codec ?? "h264"} ${normalized.hwEncoder ?? "auto"} | ` +
-      `GPU Encode: ${normalized.gpuEncode ? "ON" : "OFF"} | GPU Decode: ${normalized.gpuDecode ? "ON" : "OFF"}`,
-      "info"
+        `Encoder: ${normalized.codec ?? "h264"} ${normalized.hwEncoder ?? "auto"} | ` +
+        `GPU Encode: ${normalized.gpuEncode ? "ON" : "OFF"} | GPU Decode: ${normalized.gpuDecode ? "ON" : "OFF"}`,
+      "info",
     );
 
     // Escape subtitle path for FFmpeg's subtitles filter
     // Replace backslashes with escaped backslashes and escape special characters
     const escapedSubtitlePath = subtitlePath
-      .replace(/\\/g, "\\\\\\\\")  // Escape backslashes for FFmpeg filter
-      .replace(/:/g, "\\:")         // Escape colons
-      .replace(/'/g, "\\'");        // Escape single quotes
+      .replace(/\\/g, "\\\\\\\\") // Escape backslashes for FFmpeg filter
+      .replace(/:/g, "\\:") // Escape colons
+      .replace(/'/g, "\\'"); // Escape single quotes
 
     // Build FFmpeg arguments
     const args: string[] = [];
@@ -384,7 +422,10 @@ export class FFmpegProcessor {
 
     // Video filter chain: optional scale -> subtitles -> format
     const vfParts: string[] = [];
-    if (typeof (settings as any).scaleWidth === "number" && typeof (settings as any).scaleHeight === "number") {
+    if (
+      typeof (settings as any).scaleWidth === "number" &&
+      typeof (settings as any).scaleHeight === "number"
+    ) {
       const w = (settings as any).scaleWidth;
       const h = (settings as any).scaleHeight;
       // Keep exact WxH; rely on libass to render in scaled frame; if AR differs, users can adjust later
@@ -399,8 +440,12 @@ export class FFmpegProcessor {
     // Video codec and quality (H.264 only)
     if (normalized.gpuEncode) {
       // Hardware encoder choice (always H.264)
-      const encoder = normalized.hwEncoder === "qsv" ? "h264_qsv"
-        : normalized.hwEncoder === "amf" ? "h264_amf" : "h264_nvenc";
+      const encoder =
+        normalized.hwEncoder === "qsv"
+          ? "h264_qsv"
+          : normalized.hwEncoder === "amf"
+            ? "h264_amf"
+            : "h264_nvenc";
       args.push("-c:v", encoder);
 
       // Rate control
@@ -413,7 +458,8 @@ export class FFmpegProcessor {
       args.push("-tune", "hq");
       if (normalized.spatialAQ) args.push("-spatial_aq", "1");
       if (normalized.temporalAQ) args.push("-temporal_aq", "1");
-      if (typeof normalized.rcLookahead === "number") args.push("-rc-lookahead", String(normalized.rcLookahead));
+      if (typeof normalized.rcLookahead === "number")
+        args.push("-rc-lookahead", String(normalized.rcLookahead));
       // For CQ-based VBR, allow unconstrained bitrate
       if (rc === "vbr_hq" || rc === "cq") {
         args.push("-b:v", "0");
@@ -443,7 +489,7 @@ export class FFmpegProcessor {
     // Log pipeline summary
     this.callbacks.onLog(
       `Pipeline: subtitles filter is CPU (libass). This pipeline is CPU-bound for text render.`,
-      "metadata"
+      "metadata",
     );
     this.callbacks.onLog(`Command: ${ffmpegPath} ${args.join(" ")}`, "debug");
 
@@ -463,13 +509,16 @@ export class FFmpegProcessor {
         this.parseProgress(output);
 
         // Also send raw log output (but filter noisy lines)
-        const lines = output.split("\n").filter(line =>
-          line.trim() &&
-          !line.includes("size=") &&
-          !line.includes("frame=")
-        );
+        const lines = output
+          .split("\n")
+          .filter(
+            (line) =>
+              line.trim() &&
+              !line.includes("size=") &&
+              !line.includes("frame="),
+          );
 
-        lines.forEach(line => {
+        lines.forEach((line) => {
           if (line.trim()) {
             const logType = this.categorizeLog(line);
             this.callbacks.onLog(line.trim(), logType);

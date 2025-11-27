@@ -7,7 +7,17 @@ import { DEBUG_CHANNELS } from "./debug-channels";
 export function exposeDebugContext(): void {
   contextBridge.exposeInMainWorld("debugAPI", {
     log: (
-      level: "info" | "success" | "warn" | "error" | "debug" | "route" | "file" | "ffmpeg" | "queue" | "ipc",
+      level:
+        | "info"
+        | "success"
+        | "warn"
+        | "error"
+        | "debug"
+        | "route"
+        | "file"
+        | "ffmpeg"
+        | "queue"
+        | "ipc",
       message: string,
       ...args: unknown[]
     ) => {

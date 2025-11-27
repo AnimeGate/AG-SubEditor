@@ -10,7 +10,7 @@ Replace hardcoded Polish strings in desktop notifications and other system messa
 
 ```typescript
 const notification = new Notification({
-  title: "Wypalanie zakończone!",  // Hardcoded Polish
+  title: "Wypalanie zakończone!", // Hardcoded Polish
   body: `Plik ${fileName} został pomyślnie przetworzony.`,
 });
 ```
@@ -19,7 +19,7 @@ const notification = new Notification({
 
 ```typescript
 const notification = new Notification({
-  title: "Kolejka zakończona!",  // Hardcoded Polish
+  title: "Kolejka zakończona!", // Hardcoded Polish
   body: `Przetworzono ${completedCount} plików.`,
 });
 ```
@@ -111,7 +111,8 @@ interface TranslateOptions {
 
 export function t(key: TranslationKey, options?: TranslateOptions): string {
   const language = settingsStore.get("language") || "pl";
-  const lang = translations[language as keyof typeof translations] || translations.en;
+  const lang =
+    translations[language as keyof typeof translations] || translations.en;
 
   // Navigate to the key
   const keys = key.split(".");
@@ -128,20 +129,32 @@ export function t(key: TranslationKey, options?: TranslateOptions): string {
   // Handle pluralization for Polish
   if (options?.count !== undefined && typeof value === "object") {
     const count = options.count;
-    const pluralValue = value as { body: string; body_plural?: string; body_many?: string };
+    const pluralValue = value as {
+      body: string;
+      body_plural?: string;
+      body_many?: string;
+    };
 
     if (language === "pl") {
       // Polish pluralization rules
       if (count === 1) {
         value = pluralValue.body;
-      } else if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) {
+      } else if (
+        count % 10 >= 2 &&
+        count % 10 <= 4 &&
+        (count % 100 < 10 || count % 100 >= 20)
+      ) {
         value = pluralValue.body_plural || pluralValue.body;
       } else {
-        value = pluralValue.body_many || pluralValue.body_plural || pluralValue.body;
+        value =
+          pluralValue.body_many || pluralValue.body_plural || pluralValue.body;
       }
     } else {
       // English pluralization
-      value = count === 1 ? pluralValue.body : (pluralValue.body_plural || pluralValue.body);
+      value =
+        count === 1
+          ? pluralValue.body
+          : pluralValue.body_plural || pluralValue.body;
     }
   }
 
@@ -153,7 +166,10 @@ export function t(key: TranslationKey, options?: TranslateOptions): string {
   let result = value;
   if (options) {
     for (const [optKey, optValue] of Object.entries(options)) {
-      result = result.replace(new RegExp(`{{${optKey}}}`, "g"), String(optValue));
+      result = result.replace(
+        new RegExp(`{{${optKey}}}`, "g"),
+        String(optValue),
+      );
     }
   }
 
@@ -270,12 +286,15 @@ const result = await window.ffmpegAPI.selectVideoFile({
 });
 
 // Main process listener
-ipcMain.handle(FFMPEG_CHANNELS.SELECT_VIDEO_FILE, async (_, options?: { title?: string }) => {
-  const result = await dialog.showOpenDialog({
-    title: options?.title || "Select video file",
-    // ...
-  });
-});
+ipcMain.handle(
+  FFMPEG_CHANNELS.SELECT_VIDEO_FILE,
+  async (_, options?: { title?: string }) => {
+    const result = await dialog.showOpenDialog({
+      title: options?.title || "Select video file",
+      // ...
+    });
+  },
+);
 ```
 
 **Option 2:** Use main process translations

@@ -19,12 +19,12 @@ export default function Navbar() {
   }, [currentPath]);
 
   return (
-    <nav className="border-b bg-card/50 backdrop-blur-sm">
+    <nav className="bg-card/50 border-b backdrop-blur-sm">
       <div className="flex items-center justify-between px-4 py-2">
         {/* Left: Brand */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-primary">
+            <span className="text-primary text-xl font-bold">
               {t("appName")}
             </span>
           </Link>

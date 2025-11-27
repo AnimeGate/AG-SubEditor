@@ -28,12 +28,18 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
   }
 
   log.info("Initializing electron-updater for private repository");
-  debugLog.info("Auto-updater: Initializing for GitHub repository (AnimeGate/AG-SubEditor)");
-  debugLog.info("Auto-updater: Auto-download enabled, auto-install on quit enabled");
+  debugLog.info(
+    "Auto-updater: Initializing for GitHub repository (AnimeGate/AG-SubEditor)",
+  );
+  debugLog.info(
+    "Auto-updater: Auto-download enabled, auto-install on quit enabled",
+  );
 
   // Check for updates on app start (wait 3 seconds after launch)
   setTimeout(() => {
-    debugLog.info("Auto-updater: Starting initial update check (3 seconds after launch)");
+    debugLog.info(
+      "Auto-updater: Starting initial update check (3 seconds after launch)",
+    );
     checkForUpdates();
   }, 3000);
 
@@ -43,7 +49,7 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
       debugLog.info("Auto-updater: Starting scheduled update check (hourly)");
       checkForUpdates();
     },
-    60 * 60 * 1000
+    60 * 60 * 1000,
   ); // 1 hour
 
   // Auto-updater event handlers
@@ -54,12 +60,16 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
 
   autoUpdater.on("update-available", (info) => {
     log.info("Update available:", info.version);
-    debugLog.success(`Auto-updater: Update available - Version ${info.version}`);
+    debugLog.success(
+      `Auto-updater: Update available - Version ${info.version}`,
+    );
   });
 
   autoUpdater.on("update-not-available", (info) => {
     log.info("No updates available. Current version:", info.version);
-    debugLog.info(`Auto-updater: No updates available - Current version: ${info.version}`);
+    debugLog.info(
+      `Auto-updater: No updates available - Current version: ${info.version}`,
+    );
   });
 
   autoUpdater.on("error", (error) => {
@@ -69,16 +79,20 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
 
   autoUpdater.on("download-progress", (progressObj) => {
     log.info(
-      `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`
+      `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`,
     );
     const speedMB = (progressObj.bytesPerSecond / 1024 / 1024).toFixed(2);
     const percentRounded = Math.round(progressObj.percent);
-    debugLog.info(`Auto-updater: Download progress - ${percentRounded}% (${speedMB} MB/s)`);
+    debugLog.info(
+      `Auto-updater: Download progress - ${percentRounded}% (${speedMB} MB/s)`,
+    );
   });
 
   autoUpdater.on("update-downloaded", (info) => {
     log.info("Update downloaded:", info.version);
-    debugLog.success(`Auto-updater: Update downloaded - Version ${info.version}`);
+    debugLog.success(
+      `Auto-updater: Update downloaded - Version ${info.version}`,
+    );
     debugLog.info("Auto-updater: Showing installation dialog to user");
 
     // Notify user about the update
@@ -94,10 +108,14 @@ export function initializeAutoUpdater(isDevelopment: boolean) {
       .then((result) => {
         if (result.response === 0) {
           // User clicked "Install now"
-          debugLog.info("Auto-updater: User chose to install now - Quitting and installing");
+          debugLog.info(
+            "Auto-updater: User chose to install now - Quitting and installing",
+          );
           setImmediate(() => autoUpdater.quitAndInstall());
         } else {
-          debugLog.info("Auto-updater: User chose to install later - Will install on app quit");
+          debugLog.info(
+            "Auto-updater: User chose to install later - Will install on app quit",
+          );
         }
       });
   });

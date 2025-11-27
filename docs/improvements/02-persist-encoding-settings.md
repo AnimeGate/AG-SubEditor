@@ -39,7 +39,9 @@ interface AppSettings {
 const defaultSettings: AppSettings = {
   theme: "system",
   language: "pl",
-  output: { /* ... */ },
+  output: {
+    /* ... */
+  },
   encoding: {
     qualityPreset: "medium",
     useHardwareAcceleration: true,
@@ -81,12 +83,15 @@ ipcMain.handle(SETTINGS_CHANNELS.GET_ENCODING, () => {
   return settingsStore.get("encoding");
 });
 
-ipcMain.handle(SETTINGS_CHANNELS.UPDATE_ENCODING, (_, settings: Partial<EncodingSettings>) => {
-  const current = settingsStore.get("encoding");
-  const updated = { ...current, ...settings };
-  settingsStore.set("encoding", updated);
-  return updated;
-});
+ipcMain.handle(
+  SETTINGS_CHANNELS.UPDATE_ENCODING,
+  (_, settings: Partial<EncodingSettings>) => {
+    const current = settingsStore.get("encoding");
+    const updated = { ...current, ...settings };
+    settingsStore.set("encoding", updated);
+    return updated;
+  },
+);
 ```
 
 #### 4. Add Context Exposure
@@ -99,7 +104,9 @@ contextBridge.exposeInMainWorld("settingsAPI", {
   getEncoding: (): Promise<EncodingSettings> =>
     ipcRenderer.invoke(SETTINGS_CHANNELS.GET_ENCODING),
 
-  updateEncoding: (settings: Partial<EncodingSettings>): Promise<EncodingSettings> =>
+  updateEncoding: (
+    settings: Partial<EncodingSettings>,
+  ): Promise<EncodingSettings> =>
     ipcRenderer.invoke(SETTINGS_CHANNELS.UPDATE_ENCODING, settings),
 });
 ```
@@ -112,7 +119,9 @@ contextBridge.exposeInMainWorld("settingsAPI", {
 interface SettingsAPI {
   // ... existing
   getEncoding: () => Promise<EncodingSettings>;
-  updateEncoding: (settings: Partial<EncodingSettings>) => Promise<EncodingSettings>;
+  updateEncoding: (
+    settings: Partial<EncodingSettings>,
+  ) => Promise<EncodingSettings>;
 }
 ```
 
@@ -121,7 +130,8 @@ interface SettingsAPI {
 **File:** `src/components/wypalarka/Wypalarka.tsx`
 
 ```typescript
-const [encodingSettings, setEncodingSettings] = useState<EncodingSettings | null>(null);
+const [encodingSettings, setEncodingSettings] =
+  useState<EncodingSettings | null>(null);
 const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
 useEffect(() => {
@@ -147,7 +157,10 @@ useEffect(() => {
 **File:** `src/components/wypalarka/WypalarkaSettingsModal.tsx`
 
 ```typescript
-const handleSettingChange = async (key: keyof EncodingSettings, value: unknown) => {
+const handleSettingChange = async (
+  key: keyof EncodingSettings,
+  value: unknown,
+) => {
   const updated = { ...settings, [key]: value };
   setSettings(updated);
 
@@ -156,14 +169,15 @@ const handleSettingChange = async (key: keyof EncodingSettings, value: unknown) 
 };
 
 const debouncedSave = useMemo(
-  () => debounce(async (settings: EncodingSettings) => {
-    try {
-      await window.settingsAPI.updateEncoding(settings);
-    } catch (error) {
-      console.error("Failed to save encoding settings:", error);
-    }
-  }, 500),
-  []
+  () =>
+    debounce(async (settings: EncodingSettings) => {
+      try {
+        await window.settingsAPI.updateEncoding(settings);
+      } catch (error) {
+        console.error("Failed to save encoding settings:", error);
+      }
+    }, 500),
+  [],
 );
 
 // Cleanup on unmount
