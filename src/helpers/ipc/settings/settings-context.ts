@@ -15,5 +15,9 @@ export function exposeSettingsContext() {
       return () =>
         ipcRenderer.removeListener(SETTINGS_CHANNELS.OUTPUT_UPDATED, listener);
     },
+    getLanguage: async (): Promise<"pl" | "en"> =>
+      ipcRenderer.invoke(SETTINGS_CHANNELS.GET_LANGUAGE),
+    setLanguage: async (lang: "pl" | "en"): Promise<"pl" | "en"> =>
+      ipcRenderer.invoke(SETTINGS_CHANNELS.SET_LANGUAGE, lang),
   });
 }

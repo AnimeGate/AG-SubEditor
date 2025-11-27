@@ -10,6 +10,7 @@ export type OutputSettings = {
 
 export type AppSettings = {
   output: OutputSettings;
+  language: "pl" | "en";
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -18,6 +19,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     customFolder: null,
     filenamePrefix: "", // no prefix by default
   },
+  language: "pl", // Default to Polish
 };
 
 export class SettingsStore {
@@ -88,5 +90,19 @@ export class SettingsStore {
     this.cache = updated;
     this.writeToDisk(updated);
     return updated.output;
+  }
+
+  getLanguage(): "pl" | "en" {
+    return this.getAll().language;
+  }
+
+  setLanguage(lang: "pl" | "en"): void {
+    const current = this.getAll();
+    const updated: AppSettings = {
+      ...current,
+      language: lang,
+    };
+    this.cache = updated;
+    this.writeToDisk(updated);
   }
 }

@@ -240,5 +240,7 @@ declare interface Window {
         filenamePrefix: string;
       }) => void,
     ) => () => void;
+    getLanguage: () => Promise<"pl" | "en">;
+    setLanguage: (lang: "pl" | "en") => Promise<"pl" | "en">;
   };
 }

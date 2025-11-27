@@ -4,4 +4,6 @@ export const SETTINGS_CHANNELS = {
   UPDATE_OUTPUT: "settings:updateOutput",
   SELECT_OUTPUT_FOLDER: "settings:selectOutputFolder",
   OUTPUT_UPDATED: "settings:outputUpdated",
+  SET_LANGUAGE: "settings:setLanguage",
+  GET_LANGUAGE: "settings:getLanguage",
 } as const;

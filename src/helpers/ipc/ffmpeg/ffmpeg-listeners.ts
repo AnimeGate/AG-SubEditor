@@ -4,6 +4,7 @@ import { FFmpegProcessor } from "@/lib/ffmpeg-processor";
 import { FFmpegDownloader } from "@/lib/ffmpeg-downloader";
 import { QueueProcessor } from "@/lib/queue-processor";
 import { debugLog } from "../../debug-mode";
+import { t } from "../../main-translations";
 import * as path from "path";
 import * as fs from "fs";
 import { SettingsStore } from "@/helpers/settings/settings-store";
@@ -257,8 +258,8 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
           // Show desktop notification
           const fileName = path.basename(outputPath);
           const notification = new Notification({
-            title: "Wypalanie zakończone!",
-            body: `Plik ${fileName} został pomyślnie przetworzony.`,
+            title: t("notificationEncodingCompleteTitle"),
+            body: t("notificationEncodingCompleteBody", { fileName }),
             icon: undefined, // Uses default app icon
           });
 
@@ -433,10 +434,12 @@ export function addFfmpegEventListeners(mainWindow: BrowserWindow) {
           onQueueComplete: () => {
             mainWindow.webContents.send(FFMPEG_CHANNELS.QUEUE_COMPLETE);
 
-            // Show desktop notification
+            // Show desktop notification with completed count
+            const stats = queueProcessor?.getQueueStats();
+            const completedCount = stats?.completed ?? 0;
             const notification = new Notification({
-              title: "Kolejka zakończona!",
-              body: "Wszystkie pliki zostały przetworzone.",
+              title: t("notificationQueueCompleteTitle"),
+              body: t("notificationQueueCompleteBody", { count: completedCount }),
               icon: undefined,
             });
 
