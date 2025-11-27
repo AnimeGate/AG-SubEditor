@@ -14,6 +14,34 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, RefreshCw, Sparkles, X } from "lucide-react";
 
+// Check if content is HTML (from GitHub API) or Markdown
+function isHtmlContent(content: string): boolean {
+  return content.trim().startsWith("<");
+}
+
+// Component to render release notes (HTML or Markdown)
+function ReleaseNotes({ content }: { content: string }) {
+  const proseClasses =
+    "prose prose-sm dark:prose-invert max-w-none prose-headings:my-2 prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-foreground prose-code:bg-muted prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:text-xs";
+
+  if (isHtmlContent(content)) {
+    // GitHub returns HTML - render it directly
+    return (
+      <div
+        className={proseClasses}
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+    );
+  }
+
+  // Markdown content (from our test methods)
+  return (
+    <div className={proseClasses}>
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </div>
+  );
+}
+
 type UpdateState =
   | "idle"
   | "checking"
@@ -147,9 +175,7 @@ export function UpdateDialog() {
             <div className="space-y-2">
               <h4 className="text-sm font-medium">{t("updateChangelog")}</h4>
               <ScrollArea className="bg-muted/50 h-48 rounded-lg border p-4">
-                <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:my-2 prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-foreground prose-code:bg-muted prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:text-xs">
-                  <ReactMarkdown>{updateInfo.releaseNotes}</ReactMarkdown>
-                </div>
+                <ReleaseNotes content={updateInfo.releaseNotes} />
               </ScrollArea>
             </div>
           )}
