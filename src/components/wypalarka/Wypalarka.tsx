@@ -839,7 +839,7 @@ export default function Wypalarka() {
 
         <TabsContent value="queue" className="mt-4 flex min-h-0 flex-1 gap-6">
           {/* Left Panel - Queue List */}
-          <div className="w-96 flex-shrink-0 overflow-y-auto">
+          <div className="flex w-96 flex-shrink-0 flex-col">
             <WypalarkaQueuePanel
               queue={queue}
               stats={queueStats}

@@ -202,10 +202,10 @@ export function WypalarkaQueuePanel({
             ]}
             multiple
             disabled={isProcessing}
-            className="flex-1 rounded-lg border-2 border-dashed border-transparent transition-colors"
+            className="min-h-0 flex-1 rounded-lg border-2 border-dashed border-transparent transition-colors"
             activeClassName="border-primary bg-primary/5"
           >
-            <ScrollArea className="max-h-[calc(100vh-400px)] min-h-[200px]">
+            <ScrollArea className="h-full min-h-[200px]">
               {queue.length === 0 ? (
                 <div className="flex h-full min-h-[200px] flex-col items-center justify-center py-12 text-center">
                   <Upload className="text-muted-foreground mb-4 h-12 w-12 opacity-50" />
