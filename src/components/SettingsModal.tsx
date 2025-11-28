@@ -75,13 +75,13 @@ export default function SettingsModal() {
           <Settings className="h-5 w-5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[85vh] sm:max-w-[500px]">
+      <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{t("settingsTitle")}</DialogTitle>
           <DialogDescription>{t("settingsDescription")}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 overflow-y-auto py-4 pr-2">
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto py-4 pr-2">
           {/* Language Section */}
           <div className="space-y-4">
             <div>
