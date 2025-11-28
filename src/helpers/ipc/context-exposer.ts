@@ -5,6 +5,7 @@ import { exposeFfmpegContext } from "./ffmpeg/ffmpeg-context";
 import { exposeDebugContext } from "./debug/debug-context";
 import { exposeSettingsContext } from "./settings/settings-context";
 import { exposeUpdaterContext } from "./updater/updater-context";
+import { exposeBackgroundContext } from "./background/background-context";
 
 export default function exposeContexts() {
   exposeWindowContext();
@@ -14,4 +15,5 @@ export default function exposeContexts() {
   exposeDebugContext();
   exposeSettingsContext();
   exposeUpdaterContext();
+  exposeBackgroundContext();
 }

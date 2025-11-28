@@ -8,9 +8,22 @@ export type OutputSettings = {
   filenamePrefix: string;
 };
 
+export type BackgroundSettings = {
+  enabled: boolean;
+  imagePath: string | null; // Path to copied image in appdata
+  opacity: number; // 0.0 - 1.0 for overlay darkness
+};
+
 export type AppSettings = {
   output: OutputSettings;
   language: "pl" | "en";
+  background: BackgroundSettings;
+};
+
+const DEFAULT_BACKGROUND: BackgroundSettings = {
+  enabled: false,
+  imagePath: null,
+  opacity: 0.3, // 30% opacity by default
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -20,6 +33,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     filenamePrefix: "", // no prefix by default
   },
   language: "pl", // Default to Polish
+  background: DEFAULT_BACKGROUND,
 };
 
 export class SettingsStore {
@@ -48,6 +62,7 @@ export class SettingsStore {
           ...DEFAULT_SETTINGS,
           ...data,
           output: { ...DEFAULT_SETTINGS.output, ...(data.output || {}) },
+          background: { ...DEFAULT_BACKGROUND, ...(data.background || {}) },
         } as AppSettings;
       }
     } catch {
@@ -104,5 +119,40 @@ export class SettingsStore {
     };
     this.cache = updated;
     this.writeToDisk(updated);
+  }
+
+  getBackground(): BackgroundSettings {
+    return this.getAll().background;
+  }
+
+  updateBackground(partial: Partial<BackgroundSettings>): BackgroundSettings {
+    const current = this.getAll();
+    const updated: AppSettings = {
+      ...current,
+      background: { ...current.background, ...partial },
+    };
+    this.cache = updated;
+    this.writeToDisk(updated);
+    return updated.background;
+  }
+
+  getBackgroundsDir(): string {
+    const userData = app.getPath("userData");
+    return path.join(userData, "backgrounds");
+  }
+
+  removeBackgroundImage(): void {
+    const current = this.getBackground();
+    if (current.imagePath && fs.existsSync(current.imagePath)) {
+      try {
+        fs.unlinkSync(current.imagePath);
+      } catch {
+        // ignore deletion errors
+      }
+    }
+    this.updateBackground({
+      enabled: false,
+      imagePath: null,
+    });
   }
 }

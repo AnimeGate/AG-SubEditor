@@ -235,12 +235,27 @@ interface FFmpegAPI {
   onQueueComplete: (callback: () => void) => () => void;
 }
 
+interface BackgroundSettings {
+  enabled: boolean;
+  imagePath: string | null;
+  opacity: number;
+}
+
+interface BackgroundAPI {
+  get: () => Promise<BackgroundSettings>;
+  update: (partial: Partial<BackgroundSettings>) => Promise<BackgroundSettings>;
+  selectImage: () => Promise<string | null>;
+  remove: () => Promise<void>;
+  onUpdated: (callback: (settings: BackgroundSettings) => void) => () => void;
+}
+
 declare interface Window {
   themeMode: ThemeModeContext;
   electronWindow: ElectronWindow;
   fileAPI: FileAPI;
   ffmpegAPI: FFmpegAPI;
   debugAPI: DebugAPI;
+  backgroundAPI: BackgroundAPI;
   settingsAPI: {
     getAll: () => Promise<any>;
     getOutput: () => Promise<{
