@@ -19,7 +19,7 @@ import { setAppLanguage } from "@/helpers/language_helpers";
 import { setTheme, getCurrentTheme } from "@/helpers/theme_helpers";
 import { useState, useEffect } from "react";
 import type { ThemeMode } from "@/types/theme-mode";
-import { useBackground, getBackgroundImageUrl } from "@/helpers/background_helpers";
+import { useBackground } from "@/helpers/background_helpers";
 import packageJson from "../../package.json";
 
 export default function SettingsModal() {
@@ -50,10 +50,9 @@ export default function SettingsModal() {
   };
 
   const handleSelectImage = async () => {
-    const imagePath = await window.backgroundAPI.selectImage();
-    if (imagePath) {
-      const updated = await window.backgroundAPI.get();
-      setBackground(updated);
+    const result = await window.backgroundAPI.selectImage();
+    if (result) {
+      setBackground(result);
     }
   };
 
@@ -69,8 +68,6 @@ export default function SettingsModal() {
     setBackground(updated);
   };
 
-  const backgroundUrl = getBackgroundImageUrl(background.imagePath);
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -78,13 +75,13 @@ export default function SettingsModal() {
           <Settings className="h-5 w-5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-h-[85vh] sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{t("settingsTitle")}</DialogTitle>
           <DialogDescription>{t("settingsDescription")}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 overflow-y-auto py-4 pr-2">
           {/* Language Section */}
           <div className="space-y-4">
             <div>
@@ -214,11 +211,11 @@ export default function SettingsModal() {
               </div>
 
               {/* Preview */}
-              {backgroundUrl ? (
+              {background.imageData ? (
                 <div className="overflow-hidden rounded-lg border">
                   <div
                     className="h-24 w-full bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url("${backgroundUrl}")` }}
+                    style={{ backgroundImage: `url("${background.imageData}")` }}
                   />
                 </div>
               ) : (

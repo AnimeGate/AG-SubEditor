@@ -239,12 +239,13 @@ interface BackgroundSettings {
   enabled: boolean;
   imagePath: string | null;
   opacity: number;
+  imageData?: string | null; // base64 data URL for renderer
 }
 
 interface BackgroundAPI {
   get: () => Promise<BackgroundSettings>;
   update: (partial: Partial<BackgroundSettings>) => Promise<BackgroundSettings>;
-  selectImage: () => Promise<string | null>;
+  selectImage: () => Promise<BackgroundSettings | null>;
   remove: () => Promise<void>;
   onUpdated: (callback: (settings: BackgroundSettings) => void) => () => void;
 }

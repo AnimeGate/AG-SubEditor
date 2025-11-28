@@ -4,6 +4,7 @@ export interface BackgroundState {
   enabled: boolean;
   imagePath: string | null;
   opacity: number;
+  imageData?: string | null; // base64 data URL
 }
 
 export interface BackgroundContextType {
@@ -16,6 +17,7 @@ export const defaultBackgroundState: BackgroundState = {
   enabled: false,
   imagePath: null,
   opacity: 0.3,
+  imageData: null,
 };
 
 export const BackgroundContext = createContext<BackgroundContextType>({
@@ -65,11 +67,4 @@ export async function loadBackgroundSettings(): Promise<BackgroundState> {
   } catch {
     return defaultBackgroundState;
   }
-}
-
-export function getBackgroundImageUrl(imagePath: string | null): string | null {
-  if (!imagePath) return null;
-  // Convert file path to file:// URL for use in CSS
-  // Electron allows loading local files via file:// protocol
-  return `file://${imagePath.replace(/\\/g, "/")}`;
 }

@@ -8,12 +8,37 @@ import {
 } from "@/helpers/settings/settings-store";
 import { debugLog } from "@/helpers/debug-mode";
 
+function getImageAsBase64(imagePath: string | null): string | null {
+  if (!imagePath || !fs.existsSync(imagePath)) {
+    return null;
+  }
+  try {
+    const ext = path.extname(imagePath).toLowerCase().slice(1);
+    const mimeType =
+      ext === "jpg" ? "image/jpeg" : ext === "png" ? "image/png" : `image/${ext}`;
+    const imageBuffer = fs.readFileSync(imagePath);
+    return `data:${mimeType};base64,${imageBuffer.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
 export function addBackgroundEventListeners(mainWindow: BrowserWindow) {
   const store = SettingsStore.getInstance();
 
   ipcMain.handle(BACKGROUND_CHANNELS.GET, async () => {
     debugLog.ipc("IPC: BACKGROUND_GET called");
-    return store.getBackground();
+    const settings = store.getBackground();
+    return {
+      ...settings,
+      imageData: getImageAsBase64(settings.imagePath),
+    };
+  });
+
+  ipcMain.handle(BACKGROUND_CHANNELS.GET_IMAGE_DATA, async () => {
+    debugLog.ipc("IPC: BACKGROUND_GET_IMAGE_DATA called");
+    const settings = store.getBackground();
+    return getImageAsBase64(settings.imagePath);
   });
 
   ipcMain.handle(
@@ -21,8 +46,12 @@ export function addBackgroundEventListeners(mainWindow: BrowserWindow) {
     async (_event, partial: Partial<BackgroundSettings>) => {
       debugLog.ipc("IPC: BACKGROUND_UPDATE called");
       const updated = store.updateBackground(partial);
-      mainWindow.webContents.send(BACKGROUND_CHANNELS.UPDATED, updated);
-      return updated;
+      const withImageData = {
+        ...updated,
+        imageData: getImageAsBase64(updated.imagePath),
+      };
+      mainWindow.webContents.send(BACKGROUND_CHANNELS.UPDATED, withImageData);
+      return withImageData;
     },
   );
 
@@ -85,9 +114,14 @@ export function addBackgroundEventListeners(mainWindow: BrowserWindow) {
         enabled: true,
       });
 
-      mainWindow.webContents.send(BACKGROUND_CHANNELS.UPDATED, updated);
+      const withImageData = {
+        ...updated,
+        imageData: getImageAsBase64(destPath),
+      };
 
-      return destPath;
+      mainWindow.webContents.send(BACKGROUND_CHANNELS.UPDATED, withImageData);
+
+      return withImageData;
     } catch (error) {
       debugLog.error(`Failed to copy background image: ${error}`);
       return null;
@@ -98,7 +132,11 @@ export function addBackgroundEventListeners(mainWindow: BrowserWindow) {
     debugLog.ipc("IPC: BACKGROUND_REMOVE called");
     store.removeBackgroundImage();
     const updated = store.getBackground();
-    mainWindow.webContents.send(BACKGROUND_CHANNELS.UPDATED, updated);
+    const withImageData = {
+      ...updated,
+      imageData: null,
+    };
+    mainWindow.webContents.send(BACKGROUND_CHANNELS.UPDATED, withImageData);
     debugLog.success("Background removed successfully");
   });
 }

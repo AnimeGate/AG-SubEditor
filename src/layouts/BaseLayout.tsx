@@ -2,7 +2,7 @@ import React from "react";
 import DragWindowRegion from "@/components/DragWindowRegion";
 import Navbar from "@/components/Navbar";
 import { useTranslation } from "react-i18next";
-import { useBackground, getBackgroundImageUrl } from "@/helpers/background_helpers";
+import { useBackground } from "@/helpers/background_helpers";
 
 export default function BaseLayout({
   children,
@@ -12,8 +12,7 @@ export default function BaseLayout({
   const { t } = useTranslation();
   const { background } = useBackground();
 
-  const backgroundUrl = getBackgroundImageUrl(background.imagePath);
-  const showBackground = background.enabled && backgroundUrl;
+  const showBackground = background.enabled && background.imageData;
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
@@ -22,7 +21,7 @@ export default function BaseLayout({
         <div
           className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url("${backgroundUrl}")`,
+            backgroundImage: `url("${background.imageData}")`,
           }}
         />
       )}
