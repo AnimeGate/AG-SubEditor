@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import DragWindowRegion from "@/components/DragWindowRegion";
 import Navbar from "@/components/Navbar";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,18 @@ export default function BaseLayout({
   const { background } = useBackground();
 
   const showBackground = background.enabled && background.imageData;
+
+  // Toggle class on html element for transparent card styling
+  useEffect(() => {
+    if (showBackground) {
+      document.documentElement.classList.add("has-custom-bg");
+    } else {
+      document.documentElement.classList.remove("has-custom-bg");
+    }
+    return () => {
+      document.documentElement.classList.remove("has-custom-bg");
+    };
+  }, [showBackground]);
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">

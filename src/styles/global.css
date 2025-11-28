@@ -210,3 +210,28 @@
 .drop-zone-active {
   animation: drop-pulse 1s ease-in-out infinite;
 }
+
+/* Custom background transparency for cards */
+.has-custom-bg .bg-card,
+.has-custom-bg .bg-background,
+.has-custom-bg .bg-muted,
+.has-custom-bg .bg-secondary {
+  background-color: oklch(0.145 0 0 / 0.75) !important;
+  backdrop-filter: blur(8px);
+}
+
+.has-custom-bg:not(.dark) .bg-card,
+.has-custom-bg:not(.dark) .bg-background,
+.has-custom-bg:not(.dark) .bg-muted,
+.has-custom-bg:not(.dark) .bg-secondary {
+  background-color: oklch(1 0 0 / 0.75) !important;
+}
+
+/* Keep borders more visible with custom background */
+.has-custom-bg .border {
+  border-color: oklch(0.5 0 0 / 0.3) !important;
+}
+
+.has-custom-bg.dark .border {
+  border-color: oklch(0.5 0 0 / 0.4) !important;
+}
