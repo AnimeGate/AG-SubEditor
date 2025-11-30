@@ -9,7 +9,7 @@ import {
   getContentForBlueprint,
   saveContentForBlueprint,
 } from "@/lib/tabelka-blueprints";
-import { generateTabelka } from "@/lib/tabelka-generator";
+import { generateTabelka, generateLogo } from "@/lib/tabelka-generator";
 
 export interface TabelkaState {
   // Resolution
@@ -52,6 +52,7 @@ function getInitialState(): TabelkaState {
 export default function Tabelka() {
   const [state, setState] = useState<TabelkaState>(getInitialState);
   const [output, setOutput] = useState<string>("");
+  const [logoOutput, setLogoOutput] = useState<string>("");
 
   // Handle preset change
   const handlePresetChange = useCallback((presetId: string) => {
@@ -146,6 +147,13 @@ export default function Tabelka() {
 
     setOutput(result);
 
+    // Generate logo with the same resolution
+    const logoResult = generateLogo({
+      width: state.width,
+      height: state.height,
+    });
+    setLogoOutput(logoResult);
+
     // Auto-save content when generating
     handleSaveContent();
   }, [state, handleSaveContent]);
@@ -186,7 +194,7 @@ export default function Tabelka() {
         />
 
         {/* Output */}
-        <TabelkaOutput output={output} />
+        <TabelkaOutput output={output} logoOutput={logoOutput} />
       </div>
     </div>
   );

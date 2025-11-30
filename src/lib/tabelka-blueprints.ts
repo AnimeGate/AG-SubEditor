@@ -143,12 +143,9 @@ export interface ResolutionPreset {
 
 export const RESOLUTION_PRESETS: ResolutionPreset[] = [
   { id: "1080p", name: "1920×1080 (Full HD)", width: 1920, height: 1080 },
-  { id: "1080p-cinema", name: "1920×820 (1080p Cinema)", width: 1920, height: 820 },
-  { id: "720p", name: "1280×720 (HD)", width: 1280, height: 720 },
-  { id: "1366", name: "1366×768", width: 1366, height: 768 },
-  { id: "900p", name: "1600×900", width: 1600, height: 900 },
+  { id: "1080p-cinema", name: "1920×820 (Kinowe 1080p)", width: 1920, height: 820 },
   { id: "4k", name: "3840×2160 (4K)", width: 3840, height: 2160 },
-  { id: "4k-cinema", name: "3840×1640 (4K Cinema)", width: 3840, height: 1640 },
+  { id: "4k-cinema", name: "3840×1640 (Kinowe 4K)", width: 3840, height: 1640 },
   { id: "custom", name: "Własne", width: 1920, height: 1080 },
 ];
 
