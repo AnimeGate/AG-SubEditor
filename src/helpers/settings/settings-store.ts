@@ -2,23 +2,11 @@ import { app } from "electron";
 import * as fs from "fs";
 import * as path from "path";
 
-export type OutputSettings = {
-  locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
-  customFolder: string | null;
-  filenamePrefix: string;
-};
-
 export type AppSettings = {
-  output: OutputSettings;
   language: "pl" | "en";
 };
 
 const DEFAULT_SETTINGS: AppSettings = {
-  output: {
-    locationMode: "same_as_input",
-    customFolder: null,
-    filenamePrefix: "", // no prefix by default
-  },
   language: "pl", // Default to Polish
 };
 
@@ -47,7 +35,6 @@ export class SettingsStore {
         return {
           ...DEFAULT_SETTINGS,
           ...data,
-          output: { ...DEFAULT_SETTINGS.output, ...(data.output || {}) },
         } as AppSettings;
       }
     } catch {
@@ -75,21 +62,6 @@ export class SettingsStore {
       this.cache = this.readFromDisk();
     }
     return this.cache;
-  }
-
-  getOutput(): OutputSettings {
-    return this.getAll().output;
-  }
-
-  updateOutput(partial: Partial<OutputSettings>): OutputSettings {
-    const current = this.getAll();
-    const updated: AppSettings = {
-      ...current,
-      output: { ...current.output, ...partial },
-    };
-    this.cache = updated;
-    this.writeToDisk(updated);
-    return updated.output;
   }
 
   getLanguage(): "pl" | "en" {

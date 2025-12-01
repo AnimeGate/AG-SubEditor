@@ -182,20 +182,6 @@ export const debugLog = {
     }
   },
 
-  ffmpeg: (message: string, ...args: unknown[]) => {
-    if (isDebugMode) {
-      log.debug(`🔥 [FFMPEG] ${message}`, ...args);
-      sendToDebugConsole("ffmpeg", message, args);
-    }
-  },
-
-  queue: (message: string, ...args: unknown[]) => {
-    if (isDebugMode) {
-      log.info(`📋 [QUEUE] ${message}`, ...args);
-      sendToDebugConsole("queue", message, args);
-    }
-  },
-
   ipc: (message: string, ...args: unknown[]) => {
     if (isDebugMode) {
       log.debug(`📡 [IPC] ${message}`, ...args);

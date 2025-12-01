@@ -8,8 +8,6 @@ export const translations = {
       appName: "AG-SubEditor",
       // Navbar
       navSubtitleEditor: "Edytor napisów",
-      navWypalarka: "Wypalarka",
-      navDisabledWhileProcessing: "Niedostępne podczas przetwarzania",
       settings: "Ustawienia",
       // Settings Modal
       settingsTitle: "Ustawienia aplikacji",
@@ -25,213 +23,6 @@ export const translations = {
       versionDescription: "Informacje o wersji aplikacji",
       currentVersion: "Aktualna wersja",
       closeSettings: "Zamknij",
-      // Wypalarka Page
-      wypalarkaTitle: "Wypalarka napisów",
-      wypalarkaSubtitle: "Wgraj napisy na stałe do pliku wideo",
-      wypalarkaComingSoon: "Wkrótce dostępna",
-      wypalarkaDescription:
-        "Ta funkcja jest w trakcie rozwoju i będzie dostępna wkrótce.",
-      // Wypalarka Modes
-      wypalarkaSingleMode: "Pojedynczy plik",
-      wypalarkaQueueMode: "Kolejka",
-      wypalarkaQueueComingSoon: "Kolejka - Wkrótce",
-      wypalarkaQueueDesc: "Zarządzaj kolejką przetwarzania plików",
-      wypalarkaQueueFeature:
-        "Ta funkcja pozwoli przetwarzać wiele plików jednocześnie w kolejce",
-      // Queue Management
-      wypalarkaQueueTitle: "Kolejka przetwarzania",
-      wypalarkaQueueAddFiles: "Dodaj pliki",
-      wypalarkaQueueAddFilesDesc: "Dodaj pary video + napisy do kolejki",
-      wypalarkaQueueAddFilesEmpty: "Kliknij poniżej, aby dodać parę plików",
-      wypalarkaQueueAddPair: "Dodaj parę",
-      wypalarkaQueuePair: "Para {{number}}",
-      wypalarkaQueueAddToQueue: "Dodaj do kolejki",
-      wypalarkaQueueClearAll: "Wyczyść wszystko",
-      wypalarkaQueueStartQueue: "Rozpocznij kolejkę",
-      wypalarkaQueuePause: "Zatrzymaj kolejkę",
-      wypalarkaQueueResume: "Uruchom kolejkę",
-      wypalarkaQueueEmpty: "Kolejka jest pusta",
-      wypalarkaQueueRemoveItem: "Usuń z kolejki",
-      wypalarkaQueueTotal: "Razem",
-      wypalarkaQueueCompleted: "Ukończono",
-      wypalarkaQueueFailed: "Błędów",
-      wypalarkaQueueItemPending: "Oczekuje",
-      wypalarkaQueueItemProcessing: "Przetwarzanie",
-      wypalarkaQueueItemCompleted: "Ukończono",
-      wypalarkaQueueItemError: "Błąd",
-      wypalarkaQueueItemCancelled: "Anulowano",
-      wypalarkaQueueCurrentlyProcessing: "Obecnie przetwarzane",
-      wypalarkaQueueOverallProgress: "Postęp kolejki",
-      wypalarkaQueueProgressDesc:
-        "Logi procesu FFmpeg dla aktualnego elementu",
-      // File Input
-      wypalarkaVideoFile: "Plik wideo",
-      wypalarkaVideoFileDesc: "Wybierz plik MKV, MP4 lub inny format wideo",
-      wypalarkaSelectVideo: "Wybierz plik wideo",
-      wypalarkaSubtitleFile: "Plik napisów",
-      wypalarkaSubtitleFileDesc: "Wybierz plik napisów ASS",
-      wypalarkaSelectSubtitle: "Wybierz plik napisów",
-      wypalarkaDropHint: "Lub przeciągnij i upuść plik tutaj",
-      wypalarkaQueueDropFilesHere: "Upuść pliki tutaj",
-      wypalarkaQueueDropHint:
-        "Przeciągnij pliki wideo i napisy - zostaną automatycznie sparowane",
-      // Unpaired Videos Dialog
-      wypalarkaUnpairedTitle: "Brak pasujących napisów",
-      wypalarkaUnpairedDescription:
-        "Nie znaleziono napisów dla {{count}} plików wideo. Wybierz plik napisów do zastosowania dla wszystkich.",
-      wypalarkaUnpairedSelectSubtitle: "Wybierz napisy",
-      wypalarkaOutputFile: "Plik wyjściowy",
-      wypalarkaOutputFileDesc: "Wybierz lokalizację zapisu filmu z napisami",
-      wypalarkaSelectOutput: "Wybierz lokalizację zapisu",
-      wypalarkaStartProcess: "Rozpocznij wypalanie",
-      // Progress Panel
-      wypalarkaProgressTitle: "Postęp przetwarzania",
-      wypalarkaProgressDesc: "Logi procesu FFmpeg",
-      wypalarkaProgress: "Postęp",
-      wypalarkaFrames: "klatek",
-      wypalarkaNoLogs: "Brak logów - oczekiwanie na rozpoczęcie procesu...",
-      // Status
-      wypalarkaStatusIdle: "Bezczynny",
-      wypalarkaStatusProcessing: "Przetwarzanie",
-      wypalarkaStatusCompleted: "Ukończono",
-      wypalarkaStatusError: "Błąd",
-      // Controls
-      wypalarkaCancel: "Anuluj",
-      wypalarkaReset: "Resetuj",
-      wypalarkaShowInFolder: "Pokaż w folderze",
-      // Settings
-      wypalarkaEncodingSettings: "Ustawienia kodowania",
-      wypalarkaEncodingSettingsDesc: "Dostosuj jakość i wydajność",
-      // Simple Profiles
-      wypalarkaProfile: "Profil",
-      wypalarkaProfileCustom: "Własny",
-      wypalarkaProfile1080p: "1080p",
-      wypalarkaProfile1080pDownscale: "1080p (downscale z 4K)",
-      wypalarkaProfile1080pCinema: "1080p Cinema (2.39:1)",
-      wypalarkaProfile4k: "4K",
-      wypalarkaProfile4kCinema: "4K Cinema (2.39:1)",
-      wypalarkaProfileDesc:
-        "Wybierz gotowy profil aby uniknąć złożonych ustawień. Zawsze możesz przełączyć na Własny.",
-      wypalarkaProfileHelpTitle: "Dostępne profile:",
-      wypalarkaProfileHelp1080p:
-        "Dla materiałów źródłowych w 1080p (2400k bitrate)",
-      wypalarkaProfileHelp1080pDownscale:
-        "Skaluje wideo z 4K do 1080p (2400k bitrate)",
-      wypalarkaProfileHelp1080pCinema:
-        "Format kinowy 2.39:1 w 1080p dla filmów z czarnymi pasami",
-      wypalarkaProfileHelp4k: "Zachowuje rozdzielczość 4K (6M bitrate)",
-      wypalarkaProfileHelp4kCinema:
-        "Format kinowy 2.39:1 w 4K dla filmów z czarnymi pasami",
-      wypalarkaQualityPresetLockedByProfile:
-        'Bitrate jest zdefiniowany przez wybrany profil. Wybierz "Własny" profil, aby zmienić.',
-      wypalarkaQualityPreset: "Preset jakości",
-      wypalarkaQualityUltra: "Ultra (6000k) - Najlepsza jakość",
-      wypalarkaQualityHigh: "High (4000k) - Świetna jakość",
-      wypalarkaQualityMedium: "Medium (2400k) - Zbalansowane",
-      wypalarkaQualityLow: "Low (1200k) - Mały plik",
-      wypalarkaQualityCustom: "Własny - Ustaw bitrate",
-      wypalarkaCustomBitrate: "Własny bitrate",
-      wypalarkaCustomBitrateDesc: "np. 3000k lub 5M",
-      bitrateNotUsedCQVBRHQ: "Bitrate nie jest używany w trybach CQ/VBR HQ.",
-      wypalarkaHardwareAccel: "Akceleracja sprzętowa",
-      wypalarkaHardwareAccelDesc:
-        "Użyj GPU do szybszego kodowania (NVIDIA/Intel/AMD)",
-      wypalarkaGpuAvailable: "GPU dostępne",
-      wypalarkaGpuNotAvailable: "GPU niedostępne",
-      wypalarkaGpuDetecting: "Wykrywanie GPU...",
-      wypalarkaGpuInfo: "GPU",
-      wypalarkaGpuSetupTitle: "Jak włączyć akcelerację GPU:",
-      wypalarkaGpuSetup1: "Zainstaluj najnowsze sterowniki karty graficznej",
-      wypalarkaGpuSetup2: "Dla NVIDIA: Zainstaluj CUDA Toolkit",
-      wypalarkaGpuSetup3: "Uruchom ponownie aplikację po instalacji",
-      wypalarkaGpuDownload: "Pobierz CUDA Toolkit",
-      // Advanced Encoder Settings
-      wypalarkaEncoderCodec: "Kodek",
-      wypalarkaEncoderCodecDesc:
-        "H.264: najlepsza kompatybilność z wszystkimi urządzeniami i platformami (w tym Google Drive).",
-      wypalarkaEncoderPreset: "Preset",
-      wypalarkaEncoderPresetP1: "p1 (najszybszy)",
-      wypalarkaEncoderPresetP2: "p2",
-      wypalarkaEncoderPresetP3: "p3",
-      wypalarkaEncoderPresetP4: "p4 (zbalansowany)",
-      wypalarkaEncoderPresetP5: "p5",
-      wypalarkaEncoderPresetP6: "p6",
-      wypalarkaEncoderPresetP7: "p7 (najwyższa jakość)",
-      wypalarkaEncoderPresetDesc:
-        "p1 = najszybszy, p7 = najwyższa jakość. p4 to dobry balans prędkości i jakości.",
-      wypalarkaRateControl: "Kontrola bitrate",
-      wypalarkaRateControlCQ: "CQ",
-      wypalarkaRateControlVBR: "VBR",
-      wypalarkaRateControlVBRHQ: "VBR HQ",
-      wypalarkaRateControlCBR: "CBR",
-      wypalarkaRateControlDesc:
-        "VBR HQ + CQ polecane dla najlepszej jakości/rozmiaru. CBR tylko gdy wymagany stały bitrate.",
-      wypalarkaCQ: "CQ",
-      wypalarkaCQDesc:
-        "Niższe CQ = wyższa jakość (większy bitrate). Typowe wartości 15–25. Używane głównie z CQ/VBR HQ.",
-      wypalarkaSpatialAQ: "Spatial AQ",
-      wypalarkaSpatialAQDesc:
-        "Poprawia jakość w obszarach z dużą ilością detali i tekstur.",
-      wypalarkaTemporalAQ: "Temporal AQ",
-      wypalarkaTemporalAQDesc:
-        "Poprawia jakość w ruchu; lepszy rozdział bitów między klatkami.",
-      wypalarkaRcLookahead: "RC Lookahead",
-      wypalarkaRcLookaheadDesc:
-        "Ilość przyszłych klatek analizowanych przez RC. Więcej = lepsze decyzje kosztem opóźnienia. Typowo 0–32.",
-      // Output Conflict
-      wypalarkaConflictTitle: "Plik już istnieje",
-      wypalarkaConflictDescription:
-        'Plik wyjściowy "{{fileName}}" już istnieje. Co chcesz zrobić?',
-      wypalarkaConflictOverwrite: "Nadpisz istniejący plik",
-      wypalarkaConflictAutoRename: "Użyj nowej nazwy automatycznie",
-      wypalarkaConflictChooseNew: "Wybierz inną lokalizację",
-      // Disk Space Check
-      wypalarkaDiskSpaceTitle: "Niewystarczająca ilość miejsca na dysku",
-      wypalarkaDiskSpaceDescription:
-        "Na dysku docelowym może nie być wystarczającej ilości miejsca dla pliku wyjściowego.",
-      wypalarkaDiskSpaceRequired: "Wymagane (szacunkowo)",
-      wypalarkaDiskSpaceAvailable: "Dostępne",
-      wypalarkaDiskSpaceOutputLocation: "Lokalizacja wyjściowa",
-      wypalarkaDiskSpaceWarning:
-        "Kontynuowanie może spowodować uszkodzenie pliku wyjściowego, jeśli zabraknie miejsca podczas kodowania.",
-      wypalarkaDiskSpaceChangeLocation: "Zmień lokalizację",
-      wypalarkaDiskSpaceProceedAnyway: "Kontynuuj mimo to",
-      wypalarkaDiskSpaceSelectOutput: "Wybierz lokalizację wyjściową...",
-      wypalarkaDiskSpaceEstimated: "Szacowany rozmiar",
-      wypalarkaDiskSpaceLowWarning: "Mało miejsca!",
-      // Queue Disk Space
-      wypalarkaQueueDiskSpaceTitle: "Wykryto problemy z miejscem na dysku",
-      wypalarkaQueueDiskSpaceDescription:
-        "{{count}} plików w kolejce może mieć niewystarczającą ilość miejsca na dysku docelowym.",
-      wypalarkaQueueDiskSpaceWarning:
-        "Kontynuowanie może spowodować niepowodzenie kodowania lub uszkodzenie plików wyjściowych.",
-      // Queue Output Conflict
-      wypalarkaQueueConflictTitle: "Wykryto konflikty plików wyjściowych",
-      wypalarkaQueueConflictDescription:
-        "{{count}} plików w kolejce zostanie nadpisanych, ponieważ pliki wyjściowe już istnieją.",
-      wypalarkaQueueConflictAutoRename:
-        "Zmień nazwy automatycznie (dodaj _1, _2, itp.)",
-      wypalarkaQueueConflictOverwrite: "Nadpisz wszystkie istniejące pliki",
-      // FFmpeg Download
-      wypalarkaFfmpegRequired: "FFmpeg jest wymagany",
-      wypalarkaFfmpegNotInstalled:
-        "FFmpeg nie jest zainstalowany. Pobierz i zainstaluj aby korzystać z funkcji wypalania napisów.",
-      wypalarkaFfmpegDownload: "Pobierz FFmpeg",
-      wypalarkaFfmpegDownloading: "Pobieranie FFmpeg...",
-      wypalarkaFfmpegExtracting: "Rozpakowywanie FFmpeg...",
-      wypalarkaFfmpegInstalled: "FFmpeg zainstalowany pomyślnie!",
-      wypalarkaFfmpegError: "Błąd pobierania FFmpeg",
-      wypalarkaFfmpegDownloadProgress: "Postęp pobierania",
-      wypalarkaFfmpegClose: "Zamknij",
-      wypalarkaFfmpegRetry: "Spróbuj ponownie",
-      wypalarkaFfmpegDescription:
-        "FFmpeg to potężna platforma multimedialna wymagana do wypalania napisów do filmów. Pobieranie zajmuje około ~200MB i zostanie zainstalowane automatycznie.",
-      wypalarkaFfmpegSuccessDesc:
-        "FFmpeg został pomyślnie zainstalowany. Możesz teraz korzystać z funkcji wypalania napisów.",
-      wypalarkaFfmpegErrorUnknown:
-        "Wystąpił nieznany błąd podczas pobierania.",
-      wypalarkaFfmpegDownloadingStatus: "Pobieranie",
-      wypalarkaFfmpegStartingDownload: "Rozpoczynanie pobierania...",
       // Auto-update UI
       updateAvailableTitle: "Dostępna aktualizacja",
       updateReadyTitle: "Aktualizacja gotowa",
@@ -251,20 +42,6 @@ export const translations = {
       changelogNoReleases: "Brak wydań do wyświetlenia",
       changelogNoNotes: "Brak notatek dla tego wydania",
       changelogRetry: "Spróbuj ponownie",
-      // Output defaults UI
-      outputDefaults: "Domyślne wyjście",
-      saveLocation: "Miejsce zapisu",
-      saveSameAsInput: "Jak plik źródłowy",
-      saveCustomFolder: "Własny folder",
-      saveInputSubfolder: "Folder 'wypalone' obok pliku",
-      chooseFolder: "Wybierz folder",
-      noFolderSelected: "Nie wybrano",
-      choose: "Wybierz",
-      filenamePrefix: "Prefiks nazwy pliku",
-      saveOutputDefaults: "Zapisz domyślne",
-      saving: "Zapisywanie...",
-      saved: "Zapisano domyślne",
-      saveFailed: "Nie udało się zapisać",
       // File Upload Section
       importFile: "Importuj plik ASS",
       exportFile: "Eksportuj ASS",
@@ -328,21 +105,6 @@ export const translations = {
       referenceFileLoaded: "Plik referencyjny wczytany",
       timingSyncApplied: "Timing zastosowany do {{count}} linii",
       closeDialog: "Zamknij",
-      // Notifications (used in main process)
-      notificationEncodingCompleteTitle: "Wypalanie zakończone!",
-      notificationEncodingCompleteBody: "Plik {{fileName}} został pomyślnie przetworzony.",
-      notificationQueueCompleteTitle: "Kolejka zakończona!",
-      notificationQueueCompleteBody: "Przetworzono {{count}} plik.",
-      notificationQueueCompleteBody_few: "Przetworzono {{count}} pliki.",
-      notificationQueueCompleteBody_many: "Przetworzono {{count}} plików.",
-      notificationEncodingErrorTitle: "Błąd wypalania",
-      notificationEncodingErrorBody: "Wystąpił błąd podczas przetwarzania {{fileName}}.",
-      notificationQueueErrorTitle: "Błąd kolejki",
-      notificationQueueErrorBody: "{{errorCount}} z {{totalCount}} plików nie udało się przetworzyć.",
-      // Dialogs (used in main process)
-      dialogSelectVideo: "Wybierz plik wideo",
-      dialogSelectSubtitle: "Wybierz plik napisów",
-      dialogSelectOutput: "Wybierz lokalizację pliku wyjściowego",
     },
   },
   en: {
@@ -350,8 +112,6 @@ export const translations = {
       appName: "AG-SubEditor",
       // Navbar
       navSubtitleEditor: "Subtitle Editor",
-      navWypalarka: "Burner",
-      navDisabledWhileProcessing: "Disabled while processing",
       settings: "Settings",
       // Settings Modal
       settingsTitle: "Application Settings",
@@ -367,211 +127,6 @@ export const translations = {
       versionDescription: "Application version information",
       currentVersion: "Current version",
       closeSettings: "Close",
-      // Wypalarka Page
-      wypalarkaTitle: "Subtitle Burner",
-      wypalarkaSubtitle: "Burn subtitles permanently into video file",
-      wypalarkaComingSoon: "Coming Soon",
-      wypalarkaDescription:
-        "This feature is under development and will be available soon.",
-      // Wypalarka Modes
-      wypalarkaSingleMode: "Single File",
-      wypalarkaQueueMode: "Queue",
-      wypalarkaQueueComingSoon: "Queue - Coming Soon",
-      wypalarkaQueueDesc: "Manage batch file processing queue",
-      wypalarkaQueueFeature:
-        "This feature will allow processing multiple files in a queue",
-      // Queue Management
-      wypalarkaQueueTitle: "Processing Queue",
-      wypalarkaQueueAddFiles: "Add Files",
-      wypalarkaQueueAddFilesDesc: "Add video + subtitle pairs to queue",
-      wypalarkaQueueAddFilesEmpty: "Click below to add a file pair",
-      wypalarkaQueueAddPair: "Add Pair",
-      wypalarkaQueuePair: "Pair {{number}}",
-      wypalarkaQueueAddToQueue: "Add to Queue",
-      wypalarkaQueueClearAll: "Clear All",
-      wypalarkaQueueStartQueue: "Start Queue",
-      wypalarkaQueuePause: "Stop Queue",
-      wypalarkaQueueResume: "Start Queue",
-      wypalarkaQueueEmpty: "Queue is empty",
-      wypalarkaQueueRemoveItem: "Remove from queue",
-      wypalarkaQueueTotal: "Total",
-      wypalarkaQueueCompleted: "Completed",
-      wypalarkaQueueFailed: "Failed",
-      wypalarkaQueueItemPending: "Pending",
-      wypalarkaQueueItemProcessing: "Processing",
-      wypalarkaQueueItemCompleted: "Completed",
-      wypalarkaQueueItemError: "Error",
-      wypalarkaQueueItemCancelled: "Cancelled",
-      wypalarkaQueueCurrentlyProcessing: "Currently Processing",
-      wypalarkaQueueOverallProgress: "Queue Progress",
-      wypalarkaQueueProgressDesc: "FFmpeg process logs for current item",
-      // File Input
-      wypalarkaVideoFile: "Video File",
-      wypalarkaVideoFileDesc: "Select MKV, MP4 or other video format",
-      wypalarkaSelectVideo: "Select video file",
-      wypalarkaSubtitleFile: "Subtitle File",
-      wypalarkaSubtitleFileDesc: "Select ASS subtitle file",
-      wypalarkaSelectSubtitle: "Select subtitle file",
-      wypalarkaDropHint: "Or drag and drop file here",
-      wypalarkaQueueDropFilesHere: "Drop files here",
-      wypalarkaQueueDropHint:
-        "Drag video and subtitle files - they will be auto-paired",
-      // Unpaired Videos Dialog
-      wypalarkaUnpairedTitle: "No matching subtitles",
-      wypalarkaUnpairedDescription:
-        "No subtitles found for {{count}} video files. Select a subtitle file to apply to all.",
-      wypalarkaUnpairedSelectSubtitle: "Select subtitle",
-      wypalarkaOutputFile: "Output File",
-      wypalarkaOutputFileDesc: "Choose location to save video with subtitles",
-      wypalarkaSelectOutput: "Choose save location",
-      wypalarkaStartProcess: "Start Burning",
-      // Progress Panel
-      wypalarkaProgressTitle: "Processing Progress",
-      wypalarkaProgressDesc: "FFmpeg process logs",
-      wypalarkaProgress: "Progress",
-      wypalarkaFrames: "frames",
-      wypalarkaNoLogs: "No logs - waiting for process to start...",
-      // Status
-      wypalarkaStatusIdle: "Idle",
-      wypalarkaStatusProcessing: "Processing",
-      wypalarkaStatusCompleted: "Completed",
-      wypalarkaStatusError: "Error",
-      // Controls
-      wypalarkaCancel: "Cancel",
-      wypalarkaReset: "Reset",
-      wypalarkaShowInFolder: "Show in Folder",
-      // Settings
-      wypalarkaEncodingSettings: "Encoding Settings",
-      wypalarkaEncodingSettingsDesc: "Adjust quality and performance",
-      // Simple Profiles
-      wypalarkaProfile: "Profile",
-      wypalarkaProfileCustom: "Custom",
-      wypalarkaProfile1080p: "1080p",
-      wypalarkaProfile1080pDownscale: "1080p (downscale from 4K)",
-      wypalarkaProfile1080pCinema: "1080p Cinema (2.39:1)",
-      wypalarkaProfile4k: "4K",
-      wypalarkaProfile4kCinema: "4K Cinema (2.39:1)",
-      wypalarkaProfileDesc:
-        "Choose a ready profile to avoid advanced tuning. You can always switch to Custom.",
-      wypalarkaProfileHelpTitle: "Available profiles:",
-      wypalarkaProfileHelp1080p:
-        "For native 1080p source files (2400k bitrate)",
-      wypalarkaProfileHelp1080pDownscale:
-        "Scales 4K video down to 1080p (2400k bitrate)",
-      wypalarkaProfileHelp1080pCinema:
-        "Cinematic 2.39:1 aspect ratio in 1080p for letterboxed content",
-      wypalarkaProfileHelp4k: "Keeps native 4K resolution (6M bitrate)",
-      wypalarkaProfileHelp4kCinema:
-        "Cinematic 2.39:1 aspect ratio in 4K for letterboxed content",
-      wypalarkaQualityPresetLockedByProfile:
-        'Bitrate is defined by selected profile. Choose "Custom" profile to change.',
-      wypalarkaQualityPreset: "Quality Preset",
-      wypalarkaQualityUltra: "Ultra (6000k) - Best quality",
-      wypalarkaQualityHigh: "High (4000k) - Great quality",
-      wypalarkaQualityMedium: "Medium (2400k) - Balanced",
-      wypalarkaQualityLow: "Low (1200k) - Small file",
-      wypalarkaQualityCustom: "Custom - Set bitrate",
-      wypalarkaCustomBitrate: "Custom bitrate",
-      wypalarkaCustomBitrateDesc: "e.g. 3000k or 5M",
-      bitrateNotUsedCQVBRHQ: "Bitrate is not used in CQ/VBR HQ modes.",
-      wypalarkaHardwareAccel: "Hardware Acceleration",
-      wypalarkaHardwareAccelDesc:
-        "Use GPU for faster encoding (NVIDIA/Intel/AMD)",
-      wypalarkaGpuAvailable: "GPU available",
-      wypalarkaGpuNotAvailable: "GPU not available",
-      wypalarkaGpuDetecting: "Detecting GPU...",
-      wypalarkaGpuInfo: "GPU",
-      wypalarkaGpuSetupTitle: "How to enable GPU acceleration:",
-      wypalarkaGpuSetup1: "Install latest graphics card drivers",
-      wypalarkaGpuSetup2: "For NVIDIA: Install CUDA Toolkit",
-      wypalarkaGpuSetup3: "Restart the application after installation",
-      wypalarkaGpuDownload: "Download CUDA Toolkit",
-      // Advanced Encoder Settings
-      wypalarkaEncoderCodec: "Codec",
-      wypalarkaEncoderCodecDesc:
-        "H.264: best compatibility with all devices and platforms (including Google Drive).",
-      wypalarkaEncoderPreset: "Preset",
-      wypalarkaEncoderPresetP1: "p1 (fastest)",
-      wypalarkaEncoderPresetP2: "p2",
-      wypalarkaEncoderPresetP3: "p3",
-      wypalarkaEncoderPresetP4: "p4 (balanced)",
-      wypalarkaEncoderPresetP5: "p5",
-      wypalarkaEncoderPresetP6: "p6",
-      wypalarkaEncoderPresetP7: "p7 (highest quality)",
-      wypalarkaEncoderPresetDesc:
-        "p1 = fastest, p7 = highest quality. p4 is a good balance of speed and quality.",
-      wypalarkaRateControl: "Rate Control",
-      wypalarkaRateControlCQ: "CQ",
-      wypalarkaRateControlVBR: "VBR",
-      wypalarkaRateControlVBRHQ: "VBR HQ",
-      wypalarkaRateControlCBR: "CBR",
-      wypalarkaRateControlDesc:
-        "VBR HQ + CQ recommended for best quality/size. Use CBR only when a strict bitrate is required.",
-      wypalarkaCQ: "CQ",
-      wypalarkaCQDesc:
-        "Lower CQ = higher quality (higher bitrate). Typical range 15–25. Mainly used with CQ/VBR HQ.",
-      wypalarkaSpatialAQ: "Spatial AQ",
-      wypalarkaSpatialAQDesc:
-        "Improves detail allocation in highly textured areas.",
-      wypalarkaTemporalAQ: "Temporal AQ",
-      wypalarkaTemporalAQDesc:
-        "Improves quality in motion by distributing bits across frames.",
-      wypalarkaRcLookahead: "RC Lookahead",
-      wypalarkaRcLookaheadDesc:
-        "Number of future frames RC analyzes. Higher = better decisions at the cost of latency. Typical 0–32.",
-      // Output Conflict
-      wypalarkaConflictTitle: "File already exists",
-      wypalarkaConflictDescription:
-        'Output file "{{fileName}}" already exists. What do you want to do?',
-      wypalarkaConflictOverwrite: "Overwrite existing file",
-      wypalarkaConflictAutoRename: "Use auto-generated name",
-      wypalarkaConflictChooseNew: "Choose different location",
-      // Disk Space Check
-      wypalarkaDiskSpaceTitle: "Insufficient disk space",
-      wypalarkaDiskSpaceDescription:
-        "The target drive may not have enough space for the output file.",
-      wypalarkaDiskSpaceRequired: "Required (estimated)",
-      wypalarkaDiskSpaceAvailable: "Available",
-      wypalarkaDiskSpaceOutputLocation: "Output location",
-      wypalarkaDiskSpaceWarning:
-        "Proceeding may result in a corrupted output file if disk space runs out during encoding.",
-      wypalarkaDiskSpaceChangeLocation: "Change location",
-      wypalarkaDiskSpaceProceedAnyway: "Proceed anyway",
-      wypalarkaDiskSpaceSelectOutput: "Select output location...",
-      wypalarkaDiskSpaceEstimated: "Estimated size",
-      wypalarkaDiskSpaceLowWarning: "Low space!",
-      // Queue Disk Space
-      wypalarkaQueueDiskSpaceTitle: "Disk space issues detected",
-      wypalarkaQueueDiskSpaceDescription:
-        "{{count}} files in the queue may not have sufficient disk space on the target drive.",
-      wypalarkaQueueDiskSpaceWarning:
-        "Proceeding may result in encoding failures or corrupted output files.",
-      // Queue Output Conflict
-      wypalarkaQueueConflictTitle: "Output file conflicts detected",
-      wypalarkaQueueConflictDescription:
-        "{{count}} files in the queue will overwrite existing output files.",
-      wypalarkaQueueConflictAutoRename: "Auto-rename all (add _1, _2, etc.)",
-      wypalarkaQueueConflictOverwrite: "Overwrite all existing files",
-      // FFmpeg Download
-      wypalarkaFfmpegRequired: "FFmpeg is required",
-      wypalarkaFfmpegNotInstalled:
-        "FFmpeg is not installed. Download and install it to use the subtitle burning feature.",
-      wypalarkaFfmpegDownload: "Download FFmpeg",
-      wypalarkaFfmpegDownloading: "Downloading FFmpeg...",
-      wypalarkaFfmpegExtracting: "Extracting FFmpeg...",
-      wypalarkaFfmpegInstalled: "FFmpeg installed successfully!",
-      wypalarkaFfmpegError: "Error downloading FFmpeg",
-      wypalarkaFfmpegDownloadProgress: "Download progress",
-      wypalarkaFfmpegClose: "Close",
-      wypalarkaFfmpegRetry: "Retry",
-      wypalarkaFfmpegDescription:
-        "FFmpeg is a powerful multimedia framework required for burning subtitles into videos. The download is approximately ~200MB and will be installed automatically.",
-      wypalarkaFfmpegSuccessDesc:
-        "FFmpeg has been successfully installed. You can now use the subtitle burning feature.",
-      wypalarkaFfmpegErrorUnknown:
-        "An unknown error occurred during download.",
-      wypalarkaFfmpegDownloadingStatus: "Downloading",
-      wypalarkaFfmpegStartingDownload: "Starting download...",
       // Auto-update UI
       updateAvailableTitle: "Update Available",
       updateReadyTitle: "Update Ready",
@@ -591,20 +146,6 @@ export const translations = {
       changelogNoReleases: "No releases to display",
       changelogNoNotes: "No release notes available",
       changelogRetry: "Retry",
-      // Output defaults UI
-      outputDefaults: "Output defaults",
-      saveLocation: "Save location",
-      saveSameAsInput: "Same as input",
-      saveCustomFolder: "Custom folder",
-      saveInputSubfolder: "'wypalone' subfolder next to input",
-      chooseFolder: "Choose folder",
-      noFolderSelected: "Not selected",
-      choose: "Choose",
-      filenamePrefix: "Filename prefix",
-      saveOutputDefaults: "Save defaults",
-      saving: "Saving...",
-      saved: "Saved",
-      saveFailed: "Save failed",
       // File Upload Section
       importFile: "Import ASS File",
       exportFile: "Export ASS",
@@ -667,20 +208,6 @@ export const translations = {
       referenceFileLoaded: "Reference file loaded",
       timingSyncApplied: "Timing applied to {{count}} lines",
       closeDialog: "Close",
-      // Notifications (used in main process)
-      notificationEncodingCompleteTitle: "Encoding complete!",
-      notificationEncodingCompleteBody: "File {{fileName}} has been successfully processed.",
-      notificationQueueCompleteTitle: "Queue complete!",
-      notificationQueueCompleteBody: "Processed {{count}} file.",
-      notificationQueueCompleteBody_plural: "Processed {{count}} files.",
-      notificationEncodingErrorTitle: "Encoding error",
-      notificationEncodingErrorBody: "An error occurred while processing {{fileName}}.",
-      notificationQueueErrorTitle: "Queue error",
-      notificationQueueErrorBody: "{{errorCount}} of {{totalCount}} files failed to process.",
-      // Dialogs (used in main process)
-      dialogSelectVideo: "Select video file",
-      dialogSelectSubtitle: "Select subtitle file",
-      dialogSelectOutput: "Select output file location",
     },
   },
 } as const;

@@ -24,70 +24,6 @@ interface FileAPI {
   getPathForFile: (file: File) => string;
 }
 
-interface FFmpegProgress {
-  frame: number;
-  fps: number;
-  time: string;
-  bitrate: string;
-  speed: string;
-  percentage: number;
-  eta: string | null;
-}
-
-type LogType = "info" | "success" | "warning" | "error" | "debug" | "metadata";
-
-interface FFmpegStartParams {
-  videoPath: string;
-  subtitlePath: string;
-  outputPath: string;
-  settings?: {
-    // Legacy fields (preserved)
-    bitrate: string;
-    useHardwareAccel?: boolean;
-    // New optional fields for advanced control
-    gpuEncode?: boolean; // replaces useHardwareAccel
-    codec?: "h264";
-    preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
-    qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
-    cq?: number;
-    spatialAQ?: boolean;
-    temporalAQ?: boolean;
-    rcLookahead?: number;
-    scaleWidth?: number;
-    scaleHeight?: number;
-  };
-}
-
-interface FFmpegDownloadProgress {
-  downloadedBytes: number;
-  totalBytes: number;
-  percentage: number;
-  status: "downloading" | "extracting" | "complete" | "error";
-  message?: string;
-}
-
-interface QueueItem {
-  id: string;
-  videoPath: string;
-  videoName: string;
-  subtitlePath: string;
-  subtitleName: string;
-  outputPath: string;
-  status: "pending" | "processing" | "completed" | "error" | "cancelled";
-  progress: FFmpegProgress | null;
-  error?: string;
-  logs: Array<{ log: string; type: LogType }>;
-}
-
-interface QueueStats {
-  total: number;
-  pending: number;
-  processing: number;
-  completed: number;
-  error: number;
-  cancelled: number;
-}
-
 interface DebugAPI {
   log: (
     level:
@@ -98,8 +34,6 @@ interface DebugAPI {
       | "debug"
       | "route"
       | "file"
-      | "ffmpeg"
-      | "queue"
       | "ipc",
     message: string,
     ...args: unknown[]
@@ -111,162 +45,15 @@ interface DebugAPI {
   debug: (message: string, ...args: unknown[]) => void;
   route: (message: string, ...args: unknown[]) => void;
   file: (message: string, ...args: unknown[]) => void;
-  ffmpeg: (message: string, ...args: unknown[]) => void;
-  queue: (message: string, ...args: unknown[]) => void;
   ipc: (message: string, ...args: unknown[]) => void;
-}
-
-interface FFmpegAPI {
-  selectVideoFile: () => Promise<{ filePath: string; fileName: string } | null>;
-  selectSubtitleFile: () => Promise<{
-    filePath: string;
-    fileName: string;
-  } | null>;
-  selectOutputPath: (defaultName: string) => Promise<string | null>;
-  getDefaultOutputPath: (
-    videoPath: string,
-    override?: { prefix?: string; directory?: string | null },
-  ) => Promise<string>;
-  startProcess: (params: FFmpegStartParams) => Promise<{ success: boolean }>;
-  cancelProcess: () => Promise<{ success: boolean; message?: string }>;
-  checkGpu: () => Promise<{ available: boolean; info: string }>;
-  openOutputFolder: (
-    filePath: string,
-  ) => Promise<{ success: boolean; error?: string }>;
-  // Output conflict detection
-  checkOutputExists: (outputPath: string) => Promise<boolean>;
-  resolveOutputConflict: (outputPath: string) => Promise<string>;
-  // Disk Space Check
-  getDiskSpace: (targetPath: string) => Promise<{
-    available: number;
-    total: number;
-    driveLetter: string;
-  }>;
-  getVideoDuration: (videoPath: string) => Promise<number>;
-  checkDiskSpace: (
-    outputPath: string,
-    videoPath: string,
-    settings: {
-      bitrate?: string;
-      qualityMode?: string;
-      cqValue?: number;
-    },
-  ) => Promise<{
-    sufficient: boolean;
-    available: number;
-    required: number;
-    availableFormatted: string;
-    requiredFormatted: string;
-    driveLetter: string;
-  }>;
-  onProgress: (callback: (progress: FFmpegProgress) => void) => () => void;
-  onLog: (
-    callback: (data: { log: string; type: LogType }) => void,
-  ) => () => void;
-  onComplete: (callback: (outputPath: string) => void) => () => void;
-  onError: (callback: (error: string) => void) => () => void;
-  // FFmpeg Download
-  checkInstalled: () => Promise<{ installed: boolean }>;
-  startDownload: () => Promise<{ success: boolean }>;
-  onDownloadProgress: (
-    callback: (progress: FFmpegDownloadProgress) => void,
-  ) => () => void;
-  onDownloadComplete: (callback: () => void) => () => void;
-  onDownloadError: (callback: (error: string) => void) => () => void;
-  // Queue Management
-  queueAddItem: (
-    item: Omit<QueueItem, "id" | "status" | "progress" | "logs">,
-  ) => Promise<{ success: boolean; id: string }>;
-  queueAddItems: (
-    items: Array<Omit<QueueItem, "id" | "status" | "progress" | "logs">>,
-  ) => Promise<{ success: boolean; ids: string[] }>;
-  queueRemoveItem: (
-    id: string,
-  ) => Promise<{ success: boolean; message?: string }>;
-  queueClear: () => Promise<{ success: boolean; message?: string }>;
-  queueReorder: (
-    fromIndex: number,
-    toIndex: number,
-  ) => Promise<{ success: boolean; message?: string }>;
-  queueStart: () => Promise<{ success: boolean; message?: string }>;
-  queuePause: () => Promise<{ success: boolean; message?: string }>;
-  queueResume: () => Promise<{ success: boolean; message?: string }>;
-  queueGetAll: () => Promise<{ queue: QueueItem[] }>;
-  queueGetStats: () => Promise<QueueStats>;
-  queueUpdateSettings: (settings: {
-    // Legacy and basic
-    bitrate: string;
-    useHardwareAccel?: boolean;
-    // Extended (optional)
-    gpuEncode?: boolean;
-    codec?: "h264";
-    preset?: "p1" | "p2" | "p3" | "p4" | "p5" | "p6" | "p7";
-    qualityMode?: "cq" | "vbr" | "vbr_hq" | "cbr";
-    cq?: number;
-    spatialAQ?: boolean;
-    temporalAQ?: boolean;
-    rcLookahead?: number;
-    scaleWidth?: number;
-    scaleHeight?: number;
-  }) => Promise<{ success: boolean }>;
-  queueSelectFiles: () => Promise<{
-    success: boolean;
-    files: Array<{ filePath: string; fileName: string }>;
-  }>;
-  queueUpdateItemOutput: (
-    itemId: string,
-    newOutputPath: string,
-  ) => Promise<{ success: boolean }>;
-  // Queue Event Listeners
-  onQueueUpdate: (callback: (queue: QueueItem[]) => void) => () => void;
-  onQueueItemUpdate: (callback: (item: QueueItem) => void) => () => void;
-  onQueueItemProgress: (
-    callback: (data: { itemId: string; progress: FFmpegProgress }) => void,
-  ) => () => void;
-  onQueueItemLog: (
-    callback: (data: { itemId: string; log: string; type: LogType }) => void,
-  ) => () => void;
-  onQueueItemComplete: (
-    callback: (data: { itemId: string; outputPath: string }) => void,
-  ) => () => void;
-  onQueueItemError: (
-    callback: (data: { itemId: string; error: string }) => void,
-  ) => () => void;
-  onQueueComplete: (callback: () => void) => () => void;
 }
 
 declare interface Window {
   themeMode: ThemeModeContext;
   electronWindow: ElectronWindow;
   fileAPI: FileAPI;
-  ffmpegAPI: FFmpegAPI;
   debugAPI: DebugAPI;
   settingsAPI: {
-    getAll: () => Promise<any>;
-    getOutput: () => Promise<{
-      locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
-      customFolder: string | null;
-      filenamePrefix: string;
-    }>;
-    updateOutput: (
-      partial: Partial<{
-        locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
-        customFolder: string | null;
-        filenamePrefix: string;
-      }>,
-    ) => Promise<{
-      locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
-      customFolder: string | null;
-      filenamePrefix: string;
-    }>;
-    selectOutputFolder: () => Promise<string | null>;
-    onOutputUpdated: (
-      callback: (output: {
-        locationMode: "same_as_input" | "custom_folder" | "input_subfolder";
-        customFolder: string | null;
-        filenamePrefix: string;
-      }) => void,
-    ) => () => void;
     getLanguage: () => Promise<"pl" | "en">;
     setLanguage: (lang: "pl" | "en") => Promise<"pl" | "en">;
   };

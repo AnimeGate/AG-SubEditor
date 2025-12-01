@@ -15,8 +15,6 @@ export function exposeDebugContext(): void {
         | "debug"
         | "route"
         | "file"
-        | "ffmpeg"
-        | "queue"
         | "ipc",
       message: string,
       ...args: unknown[]
@@ -50,14 +48,6 @@ export function exposeDebugContext(): void {
 
     file: (message: string, ...args: unknown[]) => {
       ipcRenderer.send(DEBUG_CHANNELS.LOG, { level: "file", message, args });
-    },
-
-    ffmpeg: (message: string, ...args: unknown[]) => {
-      ipcRenderer.send(DEBUG_CHANNELS.LOG, { level: "ffmpeg", message, args });
-    },
-
-    queue: (message: string, ...args: unknown[]) => {
-      ipcRenderer.send(DEBUG_CHANNELS.LOG, { level: "queue", message, args });
     },
 
     ipc: (message: string, ...args: unknown[]) => {

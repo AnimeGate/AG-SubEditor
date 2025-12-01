@@ -8,7 +8,6 @@ A professional ASS (Advanced SubStation Alpha) subtitle editor built with Electr
 - **Time Adjustment**: Shift start/end times by milliseconds or seconds
 - **Selective Editing**: Apply timing changes to selected lines or all subtitles
 - **Format Preservation**: Maintains all ASS metadata, styles, and formatting
-- **Subtitle Burner**: Burn subtitles permanently into video files
 - **Theme Support**: Light and dark themes
 - **Localization**: Polish and English language support
 - **Auto Updates**: Automatic updates via GitHub Releases

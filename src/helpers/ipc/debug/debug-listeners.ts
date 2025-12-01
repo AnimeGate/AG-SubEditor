@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { DEBUG_CHANNELS } from "./debug-channels";
-import { debugLog, sendToDebugConsole } from "../../debug-mode";
+import { debugLog } from "../../debug-mode";
 
 /**
  * Register debug IPC listeners
@@ -20,8 +20,6 @@ export function registerDebugListeners(_mainWindow: BrowserWindow): void {
           | "debug"
           | "route"
           | "file"
-          | "ffmpeg"
-          | "queue"
           | "ipc";
         message: string;
         args: unknown[];
@@ -51,12 +49,6 @@ export function registerDebugListeners(_mainWindow: BrowserWindow): void {
           break;
         case "file":
           debugLog.file(message, ...args);
-          break;
-        case "ffmpeg":
-          debugLog.ffmpeg(message, ...args);
-          break;
-        case "queue":
-          debugLog.queue(message, ...args);
           break;
         case "ipc":
           debugLog.ipc(message, ...args);

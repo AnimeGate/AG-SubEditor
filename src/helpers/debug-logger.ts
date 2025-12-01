@@ -52,24 +52,6 @@ export const debugLog = {
   },
 
   /**
-   * Log FFmpeg operations (unfiltered logs)
-   */
-  ffmpeg: (message: string, ...args: unknown[]) => {
-    if (window.debugAPI) {
-      window.debugAPI.ffmpeg(message, ...args);
-    }
-  },
-
-  /**
-   * Log queue operations
-   */
-  queue: (message: string, ...args: unknown[]) => {
-    if (window.debugAPI) {
-      window.debugAPI.queue(message, ...args);
-    }
-  },
-
-  /**
    * Log IPC operations
    */
   ipc: (message: string, ...args: unknown[]) => {

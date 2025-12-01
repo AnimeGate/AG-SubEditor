@@ -327,10 +327,10 @@ AG-SubEditor.exe --debug
 
 **What happens when enabled:**
 
-- ✅ Separate debug console window opens
-- ✅ DevTools auto-opens in main window
-- ✅ All logs sent to three places: console window, terminal, and log file
-- ✅ Logs saved to `%APPDATA%\ag-subeditor\logs\debug.log`
+- Separate debug console window opens
+- DevTools auto-opens in main window
+- All logs sent to three places: console window, terminal, and log file
+- Logs saved to `%APPDATA%\ag-subeditor\logs\debug.log`
 
 ### Log Categories
 
@@ -343,8 +343,6 @@ The debug system uses categorized logging:
 - **debug** - Debug information (gray)
 - **route** - Page navigation (purple)
 - **file** - File operations (cyan)
-- **ffmpeg** - FFmpeg output, unfiltered (orange-red)
-- **queue** - Queue operations (orange)
 - **ipc** - IPC communication (green)
 
 ### Adding Debug Logs
@@ -357,10 +355,8 @@ import { debugLog } from "./helpers/debug-mode";
 debugLog.info("Creating main window...");
 debugLog.success("Window created successfully");
 debugLog.error("Failed to load file");
-debugLog.route("Navigated to /wypalarka");
+debugLog.route("Navigated to /settings");
 debugLog.file("Loading subtitle file: example.ass (1024 bytes)");
-debugLog.ffmpeg("ffmpeg version 2024.12.11-full_build...");
-debugLog.queue("Processing item: video.mkv (ID: 12345)");
 ```
 
 **In Renderer Process:**
@@ -368,9 +364,8 @@ debugLog.queue("Processing item: video.mkv (ID: 12345)");
 ```typescript
 import { debugLog } from "@/helpers/debug-logger";
 
-debugLog.file(`Selected video file: ${fileName}`);
-debugLog.queue(`Adding ${files.length} items to queue`);
-debugLog.route("Navigated to: /wypalarka");
+debugLog.file(`Selected file: ${fileName}`);
+debugLog.route("Navigated to: /");
 ```
 
 ### Adding New Log Categories
@@ -419,8 +414,6 @@ interface DebugAPI {
       | "debug"
       | "route"
       | "file"
-      | "ffmpeg"
-      | "queue"
       | "ipc"
       | "database",
     message: string,
