@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip";
 import SettingsModal from "./SettingsModal";
 import { ChangelogHistoryDialog } from "./ChangelogHistoryDialog";
-import { FileText, Flame, Table2 } from "lucide-react";
+import { FileText, Flame } from "lucide-react";
 import { debugLog } from "@/helpers/debug-logger";
 import { useProcessing } from "@/contexts/ProcessingContext";
 
@@ -78,27 +78,6 @@ export default function Navbar() {
                   </span>
                 </TooltipTrigger>
                 {isProcessing && !isActive("/wypalarka") && (
-                  <TooltipContent>{t("navDisabledWhileProcessing")}</TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Link to="/tabelka" disabled={isProcessing}>
-                      <Button
-                        variant={isActive("/tabelka") ? "default" : "ghost"}
-                        className="gap-2"
-                        disabled={isProcessing && !isActive("/tabelka")}
-                      >
-                        <Table2 className="h-4 w-4" />
-                        {t("navTabelka")}
-                      </Button>
-                    </Link>
-                  </span>
-                </TooltipTrigger>
-                {isProcessing && !isActive("/tabelka") && (
                   <TooltipContent>{t("navDisabledWhileProcessing")}</TooltipContent>
                 )}
               </Tooltip>
